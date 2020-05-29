@@ -1,0 +1,71 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  color: white;
+  background-color: #090A0B;
+}
+
+form {
+  background: #131516;
+  padding: 3px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 3em;
+}
+
+form input {
+  border: 0;
+  padding: 10px;
+  width: 80%;
+  margin-right: 0%;
+  margin-left: 5%;
+  background-color: transparent;
+  color: white;
+  transition: 0.2s;
+  transform: translateY(-10px);
+  border-bottom: solid 2px transparent;
+  font-family: 'Roboto', sans-serif;
+}
+
+form button {
+  width: 9%;
+  background: transparent;
+  border: none;
+  padding: 10px;
+  color: #3772FF;
+}
+
+#messages {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+#messages li {
+  padding-top: 1em;
+  padding-bottom: 1em;
+  padding-left: 2em;
+}
+
+#messages li:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+input:focus {
+  border-bottom: solid 2px #1C1F22;
+  transition: 0.2s;
+}
+
+button:active {
+  color: #2274A5;
+}
+
+input:focus, textarea:focus, select:focus, button:focus {
+  outline: none;
+}

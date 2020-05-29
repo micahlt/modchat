@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Modchat - Realtime Moderated Chat</title>
+  <link rel="stylesheet" href="/style.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <ul id="messages"></ul>
+  <form action="" id="form">
+    <input id="m" autocomplete="off" /><button><span class="material-icons">
+        send
+      </span></button>
+  </form>
+
+  <div class="register">
+    <h1>Register with Scratch</h1>
+    <form action="" id="username">
+      <input id="username-input"></input>
+      <button><span class="material-icons">
+          send
+        </span></button>
+    </form>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/scripts/main.js">
+  </script>
+</body>
+
+</html>

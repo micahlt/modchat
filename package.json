@@ -1,0 +1,25 @@
+{
+  "name": "modchat",
+  "version": "0.1.1",
+  "description": "A moderated chat, OUTSIDE of Scratch",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/micahlt/modchat.git"
+  },
+  "author": "Micah Lindley",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/micahlt/modchat/issues"
+  },
+  "homepage": "https://github.com/micahlt/modchat#readme",
+  "dependencies": {
+    "bad-words": "^3.0.3",
+    "crabby-grab": "^1.0.5",
+    "express": "^4.17.1",
+    "socket.io": "^2.3.0"
+  }
+}

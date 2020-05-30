@@ -10,7 +10,7 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 io.on('connection', (socket) => {
-  console.log('a user connected: ' /* + user */ );
+  console.log('a user connected' /* + user */ );
   socket.on('chatMessage', (msg) => {
     console.log('message: ' + filter.clean(msg));
 
@@ -20,6 +20,6 @@ io.on('connection', (socket) => {
     console.log('user disconnected');
   });
 });
-http.listen(3001, () => {
-  console.log('listening on port 3001');
+http.listen(3000, () => {
+  console.log('listening on port 3000');
 });

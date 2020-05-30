@@ -20,6 +20,6 @@ io.on('connection', (socket) => {
     console.log('user disconnected');
   });
 });
-http.listen(3000, () => {
+http.listen((process.env.PORT || 80), () => {
   console.log('listening on port 3000');
 });

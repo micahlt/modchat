@@ -20,6 +20,12 @@
     "bad-words": "^3.0.3",
     "crabby-grab": "^1.0.5",
     "express": "^4.17.1",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.3.0",
+    "uws": "^10.148.1"
+  },
+  "devDependencies": {
+    "@now/node": "^1.6.1",
+    "cssnano": "^4.1.10",
+    "marked": "^1.1.0"
   }
 }

@@ -15,8 +15,11 @@ var filter = new Filter(); // set up the filter
 var svAppId = "4205845"; // register SV app id
 var svAppSecret = "58402c158faf27abf7e89e723672d315c9a7bf40be0e7cb6bae2d8dcde886a0b"; // register SV app secret (token)
 app.use(express.static(__dirname + '/public')); // tell express where to get public assets
-app.get('/', (req, res) => { // set root location to index.html
+app.get('/chat', (req, res) => { // set root location to index.html
   res.sendFile(__dirname + '/index.html');
+});
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/home.html');
 });
 io.on('connection', (socket) => { // handle a user connecting
   var currentRoom; // make a placeholder for the room name

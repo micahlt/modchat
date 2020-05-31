@@ -35,7 +35,7 @@ document.getElementById("changeRoom").addEventListener('click', function() {
 document.getElementById("roomName").addEventListener("submit", function(event) {
   event.stopImmediatePropagation(); // stop reloads
   event.preventDefault(); // stop reloads
-  window.location.replace("https://modchat-app.herokuapp.com/?r=" + document.getElementById("r").value);
+  window.location.replace("https://modchat-app.herokuapp.com/chat/?r=" + document.getElementById("r").value);
 })
 
 document.getElementById("form").addEventListener("submit", function(event) { // listen for submits on the message sending form

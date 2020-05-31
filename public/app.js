@@ -41,7 +41,11 @@ document.getElementById("username").addEventListener("submit", function(event) {
 });
 socket.on('chatMessage', function(object) { // handle recieving chat messages
   var m = document.createElement('li'); // create an element to display the message
-  m.innerText = object.message + "  -" + object.sender + "#" + object.id; // add the message text to that element
+  var img = document.createElement('img'); // create an element to display the sender's profile picture
+  img.src = "https://cdn2.scratch.mit.edu/get_image/user/" + object.id + "_60x60.png";
+  img.classList.add("pfp");
+  m.innerText = object.message; // add the message text to that element
+  m.appendChild(img);
   document.getElementById('messages').appendChild(m); // append the message to the message area
 });
 

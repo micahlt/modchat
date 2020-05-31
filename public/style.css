@@ -129,3 +129,12 @@ button:focus {
   top: 0;
   left: 0;
 }
+
+.pfp {
+  float: left;
+  position: relative;
+  top: -.75em;
+  left: -1em;
+  height: 2.5em;
+  border-radius: 100%;
+}

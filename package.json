@@ -1,6 +1,6 @@
 {
   "name": "modchat",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A moderated chat, OUTSIDE of Scratch",
   "main": "index.js",
   "scripts": {
@@ -19,8 +19,10 @@
   "homepage": "https://github.com/micahlt/modchat#readme",
   "dependencies": {
     "bad-words": "^3.0.3",
+    "btoa": "^1.2.1",
     "crabby-grab": "^1.0.5",
     "express": "^4.17.1",
+    "node-fetch": "^2.6.0",
     "socket.io": "^2.3.0",
     "uws": "^10.148.1"
   },

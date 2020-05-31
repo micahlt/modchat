@@ -17,8 +17,11 @@ if (userObject) { // if the user object contains a name
   document.getElementsByClassName("blocker")[0].style.display = "none"; // hide the blocker
   document.getElementsByClassName("register")[0].style.display = "none"; // hide the registration popup
 }
-
-socket.emit('roomChange', getParams(window.location.href).r);
+if (!(getParams(window.location.href).r)) {
+  window.location.replace(window.location.href + "?r=def");
+} else {
+  socket.emit('roomChange', getParams(window.location.href).r);
+}
 
 document.getElementById("form").addEventListener("submit", function(event) { // listen for submits on the message sending form
   event.stopImmediatePropagation(); // stop reloads

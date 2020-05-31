@@ -1,5 +1,7 @@
 # `modchat`
 Modchat (stylized modchat) is a moderated real-time chatting platform designed for [Scratch](https://scratch.mit.edu/) users.
+
+![https://i.ibb.co/RP159Ng/Modchat-on-G7.png](https://i.ibb.co/RP159Ng/Modchat-on-G7.png)
 ## For Users
 Modchat uses a secure server combined with [ScratchVerifier](http://scratchverifier.ddns.net:8888/site) to sign you in.  While this is very safe, Modchat is currently under development and you could potentially expose your verification token to code contributors while they are working on it.  If you want to stay safe, we reccommend that you not use Modchat until a stable, secured version is released.
 

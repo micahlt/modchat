@@ -3,6 +3,11 @@ global.fetch = require("node-fetch"); // for web requests
 global.btoa = require('btoa'); // for SV authenication
 var express = require('express'); // for main server
 var Filter = require('bad-words'); // for filtering messages
+var Datastore = require('nedb') // for username info storage
+var db = new Datastore({
+  filename: 'users.db',
+  autoload: true
+});
 var app = express(); // define the app var
 var http = require('http').createServer(app); // init http server
 var io = require('socket.io')(http); // attach socket to the server
@@ -10,7 +15,6 @@ var filter = new Filter(); // set up the filter
 var svAppId = "4205845"; // register SV app id
 var svAppSecret = "58402c158faf27abf7e89e723672d315c9a7bf40be0e7cb6bae2d8dcde886a0b"; // register SV app secret (token)
 app.use(express.static(__dirname + '/public')); // tell express where to get public assets
-
 app.get('/', (req, res) => { // set root location to index.html
   res.sendFile(__dirname + '/index.html');
 });
@@ -23,8 +27,40 @@ io.on('connection', (socket) => { // handle a user connecting
     console.log('Client switched rooms to ' + room); // ROP
   });
   console.log('a user connected' /* + user */ ); // ROP
-  socket.on('chatMessage', (msg) => { // handle the server recieving messages
-    io.to(currentRoom).emit('chatMessage', filter.clean(msg)); // clean and then send the message to all clients in the current room
+  socket.on('chatMessage', (object) => { // handle the server recieving messages
+    var locatedDoc = db.find({
+      username: object.sender
+    }, function(err, docs) {
+      if (docs[0] == null) {
+        console.log("adding user " + object.sender);
+        fetch('https://api.scratch.mit.edu/users/' + object.sender)
+          .then(response => response.json())
+          .then(data => {
+            var userDoc = {
+              username: object.sender,
+              id: data.id
+            }
+            db.insert(userDoc, function(err, docc) {
+              io.to(currentRoom).emit('chatMessage', {
+                "message": filter.clean(object.message),
+                "sender": object.sender,
+                "id": data.id
+              }); // clean and then send the message to all clients in the current room
+            });
+          })
+      } else {
+        var locateDoc = db.find({
+          username: object.sender
+        }, function(err, doc) {
+          console.log("user exists now");
+          io.to(currentRoom).emit('chatMessage', {
+            "message": filter.clean(object.message),
+            "sender": object.sender,
+            "id": doc[0].id
+          }); // clean and then send the message to all clients in the current room
+        })
+      }
+    });
   });
   socket.on('userRegister', (msg) => { // handle user registration
     fetch('https://api.scratch.mit.edu/users/' + msg) // make a request to the Scratch API

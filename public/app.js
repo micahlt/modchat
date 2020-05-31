@@ -11,8 +11,8 @@ var getParams = function(url) { // set up the getParams function
   }
   return params; // return the parameters as an object
 };
-var userObject = window.localStorage.getItem("userObject"); // grab the user object from localStorage if it exists
-if (userObject) { // if the user object contains a name
+var userName = window.localStorage.getItem("userName"); // grab the user object from localStorage if it exists
+if (userName) { // if the user object contains a name
   console.log("User has already verified"); // ROP
   document.getElementsByClassName("blocker")[0].style.display = "none"; // hide the blocker
   document.getElementsByClassName("register")[0].style.display = "none"; // hide the registration popup
@@ -26,7 +26,10 @@ if (!(getParams(window.location.href).r)) {
 document.getElementById("form").addEventListener("submit", function(event) { // listen for submits on the message sending form
   event.stopImmediatePropagation(); // stop reloads
   event.preventDefault(); // stop reloads
-  socket.emit('chatMessage', document.getElementById("m").value); // send the chat message from the form value to the server
+  socket.emit('chatMessage', { // send the chat message from the form value to the server
+    "message": document.getElementById("m").value,
+    "sender": window.localStorage.getItem("userName")
+  });
   document.getElementById("m").value = ""; // reset the chat form's value
   return false;
 });
@@ -36,9 +39,9 @@ document.getElementById("username").addEventListener("submit", function(event) {
   socket.emit('userRegister', document.getElementById("username-input").value); // send the username to verify to the server
   return false;
 });
-socket.on('chatMessage', function(msg) { // handle recieving chat messages
+socket.on('chatMessage', function(object) { // handle recieving chat messages
   var m = document.createElement('li'); // create an element to display the message
-  m.innerText = msg; // add the message text to that element
+  m.innerText = object.message + "  -" + object.sender + "#" + object.id; // add the message text to that element
   document.getElementById('messages').appendChild(m); // append the message to the message area
 });
 
@@ -51,10 +54,8 @@ socket.on('svCodeToVerify', function(msg) { // handle recieving the SV code (aft
 });
 
 socket.on('verificationSuccess', function(msg) { // handle a successful verification with SV
-  window.localStorage.setItem("userObject", {
-    "name": msg,
-    "verified": true
-  });
+  console.log("Verified!"); // ROP
+  window.localStorage.setItem("userName", msg);
   window.location.reload();
 })
 

@@ -17,10 +17,14 @@ if (userName) { // if the user object contains a name
   document.getElementsByClassName("blocker")[0].style.display = "none"; // hide the blocker
   document.getElementsByClassName("register")[0].style.display = "none"; // hide the registration popup
 }
+window.onload = (event) => {
+  socket.emit('roomChange', {
+    "room": getParams(window.location.href).r,
+    "user": window.localStorage.getItem("userName")
+  });
+}
 if (!(getParams(window.location.href).r)) {
   window.location.replace(window.location.href + "?r=def");
-} else {
-  socket.emit('roomChange', getParams(window.location.href).r);
 }
 
 document.getElementById("changeRoom").addEventListener('click', function() {
@@ -61,6 +65,20 @@ socket.on('chatMessage', function(object) { // handle recieving chat messages
   m.innerText = object.message; // add the message text to that element
   m.appendChild(img);
   m.setAttribute('title', object.sender);
+  document.getElementById('messages').appendChild(m); // append the message to the message area
+});
+
+socket.on('botMessage', function(msg) { // handle recieving chat messages
+  var m = document.createElement('li'); // create an element to display the message
+  var img = document.createElement('img'); // create an element to display the sender's profile picture
+  img.src = "https://cdn2.scratch.mit.edu/get_image/user/61090562_60x60.png";
+  img.classList.add("pfp");
+  img.onclick = function() {
+    window.open('https://scratch.mit.edu/users/Modchat-Bot', '_blank');
+  }
+  m.innerHTML = msg; // add the message text to that element
+  m.appendChild(img);
+  m.setAttribute('title', 'Modchat Bot');
   document.getElementById('messages').appendChild(m); // append the message to the message area
 });
 

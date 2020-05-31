@@ -20,11 +20,12 @@ app.get('/', (req, res) => { // set root location to index.html
 });
 io.on('connection', (socket) => { // handle a user connecting
   var currentRoom; // make a placeholder for the room name
-  socket.on('roomChange', (room) => { // handle a change in rooms
+  socket.on('roomChange', (object) => { // handle a change in rooms
+    console.log("User " + object.user + " to the " + object.room + " room"); // ROP
     socket.leave(currentRoom); // leave the current room
-    currentRoom = room; // set the current room to the room sent by the client
+    currentRoom = object.room; // set the current room to the room sent by the client
     socket.join(currentRoom); // join the new current room
-    console.log('Client switched rooms to ' + room); // ROP
+    io.to(currentRoom).emit('botMessage', "🎉 Welcome <b>" + object.user + "</b> to the <b>" + currentRoom + "</b> room! 🎉");
   });
   console.log('a user connected' /* + user */ ); // ROP
   socket.on('chatMessage', (object) => { // handle the server recieving messages

@@ -73,7 +73,7 @@ button:focus {
   outline: none;
 }
 
-.register {
+.register, #roomName {
   background-color: #28292A;
   position: fixed;
   top: 50%;
@@ -92,7 +92,7 @@ button:focus {
   padding-bottom: 1em;
 }
 
-#username-input {
+#username-input, #r {
   border: none;
   background-color: transparent;
   border-bottom: 2px solid rgb(28, 31, 34);
@@ -100,13 +100,13 @@ button:focus {
   color: white;
 }
 
-#username button {
+#username button, #roomName button {
   background: transparent;
   border: none;
   color: #3772FF;
 }
 
-#username button:active {
+#username button:active, #roomName button:active {
   color: #2274A5;
 }
 
@@ -118,6 +118,10 @@ button:focus {
   display: none;
   color: white;
   font-family: 'Roboto', sans-serif;
+}
+
+#roomName {
+  display: none;
 }
 
 .blocker {
@@ -137,4 +141,19 @@ button:focus {
   left: -1em;
   height: 2.5em;
   border-radius: 100%;
+  cursor: pointer;
+}
+
+#changeRoom {
+  background: #131516;
+  padding: 1em;
+  text-transform: uppercase;
+  position: absolute;
+  top: 0.5em;
+  right: 0.5em;
+  color: white;
+  text-decoration: none;
+  border-radius: 0.3em;
+  box-shadow: -0.5em -0.5em 1em rgba(0, 0, 0, 0.5);
+  padding: 0.5em;
 }

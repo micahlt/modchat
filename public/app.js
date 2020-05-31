@@ -23,6 +23,17 @@ if (!(getParams(window.location.href).r)) {
   socket.emit('roomChange', getParams(window.location.href).r);
 }
 
+document.getElementById("changeRoom").addEventListener('click', function() {
+  document.getElementById("roomName").style.display = "block";
+  document.getElementsByClassName("blocker")[0].style.display = "block";
+});
+
+document.getElementById("roomName").addEventListener("submit", function(event) {
+  event.stopImmediatePropagation(); // stop reloads
+  event.preventDefault(); // stop reloads
+  window.location.replace("https://modchat-app.herokuapp.com/?r=" + document.getElementById("r").value);
+})
+
 document.getElementById("form").addEventListener("submit", function(event) { // listen for submits on the message sending form
   event.stopImmediatePropagation(); // stop reloads
   event.preventDefault(); // stop reloads
@@ -44,8 +55,12 @@ socket.on('chatMessage', function(object) { // handle recieving chat messages
   var img = document.createElement('img'); // create an element to display the sender's profile picture
   img.src = "https://cdn2.scratch.mit.edu/get_image/user/" + object.id + "_60x60.png";
   img.classList.add("pfp");
+  img.onclick = function() {
+    window.open('https://scratch.mit.edu/users/' + object.sender, '_blank');
+  }
   m.innerText = object.message; // add the message text to that element
   m.appendChild(img);
+  m.setAttribute('title', object.sender);
   document.getElementById('messages').appendChild(m); // append the message to the message area
 });
 

@@ -1,10 +1,25 @@
 var socket = io(); // define socket
+var getParams = function(url) { // set up the getParams function
+  var params = {}; // set up a params object
+  var parser = document.createElement('a'); // create a link parse
+  parser.href = url; // set the parser's href to the url passed to the function
+  var query = parser.search.substring(1); // query the string
+  var vars = query.split('&'); // split the parameters with an ampersand
+  for (var i = 0; i < vars.length; i++) { // loop through the string
+    var pair = vars[i].split('='); // split into multiple params
+    params[pair[0]] = decodeURIComponent(pair[1]); // decode the component
+  }
+  return params; // return the parameters as an object
+};
 var userObject = window.localStorage.getItem("userObject"); // grab the user object from localStorage if it exists
 if (userObject) { // if the user object contains a name
   console.log("User has already verified"); // ROP
-  document.getElementsByClassName("blocker")[0].style.display = "none";
-  document.getElementsByClassName("register")[0].style.display = "none";
+  document.getElementsByClassName("blocker")[0].style.display = "none"; // hide the blocker
+  document.getElementsByClassName("register")[0].style.display = "none"; // hide the registration popup
 }
+
+socket.emit('roomChange', getParams(window.location.href).r);
+
 document.getElementById("form").addEventListener("submit", function(event) { // listen for submits on the message sending form
   event.stopImmediatePropagation(); // stop reloads
   event.preventDefault(); // stop reloads

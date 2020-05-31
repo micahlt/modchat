@@ -15,9 +15,17 @@ app.get('/', (req, res) => { // set root location to index.html
   res.sendFile(__dirname + '/index.html');
 });
 io.on('connection', (socket) => { // handle a user connecting
+  var currentRoom = 'main'; // set the room name
+  socket.join(currentRoom); // join the main room
+  socket.on('roomChange', (room) => { // handle a change in rooms
+    socket.leave(currentRoom); // leave the current room
+    currentRoom = room; // set the current room to the room sent by the client
+    socket.join(currentRoom); // join the new current room
+    console.log('Client switched rooms to ' + room); // ROP
+  });
   console.log('a user connected' /* + user */ ); // ROP
   socket.on('chatMessage', (msg) => { // handle the server recieving messages
-    io.emit('chatMessage', filter.clean(msg)); // clean and then send the message to all clients
+    io.to(currentRoom).emit('chatMessage', filter.clean(msg)); // clean and then send the message to all clients
   });
   socket.on('userRegister', (msg) => { // handle user registration
     fetch('https://api.scratch.mit.edu/users/' + msg) // make a request to the Scratch API

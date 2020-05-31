@@ -13,3 +13,9 @@ If you're interested in contributing, I'd love to have your help!  I ask that yo
 ### Notes on the codebase
 - Any time you see "ROP" signifies that the line of code should be removed or commented out when the version goes into production (**R**emove **O**n **P**roduction)
 - Any time you see "SV", "sv", or "sV" signifies that that line of code/variable/comment relates to [ScratchVerifier](http://scratchverifier.ddns.net:8888/site).
+
+### Notes on hosting
+- We use [Heroku](https://heroku.com) for hosting.  
+- Currently the real address of the live version of Modchat is [https://modchat-app.herokuapp.com](https://modchat-app.herokuapp.com), but it is also URL masked at [https://modchat.micahlindley.com](https://modchat.micahlindley.com).
+- Due to Heroku free time restrictions, the Modchat web app will shut down for a few days each month since I can't currently pay for premium dynos.
+- I cannot set up a real, unmasked custom domain without setting up a credit card with Heroku, so it'll be awhile, but when we're ready for production I plan on buying https://modchat.app

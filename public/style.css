@@ -64,6 +64,10 @@ body {
   background: var(--transparent);
 }
 
+#messages li:last-child {
+  margin-bottom: 5em;
+}
+
 #m:focus {
   border-bottom: solid 2px #1C1F22;
   transition: 0.2s;
@@ -155,7 +159,7 @@ button:focus {
   background: var(--background-secondary);
   padding: 1em;
   text-transform: uppercase;
-  position: absolute;
+  position: fixed;
   color: var(--text-primary);
   text-decoration: none;
   border-radius: 0.3em;

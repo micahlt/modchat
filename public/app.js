@@ -83,7 +83,9 @@ socket.on('chatMessage', function(object) { // handle recieving chat messages
   m.innerText = object.message; // add the message text to that element
   m.appendChild(img);
   m.setAttribute('title', object.sender);
+  console.log("scrolling");
   document.getElementById('messages').appendChild(m); // append the message to the message area
+  window.scrollBy(0, 1700);
 });
 
 socket.on('botMessage', function(msg) { // handle recieving chat messages

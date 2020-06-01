@@ -20,6 +20,10 @@ if (userName) { // if the user object contains a name
 }
 document.getElementById("changeTheme").addEventListener("click", changeTheme);
 
+if (Notification.permission == "default") {
+  Notification.requestPermission();
+}
+
 function changeTheme() {
   if (window.localStorage.getItem("theme") == "dark") {
     window.localStorage.setItem("theme", "light");
@@ -91,6 +95,10 @@ socket.on('chatMessage', function(object) { // handle recieving chat messages
   window.scrollBy(0, 1700);
   if (document.hidden) {
     document.getElementById("favicon").href = "/fav-msg.png";
+    var notification = new Notification('Modchat', {
+      body: object.sender + " says: '" + object.message + "'",
+      icon: "/fav-normal.png"
+    })
   }
 });
 document.addEventListener("visibilitychange", function() {

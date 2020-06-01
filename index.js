@@ -4,7 +4,7 @@ global.btoa = require('btoa'); // for SV authenication
 var express = require('express'); // for main server
 var Filter = require('bad-words'); // for filtering messages
 var Datastore = require('nedb') // for username info storage
-var db = new Datastore({
+var userDb = new Datastore({
   filename: 'users.db',
   autoload: true
 });
@@ -24,44 +24,46 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => { // handle a user connecting
   var currentRoom; // make a placeholder for the room name
   socket.on('roomChange', (object) => { // handle a change in rooms
-    console.log("User " + object.user + " to the " + object.room + " room"); // ROP
     socket.leave(currentRoom); // leave the current room
     currentRoom = object.room; // set the current room to the room sent by the client
     socket.join(currentRoom); // join the new current room
-    io.to(currentRoom).emit('botMessage', "🎉 Welcome <b>" + object.user + "</b> to the <b>" + currentRoom + "</b> room! 🎉");
+    if (!(object.user == null)) {
+      console.log("User " + object.user + " joined the " + object.room + " room."); // ROP
+      io.to(currentRoom).emit('botMessage', "🎉 Welcome <b>" + object.user + "</b> to the <b>" + currentRoom + "</b> room! 🎉"); // emit a welcome method with the Modchat bot
+    } else {
+      console.log("An unauthorized user is trying to join the " + currentRoom + " room."); // ROP
+    }
   });
-  console.log('a user connected' /* + user */ ); // ROP
   socket.on('chatMessage', (object) => { // handle the server recieving messages
-    var locatedDoc = db.find({
-      username: object.sender
+    var locatedDoc = userDb.find({ // see if the user has a listing in the database; this reduces API requests to Scratch
+      username: object.sender // set the username to find as the message sender's username
     }, function(err, docs) {
-      if (docs[0] == null) {
-        console.log("adding user " + object.sender);
-        fetch('https://api.scratch.mit.edu/users/' + object.sender)
+      if (docs[0] == null) { // if the user does not exist
+        console.log("adding user " + object.sender); // ROP
+        fetch('https://api.scratch.mit.edu/users/' + object.sender) // fetch the user's info from the Scratch API
           .then(response => response.json())
           .then(data => {
-            var userDoc = {
-              username: object.sender,
-              id: data.id
+            var userDoc = { // make a new document object
+              username: object.sender, // set the username as the message sender's name
+              id: data.id // set the user's ID to the ID recieved by the Scratch API
             }
-            db.insert(userDoc, function(err, docc) {
-              io.to(currentRoom).emit('chatMessage', {
-                "message": filter.clean(object.message),
-                "sender": object.sender,
-                "id": data.id
-              }); // clean and then send the message to all clients in the current room
+            userDb.insert(userDoc, function(err, docc) { // insert the document to the database
+              io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
+                "message": filter.clean(object.message), // set the message as a filtered version of the original
+                "sender": object.sender, // set the sender to the sender's username
+                "id": data.id // set the sender's ID from the database
+              });
             });
           })
       } else {
-        var locateDoc = db.find({
-          username: object.sender
+        var locateDoc = userDb.find({ // if the user does exist
+          username: object.sender // set the username to the sender's username
         }, function(err, doc) {
-          console.log("user exists now");
-          io.to(currentRoom).emit('chatMessage', {
-            "message": filter.clean(object.message),
-            "sender": object.sender,
-            "id": doc[0].id
-          }); // clean and then send the message to all clients in the current room
+          io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
+            "message": filter.clean(object.message), // set the message as a filtered version of the original
+            "sender": object.sender, // set the sender to the sender's username
+            "id": doc[0].id // set the sender's ID from the database
+          });
         })
       }
     });

@@ -11,17 +11,35 @@ var getParams = function(url) { // set up the getParams function
   }
   return params; // return the parameters as an object
 };
+let root = document.documentElement;
 var userName = window.localStorage.getItem("userName"); // grab the user object from localStorage if it exists
 if (userName) { // if the user object contains a name
   console.log("User has already verified"); // ROP
   document.getElementsByClassName("blocker")[0].style.display = "none"; // hide the blocker
   document.getElementsByClassName("register")[0].style.display = "none"; // hide the registration popup
 }
-window.onload = (event) => {
-  socket.emit('roomChange', {
-    "room": getParams(window.location.href).r,
-    "user": window.localStorage.getItem("userName")
-  });
+document.getElementById("changeTheme").addEventListener("click", changeTheme);
+
+function changeTheme() {
+  if (window.localStorage.getItem("theme") == "dark") {
+    window.localStorage.setItem("theme", "light");
+    root.style.setProperty("--background-primary", "white");
+    root.style.setProperty("--background-secondary", "rgb(245, 245, 245)");
+    root.style.setProperty("--text-primary", "#0a0a0a");
+    root.style.setProperty("--transparent", "rgba(0, 0, 0, 0.02)");
+  } else if (window.localStorage.getItem("theme") == "light") {
+    window.localStorage.setItem("theme", "dark");
+    root.style.setProperty("--background-primary", "#090A0B");
+    root.style.setProperty("--background-secondary", "#131516");
+    root.style.setProperty("--text-primary", "#ffffff");
+    root.style.setProperty("--transparent", "rgba(255, 255, 255, 0.02)");
+  } else {
+    window.localStorage.setItem("theme", "light");
+    root.style.setProperty("--background-primary", "white");
+    root.style.setProperty("--background-secondary", "rgb(245, 245, 245)");
+    root.style.setProperty("--text-primary", "#0a0a0a");
+    root.style.setProperty("--transparent", "rgba(0, 0, 0, 0.02)");
+  }
 }
 if (!(getParams(window.location.href).r)) {
   window.location.replace(window.location.href + "?r=def");
@@ -99,3 +117,15 @@ socket.on('verificationSuccess', function(msg) { // handle a successful verifica
 function setUsername() {
   socket.emit('setUsername', document.getElementById('name').value); // tell the server to begin SV registration
 };
+
+socket.on('disconnect', function() {
+  console.log('user disconnected'); // ROP
+});
+
+socket.on('connect', function() {
+  console.log('user connected'); // ROP
+  socket.emit('roomChange', {
+    "room": getParams(window.location.href).r,
+    "user": window.localStorage.getItem("userName")
+  });
+});

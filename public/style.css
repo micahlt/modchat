@@ -155,6 +155,10 @@ button:focus {
   cursor: pointer;
 }
 
+li p {
+  padding-left: 2.5em;
+}
+
 .topbtn {
   background: var(--background-secondary);
   padding: 1em;

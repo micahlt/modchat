@@ -59,10 +59,12 @@ document.getElementById("roomName").addEventListener("submit", function(event) {
 document.getElementById("form").addEventListener("submit", function(event) { // listen for submits on the message sending form
   event.stopImmediatePropagation(); // stop reloads
   event.preventDefault(); // stop reloads
-  socket.emit('chatMessage', { // send the chat message from the form value to the server
-    "message": document.getElementById("m").value,
-    "sender": window.localStorage.getItem("userName")
-  });
+  if (!(document.getElementById("m").value.trim() == "")) {
+    socket.emit('chatMessage', { // send the chat message from the form value to the server
+      "message": document.getElementById("m").value,
+      "sender": window.localStorage.getItem("userName")
+    });
+  }
   document.getElementById("m").value = ""; // reset the chat form's value
   return false;
 });
@@ -74,30 +76,33 @@ document.getElementById("username").addEventListener("submit", function(event) {
 });
 socket.on('chatMessage', function(object) { // handle recieving chat messages
   var m = document.createElement('li'); // create an element to display the message
+  var p = document.createElement('p'); // create the actual message
   var img = document.createElement('img'); // create an element to display the sender's profile picture
   img.src = "https://cdn2.scratch.mit.edu/get_image/user/" + object.id + "_60x60.png";
   img.classList.add("pfp");
   img.onclick = function() {
     window.open('https://scratch.mit.edu/users/' + object.sender, '_blank');
   }
-  m.innerText = object.message; // add the message text to that element
+  img.setAttribute('title', object.sender);
+  p.innerText = object.message; // add the message text to that element
   m.appendChild(img);
-  m.setAttribute('title', object.sender);
-  console.log("scrolling");
+  m.appendChild(p);
   document.getElementById('messages').appendChild(m); // append the message to the message area
   window.scrollBy(0, 1700);
 });
 
 socket.on('botMessage', function(msg) { // handle recieving chat messages
   var m = document.createElement('li'); // create an element to display the message
+  var p = document.createElement('p'); // create the actual message
   var img = document.createElement('img'); // create an element to display the sender's profile picture
   img.src = "https://cdn2.scratch.mit.edu/get_image/user/61090562_60x60.png";
   img.classList.add("pfp");
   img.onclick = function() {
     window.open('https://scratch.mit.edu/users/Modchat-Bot', '_blank');
   }
-  m.innerHTML = msg; // add the message text to that element
+  p.innerHTML = msg; // add the message text to that element
   m.appendChild(img);
+  m.appendChild(p);
   m.setAttribute('title', 'Modchat Bot');
   document.getElementById('messages').appendChild(m); // append the message to the message area
 });

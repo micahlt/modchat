@@ -89,8 +89,15 @@ socket.on('chatMessage', function(object) { // handle recieving chat messages
   m.appendChild(p);
   document.getElementById('messages').appendChild(m); // append the message to the message area
   window.scrollBy(0, 1700);
+  if (document.hidden) {
+    document.getElementById("favicon").href = "/fav-msg.png";
+  }
 });
-
+document.addEventListener("visibilitychange", function() {
+  if (document.visibilityState === 'visible') {
+    document.getElementById("favicon").href = "/fav-normal.png";
+  }
+});
 socket.on('botMessage', function(msg) { // handle recieving chat messages
   var m = document.createElement('li'); // create an element to display the message
   var p = document.createElement('p'); // create the actual message
@@ -106,6 +113,9 @@ socket.on('botMessage', function(msg) { // handle recieving chat messages
   m.setAttribute('title', 'Modchat Bot');
   document.getElementById('messages').appendChild(m); // append the message to the message area
   window.scrollBy(0, 1700);
+  if (document.hidden) {
+    document.getElementById("favicon").href = "/fav-msg.png";
+  }
 });
 
 socket.on('svCodeToVerify', function(msg) { // handle recieving the SV code (after triggering the setUsername function)

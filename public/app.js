@@ -105,6 +105,7 @@ socket.on('botMessage', function(msg) { // handle recieving chat messages
   m.appendChild(p);
   m.setAttribute('title', 'Modchat Bot');
   document.getElementById('messages').appendChild(m); // append the message to the message area
+  window.scrollBy(0, 1700);
 });
 
 socket.on('svCodeToVerify', function(msg) { // handle recieving the SV code (after triggering the setUsername function)

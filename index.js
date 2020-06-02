@@ -18,7 +18,7 @@ filter.removeWords(...removeWords); //Remove those from the filter
 let addWords = ['WTF', 'wtf', 'lmao', 'LMAO']; // Any words in this list will be censored.
 filter.addWords(...addWords); //Add those to the filter
 // End Filter Setup
-let bannedList = [];
+let bannedList = ['::ffff:10.35.235.225'];
 let modsList = ['Ekmand', '-Archon-', 'MicahLT'];
 var svAppId = "4205845"; // register SV app id
 var svAppSecret = "58402c158faf27abf7e89e723672d315c9a7bf40be0e7cb6bae2d8dcde886a0b"; // register SV app secret (token)

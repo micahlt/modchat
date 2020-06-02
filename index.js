@@ -30,7 +30,7 @@ io.on('connection', (socket) => { // handle a user connecting
     socket.join(currentRoom); // join the new current room
     if (!(object.user == null)) {
       if (bannedList.includes(object.user)) {
-        window.close();
+        socket.emit('bannedUser', true);
       }
       console.log("User " + object.user + " joined the " + object.room + " room."); // ROP
       io.to(currentRoom).emit('botMessage', "🎉 Welcome <b>" + object.user + "</b> to the <b>" + currentRoom + "</b> room! 🎉"); // emit a welcome method with the Modchat bot

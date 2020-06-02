@@ -177,7 +177,7 @@ function whosTyping() {
   if (usersTyping.length > 0 && usersTyping.length < 2) {
     document.getElementById('typingSection').innerText = usersTyping[0] + " is typing...";
   } else if (usersTyping.length > 1) {
-    document.getElementById('typingSection').innerText = usersTyping[0] + " and " + (usersTyping.length - 1) + "more are typing...";
+    document.getElementById('typingSection').innerText = usersTyping[0] + " and " + (usersTyping.length - 1) + " more are typing...";
   } else {
     document.getElementById('typingSection').innerText = "";
   }

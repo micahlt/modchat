@@ -12,7 +12,7 @@ var app = express(); // define the app var
 var http = require('http').createServer(app); // init http server
 var io = require('socket.io')(http); // attach socket to the server
 var filter = new Filter(); // set up the filter
-let bannedList = ["Cooldude490"];
+let bannedList = ["Cooldude490", "ARandomPerson-"];
 var svAppId = "4205845"; // register SV app id
 var svAppSecret = "58402c158faf27abf7e89e723672d315c9a7bf40be0e7cb6bae2d8dcde886a0b"; // register SV app secret (token)
 app.use(express.static(__dirname + '/public')); // tell express where to get public assets
@@ -31,6 +31,7 @@ io.on('connection', (socket) => { // handle a user connecting
     if (!(object.user == null)) {
       if (bannedList.includes(object.user)) {
         socket.emit('bannedUser', true);
+        socket.leave(currentRoom);
       }
       console.log("User " + object.user + " joined the " + object.room + " room."); // ROP
       io.to(currentRoom).emit('botMessage', "🎉 Welcome <b>" + object.user + "</b> to the <b>" + currentRoom + "</b> room! 🎉"); // emit a welcome method with the Modchat bot

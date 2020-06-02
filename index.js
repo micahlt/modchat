@@ -12,7 +12,7 @@ var app = express(); // define the app var
 var http = require('http').createServer(app); // init http server
 var io = require('socket.io')(http); // attach socket to the server
 var filter = new Filter(); // set up the filter
-let bannedList = ["Cooldude490", "ARandomPerson-", "WhatAmIWorkingOn"];
+let bannedList = ["Cooldude490", "ARandomPerson-", "WhatAmIWorkingOn", "WhatImWorkingOn"];
 var svAppId = "4205845"; // register SV app id
 var svAppSecret = "58402c158faf27abf7e89e723672d315c9a7bf40be0e7cb6bae2d8dcde886a0b"; // register SV app secret (token)
 app.use(express.static(__dirname + '/public')); // tell express where to get public assets
@@ -46,39 +46,40 @@ io.on('connection', (socket) => { // handle a user connecting
     if (bannedList.includes(object.user)) {
       socket.emit('bannedUser', true);
       socket.leave(currentRoom);
-    }
-    var locatedDoc = userDb.find({ // see if the user has a listing in the database; this reduces API requests to Scratch
-      username: object.sender // set the username to find as the message sender's username
-    }, function(err, docs) {
-      if (docs[0] == null) { // if the user does not exist
-        console.log("adding user " + object.sender); // ROP
-        fetch('https://api.scratch.mit.edu/users/' + object.sender) // fetch the user's info from the Scratch API
-          .then(response => response.json())
-          .then(data => {
-            var userDoc = { // make a new document object
-              username: object.sender, // set the username as the message sender's name
-              id: data.id // set the user's ID to the ID recieved by the Scratch API
-            }
-            userDb.insert(userDoc, function(err, docc) { // insert the document to the database
-              io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
-                "message": filter.clean(object.message), // set the message as a filtered version of the original
-                "sender": object.sender, // set the sender to the sender's username
-                "id": data.id // set the sender's ID from the database
+    } else {
+      var locatedDoc = userDb.find({ // see if the user has a listing in the database; this reduces API requests to Scratch
+        username: object.sender // set the username to find as the message sender's username
+      }, function(err, docs) {
+        if (docs[0] == null) { // if the user does not exist
+          console.log("adding user " + object.sender); // ROP
+          fetch('https://api.scratch.mit.edu/users/' + object.sender) // fetch the user's info from the Scratch API
+            .then(response => response.json())
+            .then(data => {
+              var userDoc = { // make a new document object
+                username: object.sender, // set the username as the message sender's name
+                id: data.id // set the user's ID to the ID recieved by the Scratch API
+              }
+              userDb.insert(userDoc, function(err, docc) { // insert the document to the database
+                io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
+                  "message": filter.clean(object.message), // set the message as a filtered version of the original
+                  "sender": object.sender, // set the sender to the sender's username
+                  "id": data.id // set the sender's ID from the database
+                });
               });
+            })
+        } else {
+          var locateDoc = userDb.find({ // if the user does exist
+            username: object.sender // set the username to the sender's username
+          }, function(err, doc) {
+            io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
+              "message": filter.clean(object.message), // set the message as a filtered version of the original
+              "sender": object.sender, // set the sender to the sender's username
+              "id": doc[0].id // set the sender's ID from the database
             });
           })
-      } else {
-        var locateDoc = userDb.find({ // if the user does exist
-          username: object.sender // set the username to the sender's username
-        }, function(err, doc) {
-          io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
-            "message": filter.clean(object.message), // set the message as a filtered version of the original
-            "sender": object.sender, // set the sender to the sender's username
-            "id": doc[0].id // set the sender's ID from the database
-          });
-        })
-      }
-    });
+        }
+      });
+    }
   });
   socket.on('userRegister', (msg) => { // handle user registration
     fetch('https://api.scratch.mit.edu/users/' + msg) // make a request to the Scratch API

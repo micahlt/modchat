@@ -18,7 +18,7 @@ filter.removeWords(...removeWords); //Remove those from the filter
 let addWords = []; // Any words in this list will be censored.
 filter.addWords(...addWords); //Add those to the filter
 // End Filter Setup
-let bannedList = ["Cooldude490", "ARandomPerson-", "WhatAmIWorkingOn"];
+let bannedList = ["Cooldude490", "ARandomPerson-", "WhatlmWorkingOn"];
 var svAppId = "4205845"; // register SV app id
 var svAppSecret = "58402c158faf27abf7e89e723672d315c9a7bf40be0e7cb6bae2d8dcde886a0b"; // register SV app secret (token)
 app.use(express.static(__dirname + '/public')); // tell express where to get public assets

@@ -11,6 +11,7 @@ var getParams = function(url) { // set up the getParams function
   }
   return params; // return the parameters as an object
 };
+let usersTyping = [];
 let root = document.documentElement;
 var userName = window.localStorage.getItem("userName"); // grab the user object from localStorage if it exists
 if (userName) { // if the user object contains a name
@@ -72,12 +73,23 @@ document.getElementById("form").addEventListener("submit", function(event) { // 
   document.getElementById("m").value = ""; // reset the chat form's value
   return false;
 });
+document.getElementById("form").addEventListener("keydown", function() {
+  socket.emit('userTyping', window.localStorage.getItem("userName"));
+});
 document.getElementById("username").addEventListener("submit", function(event) { // listen for user registration
   event.stopImmediatePropagation(); // stop reloads
   event.preventDefault(); // stop reloads
   socket.emit('userRegister', document.getElementById("username-input").value); // send the username to verify to the server
   return false;
 });
+socket.on('isTyping', function(username) {
+  console.log(username);
+  usersTyping.push(username);
+  setTimeout(function() {
+    var index = usersTyping.indexOf(username);
+    usersTyping.splice(index, 1);
+  }, 600)
+})
 socket.on('chatMessage', function(object) { // handle recieving chat messages
   var m = document.createElement('li'); // create an element to display the message
   var p = document.createElement('p'); // create the actual message
@@ -155,3 +167,16 @@ socket.on('connect', function() {
     "user": window.localStorage.getItem("userName")
   });
 });
+setInterval(function() {
+  if (usersTyping.length == 1) {
+    document.getElementById('typingSection').innerText = usersTyping[0] + " is typing...";
+  } else if (usersTyping.length > 1) {
+    var stringToUse = usersTyping[0];
+    for (let i = 1; i == usersTyping.length - 1; i++) {
+      stringToUse += ", " + usersTyping[i];
+    }
+    stringToUse += " and " + usersTyping.length[usersTyping.length] + " are typing";
+  } else {
+    document.getElementById('typingSection').innerText = "";
+  }
+}, 500);

@@ -34,6 +34,10 @@ io.on('connection', (socket) => { // handle a user connecting
       console.log("An unauthorized user is trying to join the " + currentRoom + " room."); // ROP
     }
   });
+  socket.on('userTyping', (username) => {
+    console.log(username);
+    socket.to(currentRoom).emit('isTyping', username);
+  });
   socket.on('chatMessage', (object) => { // handle the server recieving messages
     var locatedDoc = userDb.find({ // see if the user has a listing in the database; this reduces API requests to Scratch
       username: object.sender // set the username to find as the message sender's username

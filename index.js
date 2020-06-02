@@ -11,7 +11,13 @@ var userDb = new Datastore({
 var app = express(); // define the app var
 var http = require('http').createServer(app); // init http server
 var io = require('socket.io')(http); // attach socket to the server
+// Begin Filter Setup
 var filter = new Filter(); // set up the filter
+let removeWords = ['god','God']; // Make a list of word to be uncensored.
+filter.removeWords(...removeWords); //Remove those from the filter
+let addWords = []; // Any words in this list will be censored.
+filter.addWords(...addWords); //Add those to the filter
+// End Filter Setup
 let bannedList = ["Cooldude490", "ARandomPerson-", "WhatAmIWorkingOn"];
 var svAppId = "4205845"; // register SV app id
 var svAppSecret = "58402c158faf27abf7e89e723672d315c9a7bf40be0e7cb6bae2d8dcde886a0b"; // register SV app secret (token)

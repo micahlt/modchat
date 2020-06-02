@@ -83,12 +83,16 @@ document.getElementById("username").addEventListener("submit", function(event) {
   return false;
 });
 socket.on('isTyping', function(username) {
-  console.log(username);
-  usersTyping.push(username);
-  setTimeout(function() {
-    var index = usersTyping.indexOf(username);
-    usersTyping.splice(index, 1);
-  }, 600)
+  console.log(usersTyping.length);
+  if (!(usersTyping.includes(username))) {
+    usersTyping.push(username);
+    whosTyping();
+    setTimeout(function() {
+      var index = usersTyping.indexOf(username);
+      usersTyping.splice(index, 1);
+    }, 600)
+    whosTyping();
+  }
 })
 socket.on('chatMessage', function(object) { // handle recieving chat messages
   var m = document.createElement('li'); // create an element to display the message
@@ -167,16 +171,14 @@ socket.on('connect', function() {
     "user": window.localStorage.getItem("userName")
   });
 });
-setInterval(function() {
-  if (usersTyping.length == 1) {
+setInterval(whosTyping, 300);
+
+function whosTyping() {
+  if (usersTyping.length > 0 && usersTyping.length < 2) {
     document.getElementById('typingSection').innerText = usersTyping[0] + " is typing...";
   } else if (usersTyping.length > 1) {
-    var stringToUse = usersTyping[0];
-    for (let i = 1; i == usersTyping.length - 1; i++) {
-      stringToUse += ", " + usersTyping[i];
-    }
-    stringToUse += " and " + usersTyping.length[usersTyping.length] + " are typing";
+    document.getElementById('typingSection').innerText = usersTyping[0] + " and " + (usersTyping.length - 1) + "more are typing...";
   } else {
     document.getElementById('typingSection').innerText = "";
   }
-}, 500);
+}

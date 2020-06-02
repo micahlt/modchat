@@ -35,7 +35,6 @@ io.on('connection', (socket) => { // handle a user connecting
     }
   });
   socket.on('userTyping', (username) => {
-    console.log(username);
     socket.to(currentRoom).emit('isTyping', username);
   });
   socket.on('chatMessage', (object) => { // handle the server recieving messages

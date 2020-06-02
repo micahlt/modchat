@@ -15,10 +15,11 @@ var io = require('socket.io')(http); // attach socket to the server
 var filter = new Filter(); // set up the filter
 let removeWords = ['god', 'God']; // Make a list of word to be uncensored.
 filter.removeWords(...removeWords); //Remove those from the filter
-let addWords = []; // Any words in this list will be censored.
+let addWords = ['WTF', 'wtf', 'lmao', 'LMAO']; // Any words in this list will be censored.
 filter.addWords(...addWords); //Add those to the filter
 // End Filter Setup
-let bannedList = ["Cooldude490", "ARandomPerson-", "WhatAmIWorkingOn", "WhatImWorkingOn"];
+let bannedList = [];
+let modsList = ['Ekmand', '-Archon-', 'MicahLT'];
 var svAppId = "4205845"; // register SV app id
 var svAppSecret = "58402c158faf27abf7e89e723672d315c9a7bf40be0e7cb6bae2d8dcde886a0b"; // register SV app secret (token)
 app.use(express.static(__dirname + '/public')); // tell express where to get public assets
@@ -35,11 +36,12 @@ io.on('connection', (socket) => { // handle a user connecting
     currentRoom = object.room; // set the current room to the room sent by the client
     socket.join(currentRoom); // join the new current room
     if (!(object.user == null)) {
-      if (bannedList.includes(object.user)) {
+      if (bannedList.includes(socket.conn.remoteAddress)) {
+        console.log("Banned user " + object.user + " at IP " + socket.conn.remoteAddress + " attempted to join.");
         socket.emit('bannedUser', true);
         socket.leave(currentRoom);
       }
-      console.log("User " + object.user + " joined the " + object.room + " room."); // ROP
+      console.log("User " + object.user + " joined the " + object.room + " room at IP " + socket.conn.remoteAddress); // ROP
       io.to(currentRoom).emit('botMessage', "🎉 Welcome <b>" + object.user + "</b> to the <b>" + currentRoom + "</b> room! 🎉"); // emit a welcome method with the Modchat bot
     } else {
       console.log("An unauthorized user is trying to join the " + currentRoom + " room."); // ROP

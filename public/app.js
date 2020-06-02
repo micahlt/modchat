@@ -175,7 +175,7 @@ socket.on('connect', function() {
     "user": window.localStorage.getItem("userName")
   });
 });
-setInterval(whosTyping, 300);
+setInterval(whosTyping, 500);
 
 function whosTyping() {
   if (usersTyping.length > 0 && usersTyping.length < 2) {

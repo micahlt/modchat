@@ -95,7 +95,8 @@ socket.on('isTyping', function(username) {
   }
 })
 socket.on('bannedUser', function(boot) {
-  window.close();
+  localStorage.removeItem("userName");
+  window.location.reload();
 })
 socket.on('chatMessage', function(object) { // handle recieving chat messages
   var m = document.createElement('li'); // create an element to display the message

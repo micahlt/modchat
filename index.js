@@ -43,6 +43,10 @@ io.on('connection', (socket) => { // handle a user connecting
     socket.to(currentRoom).emit('isTyping', username);
   });
   socket.on('chatMessage', (object) => { // handle the server recieving messages
+    if (bannedList.includes(object.user)) {
+      socket.emit('bannedUser', true);
+      socket.leave(currentRoom);
+    }
     var locatedDoc = userDb.find({ // see if the user has a listing in the database; this reduces API requests to Scratch
       username: object.sender // set the username to find as the message sender's username
     }, function(err, docs) {

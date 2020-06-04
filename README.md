@@ -1,3 +1,4 @@
+### NOTICE: Modchat development has paused until I recieve more contributors.  Please see [#14](https://github.com/micahlt/modchat/issues/14).
 # `modchat`
 Modchat (stylized modchat) is a moderated real-time chatting platform designed for [Scratch](https://scratch.mit.edu/) users.
 

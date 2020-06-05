@@ -11,9 +11,11 @@ var getParams = function(url) { // set up the getParams function
   }
   return params; // return the parameters as an object
 };
+let charCount = 0;
+const charLimit = 200; // sets the char limit to 200 
 let usersTyping = [];
 let root = document.documentElement;
-var userName = window.localStorage.getItem("userName"); // grab the user object from localStorage if it exists
+const userName = window.localStorage.getItem("userName"); // grab the user object from localStorage if it exists
 if (userName) { // if the user object contains a name
   console.log("User has already verified"); // ROP
   document.getElementsByClassName("blocker")[0].style.display = "none"; // hide the blocker
@@ -58,23 +60,32 @@ document.getElementById("changeRoom").addEventListener('click', function() {
 document.getElementById("roomName").addEventListener("submit", function(event) {
   event.stopImmediatePropagation(); // stop reloads
   event.preventDefault(); // stop reloads
-  window.location.replace("https://modchat-app.herokuapp.com/chat/?r=" + document.getElementById("r").value);
+  window.location.replace("https://modchatdevelopment.contourrepl.repl.co/chat/?r=" + document.getElementById("r").value);
 })
 
 document.getElementById("form").addEventListener("submit", function(event) { // listen for submits on the message sending form
   event.stopImmediatePropagation(); // stop reloads
   event.preventDefault(); // stop reloads
-  if (!(document.getElementById("m").value.trim() == "")) {
+  const message = document.getElementById('m').value; // gets the users message value
+  if (!(message.trim() == "") && charCount <= charLimit) {
+    charCount = 0
+    document.getElementById('messageCharCount').innerHTML = charCount + '/' + charLimit; // displays the amount of chars to the user
     socket.emit('chatMessage', { // send the chat message from the form value to the server
-      "message": document.getElementById("m").value,
+      "message": message,
       "sender": window.localStorage.getItem("userName")
     });
+    document.getElementById("m").value = ""; // reset the chat form's value
+  } else if (charCount > charLimit) {
+    window.alert('Message too long');
+  } else {
+    window.alert('Message must contain content');
   }
-  document.getElementById("m").value = ""; // reset the chat form's value
   return false;
 });
-document.getElementById("form").addEventListener("keydown", function() {
+document.getElementById("form").addEventListener("keydown", function(event) {
   socket.emit('userTyping', window.localStorage.getItem("userName"));
+  charCount = document.getElementById("m").value.length;
+  document.getElementById('messageCharCount').innerHTML = charCount + '/' + charLimit; // displays the amount of chars to the user
 });
 document.getElementById("username").addEventListener("submit", function(event) { // listen for user registration
   event.stopImmediatePropagation(); // stop reloads
@@ -108,7 +119,17 @@ socket.on('chatMessage', function(object) { // handle recieving chat messages
     window.open('https://scratch.mit.edu/users/' + object.sender, '_blank');
   }
   img.setAttribute('title', object.sender);
-  p.innerText = object.message; // add the message text to that element
+  let mentionsMessage = ''; // resets the metions in the message
+  object.message.split(' ').forEach((word) => {
+    if (word[0] == '@') {
+      const link = '<a href="https://scratch.mit.edu/users/' + word.substring(1, word.length) + '">' + word + '</a> '; // creates a link relevant to the user
+      mentionsMessage = mentionsMessage + link;
+    } else {
+      mentionsMessage = mentionsMessage + word + ' ';
+    }
+  });
+  p.innerHTML = mentionsMessage; // add the message text to that element
+  console.log(mentionsMessage);
   m.appendChild(img);
   m.appendChild(p);
   document.getElementById('messages').appendChild(m); // append the message to the message area

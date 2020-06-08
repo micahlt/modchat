@@ -12,7 +12,7 @@ var getParams = function(url) { // set up the getParams function
   return params; // return the parameters as an object
 };
 let charCount = 0;
-const charLimit = 200; // sets the char limit to 200 
+const charLimit = 200; // sets the char limit to 200
 let usersTyping = [];
 let root = document.documentElement;
 const userName = window.localStorage.getItem("userName"); // grab the user object from localStorage if it exists
@@ -27,25 +27,36 @@ if (Notification.permission == "default") {
   Notification.requestPermission();
 }
 
+window.addEventListener('load', setTheme);
+
+function setTheme() {
+  if (window.localStorage.getItem("theme") == "light") {
+    root.style.setProperty("--background-primary", "white");
+    root.style.setProperty("--background-secondary", "rgb(230, 230, 230)");
+    root.style.setProperty("--background-tertiary", "lightgray");
+    root.style.setProperty("--text-primary", "#0a0a0a");
+    root.style.setProperty("--transparent", "rgba(0, 0, 0, 0.02)");
+    document.getElementsByClassName('register-img')[0].src = "wordmark-black.png";
+  } else if (window.localStorage.getItem("theme") == "dark") {
+    root.style.setProperty("--background-primary", "#090A0B");
+    root.style.setProperty("--background-secondary", "#131516");
+    root.style.setProperty("--background-tertiary", "rgb(20, 20, 20)");
+    root.style.setProperty("--text-primary", "#ffffff");
+    root.style.setProperty("--transparent", "rgba(255, 255, 255, 0.02)");
+    document.getElementsByClassName('register-img')[0].src = "wordmark-white.png";
+  }
+}
+
 function changeTheme() {
   if (window.localStorage.getItem("theme") == "dark") {
     window.localStorage.setItem("theme", "light");
-    root.style.setProperty("--background-primary", "white");
-    root.style.setProperty("--background-secondary", "rgb(245, 245, 245)");
-    root.style.setProperty("--text-primary", "#0a0a0a");
-    root.style.setProperty("--transparent", "rgba(0, 0, 0, 0.02)");
+    setTheme();
   } else if (window.localStorage.getItem("theme") == "light") {
     window.localStorage.setItem("theme", "dark");
-    root.style.setProperty("--background-primary", "#090A0B");
-    root.style.setProperty("--background-secondary", "#131516");
-    root.style.setProperty("--text-primary", "#ffffff");
-    root.style.setProperty("--transparent", "rgba(255, 255, 255, 0.02)");
+    setTheme();
   } else {
     window.localStorage.setItem("theme", "light");
-    root.style.setProperty("--background-primary", "white");
-    root.style.setProperty("--background-secondary", "rgb(245, 245, 245)");
-    root.style.setProperty("--text-primary", "#0a0a0a");
-    root.style.setProperty("--transparent", "rgba(0, 0, 0, 0.02)");
+    setTheme();
   }
 }
 if (!(getParams(window.location.href).r)) {
@@ -69,23 +80,34 @@ document.getElementById("form").addEventListener("submit", function(event) { // 
   const message = document.getElementById('m').value; // gets the users message value
   if (!(message.trim() == "") && charCount <= charLimit) {
     charCount = 0
-    document.getElementById('messageCharCount').innerHTML = charCount + '/' + charLimit; // displays the amount of chars to the user
+    document.getElementById('messageCharCount').innerHTML = charCount + '/' + charLimit + " chars"; // displays the amount of chars to the user
     socket.emit('chatMessage', { // send the chat message from the form value to the server
       "message": message,
       "sender": window.localStorage.getItem("userName")
     });
     document.getElementById("m").value = ""; // reset the chat form's value
   } else if (charCount > charLimit) {
-    window.alert('Message too long');
+    document.getElementById('messageCharCount').classList.add('flashing');
+    window.setTimeout(function() {
+      document.getElementById('messageCharCount').classList.remove('flashing');
+    }, 1000);
   } else {
-    window.alert('Message must contain content');
+    document.getElementById('messageCharCount').classList.add('flashing');
+    window.setTimeout(function() {
+      document.getElementById('messageCharCount').classList.remove('flashing');
+    }, 1000);
   }
   return false;
 });
 document.getElementById("form").addEventListener("keydown", function(event) {
   socket.emit('userTyping', window.localStorage.getItem("userName"));
   charCount = document.getElementById("m").value.length;
-  document.getElementById('messageCharCount').innerHTML = charCount + '/' + charLimit; // displays the amount of chars to the user
+  document.getElementById('messageCharCount').innerHTML = charCount + '/' + charLimit + " chars"; // displays the amount of chars to the user
+  if (charCount > charLimit) {
+    document.getElementById('messageCharCount').style.color = "#d90429";
+  } else {
+    document.getElementById('messageCharCount').style.color = "var(--text-primary)";
+  }
 });
 document.getElementById("username").addEventListener("submit", function(event) { // listen for user registration
   event.stopImmediatePropagation(); // stop reloads
@@ -122,7 +144,7 @@ socket.on('chatMessage', function(object) { // handle recieving chat messages
   let mentionsMessage = ''; // resets the metions in the message
   object.message.split(' ').forEach((word) => {
     if (word[0] == '@') {
-      const link = '<a href="https://scratch.mit.edu/users/' + word.substring(1, word.length) + '">' + word + '</a> '; // creates a link relevant to the user
+      const link = '<a class="mention" href="https://scratch.mit.edu/users/' + word.substring(1, word.length) + '">' + word + '</a> '; // creates a link relevant to the user
       mentionsMessage = mentionsMessage + link;
     } else {
       mentionsMessage = mentionsMessage + word + ' ';
@@ -168,7 +190,7 @@ socket.on('botMessage', function(msg) { // handle recieving chat messages
 });
 
 socket.on('svCodeToVerify', function(msg) { // handle recieving the SV code (after triggering the setUsername function)
-  document.getElementById('svCode').innerText = msg; // display the code
+  document.getElementById('svCode').value = msg; // display the code
   document.getElementById('completeSV').style.display = "block"; // display the completion button
   document.getElementById('completeSV').addEventListener('click', function() { // listen for clicks on the completion button
     socket.emit('finishVerification'); // tell the server to finish verification
@@ -191,6 +213,7 @@ socket.on('disconnect', function() {
 
 socket.on('connect', function() {
   console.log('user connected'); // ROP
+  document.getElementById('roomTitle').innerText = getParams(window.location.href).r;
   socket.emit('roomChange', {
     "room": getParams(window.location.href).r,
     "user": window.localStorage.getItem("userName")

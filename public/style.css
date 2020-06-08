@@ -2,17 +2,19 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  transition: 0.2s !important;
 }
 
 :root {
-  --text-primary: #ffffff;
-  --background-primary: #090A0B;
-  --background-secondary: #131516;
-  --transparent: rgba(255, 255, 255, 0.02);
+  --text-primary: #0a0a0a;
+  --background-primary: white;
+  --background-secondary: rgb(230, 230, 230);
+  --background-tertiary: lightgray;
+  --transparent: rgba(0, 0, 0, 0.02);
 }
 
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   color: var(--text-primary);
   background-color: var(--background-primary);
   overflow-x: hidden;
@@ -38,7 +40,7 @@ body {
   transition: 0.2s;
   transform: translateY(-10px);
   border-bottom: solid 2px transparent;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Montserrat', sans-serif;
 }
 
 #form button {
@@ -46,23 +48,30 @@ body {
   background: transparent;
   border: none;
   padding: 10px;
-  color: #3772FF;
+  color: #6e31ff;
 }
 
 #messages {
   list-style-type: none;
   margin: 0;
   padding: 0;
+  width: 78%;
 }
 
 #messages li {
-  padding-top: 1em;
-  padding-bottom: 1em;
+  padding-top: 0.5em;
   padding-left: 2em;
 }
 
-#messages li:nth-child(odd) {
-  background: var(--transparent);
+#messages li p {
+  background: var(--background-secondary);
+  padding: 10px;
+  margin-left: 40px;
+  margin-right: 20px;
+  border-radius: 20px;
+  border-bottom-left-radius: 0;
+  width: max-content;
+  max-width: 70%;
 }
 
 #messages li:last-child {
@@ -85,14 +94,27 @@ button:focus {
   outline: none;
 }
 
+.register-img {
+  max-width: 500px;
+  width: 80%;
+  margin-bottom: 5vh;
+}
+
+.center-register {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .register, #roomName {
-  background-color: #28292A;
+  background-color: var(--background-primary);
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: max-content;
-  height: max-content;
+  width: 100vw;
+  height: 100vh;
   z-index: 21;
   padding: 10px;
   text-align: center;
@@ -106,30 +128,38 @@ button:focus {
 
 #username-input, #r {
   border: none;
-  background-color: transparent;
-  border-bottom: 2px solid rgb(28, 31, 34);
-  font-family: 'Roboto', sans-serif;
+  border-bottom: 2px solid #6e31ff;
+  font-family: 'Montserrat', sans-serif;
   color: var(--text-primary);
+  height: 2.3em;
+  background-color: var(--background-tertiary);
+  border-radius: 40px;
+  padding: 20px;
 }
 
 #username button, #roomName button {
   background: transparent;
   border: none;
-  color: #3772FF;
-}
-
-#username button:active, #roomName button:active {
-  color: #2274A5;
+  color: #6e31ff;
+  transform: translateY(7px);
 }
 
 #svCode {
-  color: var(--text-primary);
+  border: none;
 }
 
 #completeSV {
   display: none;
   color: var(--text-primary);
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Montserrat', sans-serif;
+  height: 2.3em;
+  background-color: var(--background-tertiary);
+  border-radius: 40px;
+  padding: 10px;
+  text-decoration: none;
+  color: white;
+  background: rgb(110, 48, 251);
+  background: linear-gradient(90deg, rgba(110, 48, 251, 1) 0%, rgba(119, 41, 216, 1) 100%);
 }
 
 #roomName {
@@ -149,43 +179,103 @@ button:focus {
 .pfp {
   float: left;
   position: relative;
-  top: -.75em;
+  top: 0;
   left: -1em;
   height: 2.5em;
   border-radius: 100%;
   cursor: pointer;
 }
 
-li p {
-  padding-left: 2.5em;
-}
-
-.topbtn {
-  background: var(--background-secondary);
+.sidebar-btn {
+  background: var(--background-tertiary);
   padding: 1em;
   text-transform: uppercase;
   position: fixed;
-  color: var(--text-primary);
   text-decoration: none;
-  border-radius: 0.3em;
-  box-shadow: 0 0.2em 0.64em rgba(0, 0, 0, 0.5);
+  border-radius: 1.2em;
+  color: var(--background-primary);
   padding: 0.5em;
+  width: 15%;
+  right: 2.5vw;
+  max-width: 216px;
+  text-transform: lowercase;
 }
 
 #changeRoom {
-  top: 0.5em;
-  right: 0.5em;
+  bottom: 8em;
 }
 
 #changeTheme {
-  top: 3em;
-  right: 0.5em;
+  bottom: 5em;
 }
 
 #typingSection {
   position: fixed;
   color: var(--background-secondary);
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   padding-left: 20px;
   bottom: 3.3em;
+}
+
+#messageCharCount {
+  position: fixed;
+  bottom: 0.9em;
+  right: 2em;
+  z-index: 1;
+}
+
+.flashing {
+  animation-name: flash;
+  animation-duration: 0.2s;
+  animation-iteration-count: infinite;
+}
+
+.mention {
+  font-weight: bold;
+  color: white;
+  text-decoration: none;
+}
+
+.sidebar {
+  width: 22vw;
+  height: 100vh;
+  max-width: 300px;
+  position: fixed;
+  top: 0;
+  right: 0;
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+  box-shadow: -5px 0 20px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.sidebar-img {
+  width: 75%;
+}
+
+.sidebar-text {
+  color: var(--text-primary);
+  text-align: left;
+  padding-left: 10%;
+  font-weight: 700;
+}
+
+#roomTitle {
+  font-weight: 800;
+  font-size: 3em;
+  text-transform: capitalize;
+}
+
+@keyframes flash {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }

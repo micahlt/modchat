@@ -6,36 +6,52 @@
   <link rel="shortcut icon" href="/fav-normal.png" type="image/png" id="favicon">
   <title>Modchat - Realtime Moderated Chat</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
-  <a href="#form" id="changeTheme" class="topbtn">Swap Theme</a> <a id="changeRoom" class="topbtn" href="#form">Change Room</a>
   <form action="" id="roomName" autocomplete="off">
     <input id="r" autocomplete="off" placeholder="room name" data-lpignore="true" /><button><span class="material-icons">
         send
       </span></button>
   </form>
+  <div class="sidebar">
+    <img src="chat-bubble.svg" class="sidebar-img">
+    <div class="sidebar-text">
+      <span class="small-left">Current Room</span><br>
+      <span id="roomTitle"></span>
+    </div>
+    <div class="bottom-sidebar">
+      <a id="changeRoom" class="sidebar-btn" href="#form">SWITCH ROOM</a>
+      <a href="#form" id="changeTheme" class="sidebar-btn">CHANGE THEME</a>
+    </div>
+  </div>
   <ul id="messages"></ul>
   <p id="typingSection"></p>
+  <span id="messageCharCount">0/100 chars</span>
   <form action="" id="form" autocomplete="off">
-    <input id="m" autocomplete="off" data-lpignore="true" /><h id="messageCharCount">0/100 Chars</h><button><span class="material-icons">
+    <input id="m" autocomplete="off" data-lpignore="true" />
+    <button><span class="material-icons">
         send
       </span></button>
   </form>
   <div class="blocker"></div>
   <div class="register">
-    <h1>Sign in with Scratch</h1>
-    <form action="" id="username" autocomplete="off">
-      <input id="username-input" autocomplete="off" placeholder="username"></input>
-      <button><span class="material-icons">
-          login
-        </span></button><br>
-      <br>
-    </form>
-    <p id="svCode"></p><br>
-    <a href="#" id="completeSV">Complete Verification</a>
+    <div class="center-register">
+      <img src="wordmark-black.png" class="register-img">
+      <h1>Sign in with Scratch</h1>
+      <form action="" id="username" autocomplete="off">
+        <input id="username-input" autocomplete="off" placeholder="username"></input>
+        <button><span class="material-icons">
+            login
+          </span></button><br>
+        <br>
+      </form>
+      <input id="svCode" disabled></input><br><br>
+      <a href="#" id="completeSV">Complete Verification</a>
+    </div>
   </div>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/app.js">

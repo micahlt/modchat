@@ -19,9 +19,9 @@ let addWords = ['WTF', 'wtf', 'lmao', 'LMAO']; // Any words in this list will be
 filter.addWords(...addWords); //Add those to the filter
 // End Filter Setup
 let bannedList = [];
-let modsList = ['Ekmand', '-Archon-', 'MicahLT', 'ContourLines', 'YodaLightSabr'];
+let modsList = ['-Ekmand-', '-Archon-', 'MicahLT', 'ContourLines', 'YodaLightSabr', 'MetaLabs'];
 var svAppId = "4205845"; // register SV app id
-var svAppSecret = "58402c158faf27abf7e89e723672d315c9a7bf40be0e7cb6bae2d8dcde886a0b"; // register SV app secret (token)
+var svAppSecret = "58402c158faf27abf7e89e723672d315c9a7bf40be0e7cb6bae2d8dcde886a0b"; // register SV app (secret token)
 app.use(express.static(__dirname + '/public')); // tell express where to get public assets
 app.get('/chat', (req, res) => { // set root location to index.html
   res.sendFile(__dirname + '/index.html');
@@ -65,13 +65,14 @@ io.on('connection', (socket) => { // handle a user connecting
             .then(data => {
               var userDoc = { // make a new document object
                 username: object.sender, // set the username as the message sender's name
-                id: data.id // set the user's ID to the ID recieved by the Scratch API
+                id: data.id, // set the user's ID to the ID recieved by the Scratch API
+                socketId: socket.id
               }
               userDb.insert(userDoc, function(err, docc) { // insert the document to the database
                 io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
                   "message": filter.clean(object.message), // set the message as a filtered version of the original
                   "sender": object.sender, // set the sender to the sender's username
-                  "id": data.id // set the sender's ID from the database
+                  "id": data.id, // set the sender's ID from the database
                 });
               });
             })
@@ -132,6 +133,9 @@ io.on('connection', (socket) => { // handle a user connecting
   });
   socket.on('disconnect', () => { // handle user disconnecting from the server
     console.log('user disconnected'); // ROP
+    userDb.remove({
+      socketId: socket.id
+    })
   });
 });
 http.listen((process.env.PORT || 3001), () => { // initialize the server

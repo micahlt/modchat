@@ -6,7 +6,7 @@
   <meta charset="utf-8">
   <link rel="shortcut icon" href="/fav-normal.png" type="image/png">
   <title>Modchat - Realtime moderated chat</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
   <style media="screen">
     * {
       margin: 0;
@@ -15,7 +15,7 @@
     }
 
     body {
-      background-image: url('https://images.unsplash.com/photo-1541701494587-cb58502866ab?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1050&q=80');
+      background-image: url('https://images.unsplash.com/photo-1454117096348-e4abbeba002c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80');
       background-size: cover;
       background-repeat: no-repeat;
       height: 100vh;
@@ -31,28 +31,30 @@
     }
 
     .main img {
-      max-width: 50vw;
+      max-width: 400px;
+      width: 80vw;
     }
 
     .main p {
-      color: white;
-      font-family: 'Roboto', sans-serif;
-      font-weight: bold;
+      color: rgb(20, 20, 20);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
       font-size: 1.4em;
     }
 
     .main a {
-      font-family: 'Roboto', sans-serif;
+      font-family: 'Montserrat', sans-serif;
       padding: 0.7em;
-      background-color: white;
+      background-color: lightgray;
       color: black;
       text-decoration: none;
       border-radius: 0.4em;
       transition: 0.15s;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
     }
 
     .main a:hover {
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 5px 8px rgba(0, 0, 0, 0.4);
       transition: 0.15s;
     }
 
@@ -64,9 +66,9 @@
 
 <body>
   <div class="main">
-    <img src="modchat-logo.png">
-    <p>A moderated realtime chat for Scratchers</p><br><br>
-    <a href="https://modchatdevelopment.contourrepl.repl.co/chat">Sign In</a><br><br><br>
+    <img src="wordmark-black.png"><br><br>
+    <p>moderated realtime chat for Scratchers</p><br><br>
+    <a href="/chat">Sign In</a><br><br><br>
   </div>
 </body>
 

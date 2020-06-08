@@ -30,7 +30,7 @@ body {
 }
 
 #form input {
-  border: 0;
+  border: none;
   padding: 10px;
   width: 60%;
   margin-right: 0%;
@@ -43,12 +43,20 @@ body {
   font-family: 'Montserrat', sans-serif;
 }
 
+#form input:hover {
+  border-bottom: solid 2px var(--text-primary);
+}
+
 #form button {
   width: 9%;
   background: transparent;
   border: none;
   padding: 10px;
   color: #6e31ff;
+}
+
+#form button:hover {
+  color: var(--text-primary);
 }
 
 #messages {
@@ -201,6 +209,10 @@ button:focus {
   text-transform: lowercase;
 }
 
+.sidebar-btn:hover {
+  background-color: var(--text-primary);
+}
+
 #changeRoom {
   bottom: 8em;
 }
@@ -234,6 +246,10 @@ button:focus {
   font-weight: bold;
   color: white;
   text-decoration: none;
+}
+
+.mention:hover {
+  color: #6e31ff;
 }
 
 .sidebar {

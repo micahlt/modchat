@@ -1,7 +1,8 @@
 # `modchat`
+![GitHub issues](https://img.shields.io/github/issues-raw/micahlt/modchat) ![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/micahlt/modchat) [![GitHub forks](https://img.shields.io/github/forks/micahlt/modchat)](https://github.com/micahlt/modchat/network) [![GitHub stars](https://img.shields.io/github/stars/micahlt/modchat)](https://github.com/micahlt/modchat/stargazers) [![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Fgithub.com%2Fmicahlt%2Fmodchat)](https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fmicahlt%2Fmodchat)
+
 Modchat (stylized modchat) is a moderated real-time chatting platform designed for [Scratch](https://scratch.mit.edu/) users.
 
-![https://i.ibb.co/RP159Ng/Modchat-on-G7.png](https://i.ibb.co/RP159Ng/Modchat-on-G7.png)
 ## For Users
 Modchat uses a secure server combined with [ScratchVerifier](http://scratchverifier.ddns.net:8888/site) to sign you in.  While this is very safe, Modchat is currently under development and you could potentially expose your verification token to code contributors while they are working on it.  If you want to stay safe, we reccommend that you not use Modchat until a stable, secured version is released.
 

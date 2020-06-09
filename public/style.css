@@ -63,7 +63,7 @@ body {
   list-style-type: none;
   margin: 0;
   padding: 0;
-  width: 78%;
+  width: 80%;
 }
 
 #messages li {
@@ -227,6 +227,7 @@ button:focus {
   font-family: 'Montserrat', sans-serif;
   padding-left: 20px;
   bottom: 3.3em;
+  background-color: var(--background-primary);
 }
 
 #messageCharCount {
@@ -282,6 +283,10 @@ button:focus {
   text-transform: capitalize;
 }
 
+#sidebarControl {
+  display: none;
+}
+
 @keyframes flash {
   0% {
     opacity: 1;
@@ -293,5 +298,39 @@ button:focus {
 
   100% {
     opacity: 1;
+  }
+}
+
+@media only screen and (max-width: 1050px) {
+  .sidebar {
+    display: none;
+    width: 100vw;
+    max-width: 101vw;
+  }
+
+  .sidebar-btn {
+    width: 90%;
+    transform: translateX(50%);
+    right: 50%;
+  }
+
+  #messageCharCount {
+    right: -2.8em;
+  }
+
+  #sidebarControl {
+    display: block;
+    color: #6e31ff;
+    z-index: 1;
+    background: var(--text-primary);
+    padding: 15px;
+    height: 54px;
+    width: 54px;
+    border-radius: 100%;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.8);
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    transform: rotate(0deg);
   }
 }

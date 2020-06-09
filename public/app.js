@@ -16,6 +16,7 @@ const charLimit = 250; // sets the char limit to 200
 let usersTyping = [];
 let root = document.documentElement;
 let userName = window.localStorage.getItem("userName"); // grab the user object from localStorage if it exists
+let sidebarOpen = false;
 if (userName) { // if the user object contains a name
   console.log("User has already verified"); // ROP
   document.getElementsByClassName("blocker")[0].style.display = "none"; // hide the blocker
@@ -28,6 +29,20 @@ if (Notification.permission == "default") {
 }
 
 window.addEventListener('load', setTheme);
+
+document.getElementById('sidebarControl').addEventListener('click', slideSidebar);
+
+function slideSidebar() {
+  if (!sidebarOpen) {
+    document.getElementsByClassName('sidebar')[0].style.display = 'block';
+    document.getElementById('sidebarControl').style.transform = "rotate(180deg)";
+    sidebarOpen = true;
+  } else {
+    document.getElementById('sidebarControl').style.transform = "rotate(0deg)";
+    document.getElementsByClassName('sidebar')[0].style.display = 'none';
+    sidebarOpen = false;
+  }
+}
 
 function setTheme() {
   if (window.localStorage.getItem("theme") == "light") {

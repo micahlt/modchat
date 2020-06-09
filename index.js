@@ -45,13 +45,14 @@ io.on('connection', (socket) => { // handle a user connecting
         console.log("Banned user " + object.user + " attempted to join.");
         socket.emit('bannedUser', true);
         socket.leave(currentRoom);
+      } else {
+        console.log("User " + object.user + " joined the " + object.room + " room"); // ROP
+        bcrypt.compare(object.user, object.hash).then(function(result) {
+          if (result) {
+            io.to(currentRoom).emit('botMessage', "🎉 Welcome <b>" + object.user + "</b> to the <b>" + currentRoom + "</b> room! 🎉"); // emit a welcome message with the Modchat bot
+          }
+        })
       }
-      console.log("User " + object.user + " joined the " + object.room + " room"); // ROP
-      bcrypt.compare(object.user, object.hash).then(function(result) {
-        if (result) {
-          io.to(currentRoom).emit('botMessage', "🎉 Welcome <b>" + object.user + "</b> to the <b>" + currentRoom + "</b> room! 🎉"); // emit a welcome message with the Modchat bot
-        }
-      })
     } else {
       console.log("An unauthorized user is trying to join the " + currentRoom + " room."); // ROP
     }
@@ -153,7 +154,7 @@ io.on('connection', (socket) => { // handle a user connecting
       });
   });
   socket.on('userDisconnect', (name) => {
-    io.to(currentRoom).emit('botMessage', "😐 User <b>" + object.user + "</b> left the <b>" + currentRoom + "</b> room."); // emit a welcome message with the Modchat bot
+    io.to(currentRoom).emit('botMessage', "😐 User <b>" + name + "</b> left the <b>" + currentRoom + "</b> room."); // emit a welcome message with the Modchat bot
     console.log('user disconnected'); // ROP
   })
   socket.on('disconnect', () => { // handle user disconnecting from the server

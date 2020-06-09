@@ -55,23 +55,25 @@ io.on('connection', (socket) => { // handle a user connecting
         socket.leave(currentRoom);
       } else {
         console.log("User " + object.user + " joined the " + object.room + " room"); // ROP
-        bcrypt.compare(object.user, object.hash, function(result) {
+        bcrypt.compare(object.user, object.hash).then(function(result) {
           if (result) {
             io.to(currentRoom).emit('botMessage', "🎉 Welcome <b>" + object.user + "</b> to the <b>" + currentRoom + "</b> room! 🎉"); // emit a welcome message with the Modchat bot
           }
-        })
+        }).catch(function(err) {
+          console.log("Error:", err); // ROP
+        });
       }
     } else {
       console.log("An unauthorized user is trying to join the " + currentRoom + " room."); // ROP
     }
   });
-  socket.on('userTyping', (username) => {
-    socket.to(currentRoom).emit('isTyping', username);
+  socket.on('userTyping', (object) => {
+    socket.to(currentRoom).emit('isTyping', object.username);
   });
   socket.on('chatMessage', (object) => { // handle the server recieving messages
-    console.log(object.sender, object.hash)
+    // console.log(object.sender, object.hash); // ROP
     bcrypt.compare(object.sender, object.hash).then(function(result) {
-      console.log(result)
+      // console.log(result) // ROP
       if (result) {
         if (bannedList.includes(object.sender)) {
           socket.emit('bannedUser', true);

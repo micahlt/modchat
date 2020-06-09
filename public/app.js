@@ -15,7 +15,7 @@ let charCount = 0;
 const charLimit = 200; // sets the char limit to 200
 let usersTyping = [];
 let root = document.documentElement;
-const userName = window.localStorage.getItem("userName"); // grab the user object from localStorage if it exists
+let userName = window.localStorage.getItem("userName"); // grab the user object from localStorage if it exists
 if (userName) { // if the user object contains a name
   console.log("User has already verified"); // ROP
   document.getElementsByClassName("blocker")[0].style.display = "none"; // hide the blocker
@@ -83,7 +83,8 @@ document.getElementById("form").addEventListener("submit", function(event) { // 
     document.getElementById('messageCharCount').innerHTML = charCount + '/' + charLimit + " chars"; // displays the amount of chars to the user
     socket.emit('chatMessage', { // send the chat message from the form value to the server
       "message": message,
-      "sender": window.localStorage.getItem("userName")
+      "sender": window.localStorage.getItem("userName"),
+      "hash": window.localStorage.getItem("userHash")
     });
     document.getElementById("m").value = ""; // reset the chat form's value
   } else if (charCount > charLimit) {
@@ -100,7 +101,9 @@ document.getElementById("form").addEventListener("submit", function(event) { // 
   return false;
 });
 document.getElementById("form").addEventListener("keydown", function(event) {
-  socket.emit('userTyping', window.localStorage.getItem("userName"));
+  socket.emit('userTyping', {
+    "username": window.localStorage.getItem("userName")
+  });
   charCount = document.getElementById("m").value.length;
   document.getElementById('messageCharCount').innerHTML = charCount + '/' + charLimit + " chars"; // displays the amount of chars to the user
   if (charCount > charLimit) {
@@ -199,7 +202,8 @@ socket.on('svCodeToVerify', function(msg) { // handle recieving the SV code (aft
 
 socket.on('verificationSuccess', function(msg) { // handle a successful verification with SV
   console.log("Verified!"); // ROP
-  window.localStorage.setItem("userName", msg);
+  window.localStorage.setItem("userName", msg.username);
+  window.localStorage.setItem("userHash", msg.hash);
   window.location.reload();
 })
 
@@ -208,6 +212,7 @@ function setUsername() {
 };
 
 socket.on('disconnect', function() {
+  socket.emit('userDisconnect', window.localStorage.getItem("userName"));
   console.log('user disconnected'); // ROP
 });
 
@@ -216,7 +221,8 @@ socket.on('connect', function() {
   document.getElementById('roomTitle').innerText = getParams(window.location.href).r;
   socket.emit('roomChange', {
     "room": getParams(window.location.href).r,
-    "user": window.localStorage.getItem("userName")
+    "user": window.localStorage.getItem("userName"),
+    "hash": window.localStorage.getItem("userHash")
   });
 });
 setInterval(whosTyping, 500);

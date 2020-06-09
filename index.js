@@ -24,12 +24,15 @@ var svAppId = "4205845"; // register SV app id
 var svAppSecret = "58402c158faf27abf7e89e723672d315c9a7bf40be0e7cb6bae2d8dcde886a0b"; // register SV app (secret token)
 userDb.persistence.setAutocompactionInterval(30000);
 app.use(express.static(__dirname + '/public')); // tell express where to get public assets
-app.get('/chat', (req, res) => { // set root location to index.html
+app.get('/chat', (req, res) => { // set chat location to the chat page
   res.sendFile(__dirname + '/index.html');
 });
-app.get('/', (req, res) => {
+app.get('/', (req, res) => { // set root location to the landing page
   res.sendFile(__dirname + '/home.html');
 });
+app.get('/about', (req, res) => { // set about location to the about page
+  res.sendFile(__dirname + '/about.html');
+})
 io.on('connection', (socket) => { // handle a user connecting
   var currentRoom; // make a placeholder for the room name
   socket.on('roomChange', (object) => { // handle a change in rooms

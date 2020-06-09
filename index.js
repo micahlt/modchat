@@ -41,7 +41,7 @@ app.get('/', (req, res) => { // set root location to the landing page
 });
 app.get('/about', (req, res) => { // set about location to the about page
   res.sendFile(__dirname + '/about.html');
-})
+});
 io.on('connection', (socket) => { // handle a user connecting
   var currentRoom; // make a placeholder for the room name
   socket.on('roomChange', (object) => { // handle a change in rooms
@@ -90,15 +90,32 @@ io.on('connection', (socket) => { // handle a user connecting
                   var userDoc = { // make a new document object
                     username: object.sender, // set the username as the message sender's name
                     id: data.id, // set the user's ID to the ID recieved by the Scratch API
-                    socketId: socket.id
+                    socketId: socket.id,
+                    room: currentRoom
                   }
                   userDb.insert(userDoc, function(err, docc) { // insert the document to the database
                     io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
                       "message": filter.clean(object.message), // set the message as a filtered version of the original
                       "sender": object.sender, // set the sender to the sender's username
-                      "id": data.id, // set the sender's ID from the database
+                      "id": data.id, // set the sender's ID from the API request
                     });
                   });
+                  if (object.message == "/who") {
+                    var onlineList = userDb.find({
+                      room: currentRoom
+                    }, function(err, locatedDocs) {
+                      var online = "";
+                      console.log(locatedDocs);
+                      if (locatedDocs[1] == undefined) {
+                        io.to(currentRoom).emit('botMessage', "😫 Looks like you're all alone...");
+                      } else {
+                        for (let i = 0; i < locatedDocs.length; i++) {
+                          online += "<br><b>" + locatedDocs[i].username + "</b>"
+                        }
+                        io.to(currentRoom).emit('botMessage', "Online users:<br>" + online);
+                      }
+                    })
+                  }
                 })
             } else {
               var locateDoc = userDb.find({ // if the user does exist
@@ -109,6 +126,22 @@ io.on('connection', (socket) => { // handle a user connecting
                   "sender": object.sender, // set the sender to the sender's username
                   "id": doc[0].id // set the sender's ID from the database
                 });
+                if (object.message == "/who") {
+                  var onlineList = userDb.find({
+                    room: currentRoom
+                  }, function(err, locatedDocs) {
+                    var online = "";
+                    console.log(locatedDocs);
+                    if (locatedDocs[1] == undefined) {
+                      io.to(currentRoom).emit('botMessage', "😫 Looks like you're all alone...");
+                    } else {
+                      for (let i = 0; i < locatedDocs.length; i++) {
+                        online += "<br><b>" + locatedDocs[i].username + "</b>";
+                      }
+                      io.to(currentRoom).emit('botMessage', "Online users:<br>" + online);
+                    }
+                  })
+                }
               })
             }
           });

@@ -28,7 +28,7 @@ filter.addWords(...filipinoBadwords.array); // Add Filipino curse words to the f
 filter.addWords(...moreBadwords); // Add other curse words to the filter
 // End Filter Setup
 let bannedList = ['WhatImWorkingOn', 'Spammer', 'PFPboi', 'WhatAmIWorkingOn'];
-let modsList = ['-Ekmand-', '-Archon-', 'MicahLT', 'ContourLines', 'YodaLightsabr', 'MetaLabs'];
+let modsList = ['-Ekmand-', '-Archon-', 'MicahLT', 'ContourLines', 'YodaLightsabr', 'MetaLabs', '--Velocity--', 'ConvexPolygon'];
 var svAppId = "4205845"; // register SV app id
 var svAppSecret = "58402c158faf27abf7e89e723672d315c9a7bf40be0e7cb6bae2d8dcde886a0b"; // register SV app (secret token)
 userDb.persistence.setAutocompactionInterval(30000);

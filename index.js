@@ -3,6 +3,9 @@ global.fetch = require("node-fetch"); // for web requests
 global.btoa = require('btoa'); // for SV authenication
 var express = require('express'); // for main server
 var Filter = require('bad-words'); // for filtering messages
+var frenchBadwords = require('french-badwords-list'); // import French curse words for filtering
+var filipinoBadwords = require("filipino-badwords-list"); // import Filipino curse words for filtering
+var moreBadwords = require("badwordspluss");
 var Datastore = require('nedb'); // for username info storage
 var bcrypt = require('bcrypt'); // for hashing usernames
 var userDb = new Datastore({
@@ -13,14 +16,19 @@ var app = express(); // define the app var
 var http = require('http').createServer(app); // init http server
 var io = require('socket.io')(http); // attach socket to the server
 // Begin Filter Setup
-var filter = new Filter(); // set up the filter
-let removeWords = ['god', 'God']; // Make a list of word to be uncensored.
+var filter = new Filter({
+  placeHolder: '_'
+}); // set up the filter
+let removeWords = ['GOD']; // Make a list of word to be uncensored.
 filter.removeWords(...removeWords); //Remove those from the filter
-let addWords = ['WTF', 'wtf', 'lmao', 'LMAO']; // Any words in this list will be censored.
-filter.addWords(...addWords); //Add those to the filter
+let addWords = ['WTF', 'LMAO', 'DISCORD', 'INSTAGRAM', 'SLACK', 'SNAPCHAT']; // Any words in this list will be censored.
+filter.addWords(...addWords); // Add those to the filter
+filter.addWords(...frenchBadwords.array); // Add French curse words to the filter
+filter.addWords(...filipinoBadwords.array); // Add Filipino curse words to the filter
+filter.addWords(...moreBadwords); // Add other curse words to the filter
 // End Filter Setup
 let bannedList = ['WhatImWorkingOn', 'Spammer', 'PFPboi', 'WhatAmIWorkingOn'];
-let modsList = ['-Ekmand-', '-Archon-', 'MicahLT', 'ContourLines', 'YodaLightSabr', 'MetaLabs'];
+let modsList = ['-Ekmand-', '-Archon-', 'MicahLT', 'ContourLines', 'YodaLightsabr', 'MetaLabs'];
 var svAppId = "4205845"; // register SV app id
 var svAppSecret = "58402c158faf27abf7e89e723672d315c9a7bf40be0e7cb6bae2d8dcde886a0b"; // register SV app (secret token)
 userDb.persistence.setAutocompactionInterval(30000);

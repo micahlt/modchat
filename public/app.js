@@ -36,14 +36,14 @@ function setTheme() {
     root.style.setProperty("--background-tertiary", "lightgray");
     root.style.setProperty("--text-primary", "#0a0a0a");
     root.style.setProperty("--transparent", "rgba(0, 0, 0, 0.02)");
-    document.getElementsByClassName('register-img')[0].src = "wordmark-black.png";
+    document.getElementsByClassName('register-img')[0].src = "/wordmark-black.png";
   } else if (window.localStorage.getItem("theme") == "dark") {
     root.style.setProperty("--background-primary", "#090A0B");
     root.style.setProperty("--background-secondary", "#131516");
     root.style.setProperty("--background-tertiary", "rgb(20, 20, 20)");
     root.style.setProperty("--text-primary", "#ffffff");
     root.style.setProperty("--transparent", "rgba(255, 255, 255, 0.02)");
-    document.getElementsByClassName('register-img')[0].src = "wordmark-white.png";
+    document.getElementsByClassName('register-img')[0].src = "/wordmark-white.png";
   }
 }
 

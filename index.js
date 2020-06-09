@@ -47,7 +47,7 @@ io.on('connection', (socket) => { // handle a user connecting
         socket.leave(currentRoom);
       } else {
         console.log("User " + object.user + " joined the " + object.room + " room"); // ROP
-        bcrypt.compare(object.user, object.hash).then(function(result) {
+        bcrypt.compare(object.user, object.hash, function(result) {
           if (result) {
             io.to(currentRoom).emit('botMessage', "🎉 Welcome <b>" + object.user + "</b> to the <b>" + currentRoom + "</b> room! 🎉"); // emit a welcome message with the Modchat bot
           }
@@ -61,7 +61,7 @@ io.on('connection', (socket) => { // handle a user connecting
     socket.to(currentRoom).emit('isTyping', username);
   });
   socket.on('chatMessage', (object) => { // handle the server recieving messages
-    bcrypt.compare(object.sender, object.hash).then(function(result) {
+    bcrypt.compare(object.sender, object.hash, function(result) {
       if (result) {
         if (bannedList.includes(object.sender)) {
           socket.emit('bannedUser', true);

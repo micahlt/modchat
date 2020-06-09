@@ -12,7 +12,7 @@ var getParams = function(url) { // set up the getParams function
   return params; // return the parameters as an object
 };
 let charCount = 0;
-const charLimit = 200; // sets the char limit to 200
+const charLimit = 250; // sets the char limit to 200
 let usersTyping = [];
 let root = document.documentElement;
 let userName = window.localStorage.getItem("userName"); // grab the user object from localStorage if it exists

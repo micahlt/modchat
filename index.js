@@ -69,7 +69,9 @@ io.on('connection', (socket) => { // handle a user connecting
     socket.to(currentRoom).emit('isTyping', username);
   });
   socket.on('chatMessage', (object) => { // handle the server recieving messages
-    bcrypt.compare(object.sender, object.hash, function(result) {
+    console.log(object.sender, object.hash)
+    bcrypt.compare(object.sender, object.hash).then(function(result) {
+      console.log(result)
       if (result) {
         if (bannedList.includes(object.sender)) {
           socket.emit('bannedUser', true);

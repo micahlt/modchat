@@ -199,14 +199,19 @@ io.on('connection', (socket) => { // handle a user connecting
         }
       });
   });
-  socket.on('userDisconnect', (name) => {
-    io.to(currentRoom).emit('botMessage', "😐 User <b>" + name + "</b> left the <b>" + currentRoom + "</b> room."); // emit a welcome message with the Modchat bot
-    console.log('user disconnected'); // ROP
-  })
   socket.on('disconnect', () => { // handle user disconnecting from the server
+  userDb.find({ socketId: socket.id }, function(err, docs) {
+    if (!docs[0] == undefined) {
+      io.to(currentRoom).emit('botMessage', "😐 User <b>" + docs[0].username + "</b> left the <b>" + currentRoom + "</b> room."); // emit a welcome message with the Modchat bot
+    console.log(docs[0].username); // ROP
+    console.log(docs);
     userDb.remove({
       socketId: socket.id
     })
+    } else {
+      console.log('a user disconnected:', socket.id);
+    }
+  })
   });
 });
 http.listen((process.env.PORT || 3001), () => { // initialize the server

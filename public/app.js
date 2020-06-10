@@ -28,6 +28,12 @@ if (Notification.permission == "default") {
   Notification.requestPermission();
 }
 
+document.getElementById('signOut').addEventListener('click', function() {
+  window.localStorage.removeItem("userName");
+  window.localStorage.removeItem("userHash");
+  window.location.reload();
+})
+
 window.addEventListener('load', setTheme);
 
 document.getElementById('sidebarControl').addEventListener('click', slideSidebar);
@@ -36,9 +42,11 @@ function slideSidebar() {
   if (!sidebarOpen) {
     document.getElementsByClassName('sidebar')[0].style.display = 'block';
     document.getElementById('sidebarControl').style.transform = "rotate(180deg)";
+    document.getElementById('sidebarControl').style.boxShadow = "0 -3px 10px rgba(0, 0, 0, 0.4)";
     sidebarOpen = true;
   } else {
     document.getElementById('sidebarControl').style.transform = "rotate(0deg)";
+    document.getElementById('sidebarControl').style.boxShadow = "0 3px 10px rgba(0, 0, 0, 0.4)";
     document.getElementsByClassName('sidebar')[0].style.display = 'none';
     sidebarOpen = false;
   }
@@ -172,7 +180,6 @@ socket.on('chatMessage', function(object) { // handle recieving chat messages
     }
   });
   p.innerHTML = mentionsMessage; // add the message text to that element
-  console.log(mentionsMessage);
   m.appendChild(img);
   m.appendChild(p);
   document.getElementById('messages').appendChild(m); // append the message to the message area

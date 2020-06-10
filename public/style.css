@@ -86,6 +86,7 @@ body {
   border-top-left-radius: 20px !important;
   border-bottom-left-radius: 0 !important;
   background: #6e31ff !important;
+  color: white !important;
 }
 
 #messages li:last-child {
@@ -197,6 +198,7 @@ button:focus {
   top: 0;
   left: -1em;
   height: 2.5em;
+  width: 2.5em;
   border-radius: 100%;
   cursor: pointer;
 }
@@ -226,6 +228,10 @@ button:focus {
 
 #changeTheme {
   bottom: 5em;
+}
+
+#signOut {
+  bottom: 11em;
 }
 
 #typingSection {
@@ -292,6 +298,10 @@ button:focus {
 
 #sidebarControl {
   display: none;
+}
+
+#svCode {
+  background-color: transparent;
 }
 
 @keyframes flash {

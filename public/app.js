@@ -173,7 +173,7 @@ socket.on('chatMessage', function(object) { // handle recieving chat messages
   let mentionsMessage = ''; // resets the metions in the message
   object.message.split(' ').forEach((word) => {
     if (word[0] == '@') {
-      const link = '<a class="mention" href="https://scratch.mit.edu/users/' + word.substring(1, word.length) + '">' + word + '</a> '; // creates a link relevant to the user
+      const link = '<a class="mention" target="_blank" href="https://scratch.mit.edu/users/' + word.substring(1, word.length) + '">' + word + '</a> '; // creates a link relevant to the user
       mentionsMessage = mentionsMessage + link;
     } else {
       mentionsMessage = mentionsMessage + word + ' ';

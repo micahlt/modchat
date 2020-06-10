@@ -28,7 +28,7 @@ filter.addWords(...filipinoBadwords.array); // Add Filipino curse words to the f
 filter.addWords(...moreBadwords); // Add other curse words to the filter
 // End Filter Setup
 let bannedList = ['WhatImWorkingOn', 'Spammer', 'PFPboi', 'WhatAmIWorkingOn'];
-let modsList = ['-Ekmand-', '-Archon-', 'MicahLT', 'ContourLines', 'YodaLightsabr', 'MetaLabs'];
+let modsList = ['-Ekmand-', '-Archon-', 'MicahLT', 'ContourLines', 'YodaLightsabr', 'MetaLabs', '--Velocity--', 'ConvexPolygon'];
 var svAppId = "4205845"; // register SV app id
 var svAppSecret = "58402c158faf27abf7e89e723672d315c9a7bf40be0e7cb6bae2d8dcde886a0b"; // register SV app (secret token)
 userDb.persistence.setAutocompactionInterval(30000);
@@ -54,6 +54,7 @@ io.on('connection', (socket) => { // handle a user connecting
         socket.emit('bannedUser', true);
         socket.leave(currentRoom);
       } else {
+        userDb.update({ username: object.user }, { $set: { room: currentRoom }});
         console.log("User " + object.user + " joined the " + object.room + " room"); // ROP
         bcrypt.compare(object.user, object.hash).then(function(result) {
           if (result) {
@@ -198,14 +199,19 @@ io.on('connection', (socket) => { // handle a user connecting
         }
       });
   });
-  socket.on('userDisconnect', (name) => {
-    io.to(currentRoom).emit('botMessage', "😐 User <b>" + name + "</b> left the <b>" + currentRoom + "</b> room."); // emit a welcome message with the Modchat bot
-    console.log('user disconnected'); // ROP
-  })
   socket.on('disconnect', () => { // handle user disconnecting from the server
+  userDb.find({ socketId: socket.id }, function(err, docs) {
+    if (!docs[0] == undefined) {
+      io.to(currentRoom).emit('botMessage', "😐 User <b>" + docs[0].username + "</b> left the <b>" + currentRoom + "</b> room."); // emit a welcome message with the Modchat bot
+    console.log(docs[0].username); // ROP
+    console.log(docs);
     userDb.remove({
       socketId: socket.id
     })
+    } else {
+      console.log('a user disconnected:', socket.id);
+    }
+  })
   });
 });
 http.listen((process.env.PORT || 3001), () => { // initialize the server

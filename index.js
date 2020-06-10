@@ -54,6 +54,7 @@ io.on('connection', (socket) => { // handle a user connecting
         socket.emit('bannedUser', true);
         socket.leave(currentRoom);
       } else {
+        userDb.update({ username: object.user }, { $set: { room: currentRoom }});
         console.log("User " + object.user + " joined the " + object.room + " room"); // ROP
         bcrypt.compare(object.user, object.hash).then(function(result) {
           if (result) {

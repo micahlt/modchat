@@ -158,6 +158,9 @@ socket.on('chatMessage', function(object) { // handle recieving chat messages
   img.onclick = function() {
     window.open('https://scratch.mit.edu/users/' + object.sender, '_blank');
   }
+  if (object.sender == localStorage.getItem("userName")) {
+    p.classList.add("yourMessage");
+  }
   img.setAttribute('title', object.sender);
   let mentionsMessage = ''; // resets the metions in the message
   object.message.split(' ').forEach((word) => {

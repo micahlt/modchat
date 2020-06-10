@@ -54,7 +54,13 @@ io.on('connection', (socket) => { // handle a user connecting
         socket.emit('bannedUser', true);
         socket.leave(currentRoom);
       } else {
-        userDb.update({ username: object.user }, { $set: { room: currentRoom }});
+        userDb.update({
+          username: object.user
+        }, {
+          $set: {
+            room: currentRoom
+          }
+        });
         console.log("User " + object.user + " joined the " + object.room + " room"); // ROP
         bcrypt.compare(object.user, object.hash).then(function(result) {
           if (result) {
@@ -95,38 +101,34 @@ io.on('connection', (socket) => { // handle a user connecting
                     room: currentRoom
                   }
                   userDb.insert(userDoc, function(err, docc) { // insert the document to the database
-                    io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
-                      "message": filter.clean(object.message), // set the message as a filtered version of the original
-                      "sender": object.sender, // set the sender to the sender's username
-                      "id": data.id, // set the sender's ID from the API request
-                    });
-                  });
-                  if (object.message == "/who") {
-                    var onlineList = userDb.find({
-                      room: currentRoom
-                    }, function(err, locatedDocs) {
-                      var online = "";
-                      console.log(locatedDocs);
-                      if (locatedDocs[1] == undefined) {
-                        io.to(currentRoom).emit('botMessage', "😫 Looks like you're all alone...");
-                      } else {
-                        for (let i = 0; i < locatedDocs.length; i++) {
-                          online += "<br><b>" + locatedDocs[i].username + "</b>"
+                    if (object.message == "/who") {
+                      var onlineList = userDb.find({
+                        room: currentRoom
+                      }, function(err, locatedDocs) {
+                        var online = "";
+                        console.log(locatedDocs);
+                        if (locatedDocs[1] == undefined) {
+                          io.to(socket.id).emit('botMessage', "😫 Looks like you're all alone...");
+                        } else {
+                          for (let i = 0; i < locatedDocs.length; i++) {
+                            online += "<br><b>" + locatedDocs[i].username + "</b>"
+                          }
+                          io.to(currentRoom).emit('botMessage', "Online users:<br>" + online);
                         }
-                        io.to(currentRoom).emit('botMessage', "Online users:<br>" + online);
-                      }
-                    })
-                  }
+                      })
+                    } else {
+                      io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
+                        "message": filter.clean(object.message), // set the message as a filtered version of the original
+                        "sender": object.sender, // set the sender to the sender's username
+                        "id": data.id // set the sender's ID from the API request
+                      });
+                    }
+                  });
                 })
             } else {
               var locateDoc = userDb.find({ // if the user does exist
                 username: object.sender // set the username to the sender's username
               }, function(err, doc) {
-                io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
-                  "message": filter.clean(object.message), // set the message as a filtered version of the original
-                  "sender": object.sender, // set the sender to the sender's username
-                  "id": doc[0].id // set the sender's ID from the database
-                });
                 if (object.message == "/who") {
                   var onlineList = userDb.find({
                     room: currentRoom
@@ -134,7 +136,7 @@ io.on('connection', (socket) => { // handle a user connecting
                     var online = "";
                     console.log(locatedDocs);
                     if (locatedDocs[1] == undefined) {
-                      io.to(currentRoom).emit('botMessage', "😫 Looks like you're all alone...");
+                      io.to(socket.id).emit('botMessage', "😫 Looks like you're all alone...");
                     } else {
                       for (let i = 0; i < locatedDocs.length; i++) {
                         online += "<br><b>" + locatedDocs[i].username + "</b>";
@@ -142,6 +144,12 @@ io.on('connection', (socket) => { // handle a user connecting
                       io.to(currentRoom).emit('botMessage', "Online users:<br>" + online);
                     }
                   })
+                } else {
+                  io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
+                    "message": filter.clean(object.message), // set the message as a filtered version of the original
+                    "sender": object.sender, // set the sender to the sender's username
+                    "id": doc[0].id // set the sender's ID from the database
+                  });
                 }
               })
             }
@@ -200,18 +208,20 @@ io.on('connection', (socket) => { // handle a user connecting
       });
   });
   socket.on('disconnect', () => { // handle user disconnecting from the server
-  userDb.find({ socketId: socket.id }, function(err, docs) {
-    if (!docs[0] == undefined) {
-      io.to(currentRoom).emit('botMessage', "😐 User <b>" + docs[0].username + "</b> left the <b>" + currentRoom + "</b> room."); // emit a welcome message with the Modchat bot
-    console.log(docs[0].username); // ROP
-    console.log(docs);
-    userDb.remove({
+    userDb.find({
       socketId: socket.id
+    }, function(err, docs) {
+      if (!docs[0] == undefined) {
+        io.to(currentRoom).emit('botMessage', "😐 User <b>" + docs[0].username + "</b> left the <b>" + currentRoom + "</b> room."); // emit a welcome message with the Modchat bot
+        console.log(docs[0].username); // ROP
+        console.log(docs);
+        userDb.remove({
+          socketId: socket.id
+        })
+      } else {
+        console.log('a user disconnected:', socket.id);
+      }
     })
-    } else {
-      console.log('a user disconnected:', socket.id);
-    }
-  })
   });
 });
 http.listen((process.env.PORT || 3001), () => { // initialize the server

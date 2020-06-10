@@ -77,9 +77,15 @@ body {
   margin-left: 40px;
   margin-right: 20px;
   border-radius: 20px;
-  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
   width: max-content;
   max-width: 70%;
+}
+
+.yourMessage {
+  border-top-left-radius: 20px !important;
+  border-bottom-left-radius: 0 !important;
+  background: #6e31ff !important;
 }
 
 #messages li:last-child {
@@ -324,12 +330,12 @@ button:focus {
     display: block;
     color: #6e31ff;
     z-index: 3;
-    background: var(--text-primary);
+    background: var(--background-secondary);
     padding: 15px;
     height: 54px;
     width: 54px;
     border-radius: 100%;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
     position: fixed;
     top: 10px;
     right: 10px;

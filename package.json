@@ -1,6 +1,6 @@
 {
   "name": "modchat",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "description": "A moderated chat, outside of Scratch",
   "main": "index.js",
   "scripts": {

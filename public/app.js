@@ -75,7 +75,7 @@ function changeTheme() {
   }
 }
 if (!(getParams(window.location.href).r)) {
-  window.location.replace(window.location.href + "?r=def");
+  window.location.replace(window.location.href + "?r=default");
 }
 
 document.getElementById("changeRoom").addEventListener('click', function() {

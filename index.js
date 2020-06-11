@@ -54,18 +54,20 @@ io.on('connection', (socket) => { // handle a user connecting
     socket.leave(currentRoom); // leave the current room
     currentRoom = object.room; // set the current room to the room sent by the client
     socket.join(currentRoom); // join the new current room
-    /*var roomStorage = roomDb.find({
+    var roomStorage = roomDb.find({
       roomName: currentRoom // sets the room name to find as current room
     }, function(err, docs) {
-      if (docs[0] === null) { // if room doesn't exist
+      if (docs[0] === undefined) { // if room doesn't exist
         console.log('adding room ' + currentRoom); // ROP
         var room = {
           roomName: currentRoom,
           roomMessages: []
         }; // creates a db object for the room
         roomDb.insert(room); // inserts the room
+      } else {
+        console.log("Room already exists");
       }
-    });*/
+    });
     if (!(object.user == null)) {
       if (bannedList.includes(object.user)) {
         console.log("Banned user " + object.user + " attempted to join.");

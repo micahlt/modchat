@@ -48,6 +48,7 @@ app.get('/about', (req, res) => { // set about location to the about page
   res.sendFile(__dirname + '/about.html');
 });
 io.on('connection', (socket) => { // handle a user connecting
+  console.log(socket.id)
   var currentRoom; // make a placeholder for the room name
   socket.on('roomChange', (object) => { // handle a change in rooms
     socket.leave(currentRoom); // leave the current room
@@ -75,7 +76,8 @@ io.on('connection', (socket) => { // handle a user connecting
           username: object.user
         }, {
           $set: {
-            room: currentRoom
+            room: currentRoom,
+            socketId: object.socket
           }
         });
         console.log("User " + object.user + " joined the " + object.room + " room"); // ROP
@@ -114,7 +116,7 @@ io.on('connection', (socket) => { // handle a user connecting
                   var userDoc = { // make a new document object
                     username: object.sender, // set the username as the message sender's name
                     id: data.id, // set the user's ID to the ID recieved by the Scratch API
-                    socketId: socket.id,
+                    socketId: object.socket,
                     room: currentRoom
                   }
                   userDb.insert(userDoc, function(err, docc) { // insert the document to the database
@@ -135,15 +137,15 @@ io.on('connection', (socket) => { // handle a user connecting
                       })
                     } else {
                       if (!filter.isProfane(object.message)) { // checks if message doesn't contain rude words
-                    io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
-                      "message": object.message,
-                      "sender": object.sender, // set the sender to the sender's username
-                      "id": doc[0].id // set the sender's ID from the database
-                    });
-                  } else {
-                    io.to(socket.id).emit('badWord');
-                    console.log('User ' + object.sender + ' tried to post something rude.'); // ROP
-                  }
+                        io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
+                          "message": object.message,
+                          "sender": object.sender, // set the sender to the sender's username
+                          "id": data.id // set the sender's ID from the database
+                        });
+                      } else {
+                        io.to(socket.id).emit('badWord');
+                        console.log('User ' + object.sender + ' tried to post something rude.'); // ROP
+                      }
                     }
                   });
                 })
@@ -236,12 +238,12 @@ io.on('connection', (socket) => { // handle a user connecting
   });
   socket.on('disconnect', () => { // handle user disconnecting from the server
     userDb.find({
-      socketId: socket.id
+      socketId: socket.id,
+      room: currentRoom
     }, function(err, docs) {
-      if (!docs[0] == undefined) {
+      if (docs[0] !== undefined) {
         io.to(currentRoom).emit('botMessage', "😐 User <b>" + docs[0].username + "</b> left the <b>" + currentRoom + "</b> room."); // emit a welcome message with the Modchat bot
-        console.log(docs[0].username); // ROP
-        console.log(docs); // ROP
+        console.log(docs[0].username, "left the room");
         userDb.remove({
           socketId: socket.id
         })

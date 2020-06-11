@@ -107,7 +107,8 @@ document.getElementById("form").addEventListener("submit", function(event) { // 
     socket.emit('chatMessage', { // send the chat message from the form value to the server
       "message": message,
       "sender": window.localStorage.getItem("userName"),
-      "hash": window.localStorage.getItem("userHash")
+      "hash": window.localStorage.getItem("userHash"),
+      "socket": socket.id
     });
     document.getElementById("m").value = ""; // reset the chat form's value
   } else if (charCount > charLimit) {
@@ -247,7 +248,8 @@ socket.on('connect', function() {
   socket.emit('roomChange', {
     "room": getParams(window.location.href).r,
     "user": window.localStorage.getItem("userName"),
-    "hash": window.localStorage.getItem("userHash")
+    "hash": window.localStorage.getItem("userHash"),
+    "socket": socket.id
   });
 });
 setInterval(whosTyping, 500);

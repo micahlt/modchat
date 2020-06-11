@@ -304,6 +304,31 @@ button:focus {
   background-color: transparent;
 }
 
+@keyframes spinner {
+  to {transform: rotate(360deg);}
+}
+
+.loader {
+  opacity: 0;
+  z-index: 100;
+}
+
+.loader:before {
+  content: '';
+  box-sizing: border-box;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin-top: -10px;
+  margin-left: -10px;
+  border-radius: 50%;
+  border-top: 2px solid #6e31ff;
+  border-right: 2px solid transparent;
+  animation: spinner .6s linear infinite;
+}
+
 @keyframes flash {
   0% {
     opacity: 1;

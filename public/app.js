@@ -139,6 +139,7 @@ document.getElementById("form").addEventListener("keydown", function(event) {
 document.getElementById("username").addEventListener("submit", function(event) { // listen for user registration
   event.stopImmediatePropagation(); // stop reloads
   event.preventDefault(); // stop reloads
+  document.getElementsByClassName('loader')[0].style.opacity = "1";
   socket.emit('userRegister', document.getElementById("username-input").value); // send the username to verify to the server
   return false;
 });
@@ -219,6 +220,7 @@ socket.on('botMessage', function(msg) { // handle recieving chat messages
 });
 
 socket.on('svCodeToVerify', function(msg) { // handle recieving the SV code (after triggering the setUsername function)
+document.getElementsByClassName('loader')[0].style.opacity = "0";
   document.getElementById('svCode').value = msg; // display the code
   document.getElementById('completeSV').style.display = "block"; // display the completion button
   document.getElementById('completeSV').addEventListener('click', function() { // listen for clicks on the completion button

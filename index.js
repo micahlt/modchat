@@ -8,6 +8,10 @@ var filipinoBadwords = require("filipino-badwords-list"); // import Filipino cur
 var moreBadwords = require("badwordspluss");
 var Datastore = require('nedb'); // for username info storage
 var bcrypt = require('bcrypt'); // for hashing usernames
+var roomDb = new Datastore({
+  filename: 'rooms.db',
+  autoload: true
+});
 var userDb = new Datastore({
   filename: 'users.db',
   autoload: true
@@ -31,6 +35,7 @@ let bannedList = ['WhatImWorkingOn', 'Spammer', 'PFPboi', 'WhatAmIWorkingOn'];
 let modsList = ['-Ekmand-', '-Archon-', 'MicahLT', 'ContourLines', 'YodaLightsabr', 'MetaLabs', '--Velocity--', 'ConvexPolygon'];
 var svAppId = "4205845"; // register SV app id
 var svAppSecret = "58402c158faf27abf7e89e723672d315c9a7bf40be0e7cb6bae2d8dcde886a0b"; // register SV app (secret token)
+roomDb.persistence.setAutocompactionInterval(30000);
 userDb.persistence.setAutocompactionInterval(30000);
 app.use(express.static(__dirname + '/public')); // tell express where to get public assets
 app.get('/chat', (req, res) => { // set chat location to the chat page
@@ -48,6 +53,18 @@ io.on('connection', (socket) => { // handle a user connecting
     socket.leave(currentRoom); // leave the current room
     currentRoom = object.room; // set the current room to the room sent by the client
     socket.join(currentRoom); // join the new current room
+    /*var roomStorage = roomDb.find({
+      roomName: currentRoom // sets the room name to find as current room
+    }, function(err, docs) {
+      if (docs[0] === null) { // if room doesn't exist
+        console.log('adding room ' + currentRoom); // ROP
+        var room = {
+          roomName: currentRoom,
+          roomMessages: []
+        }; // creates a db object for the room
+        roomDb.insert(room); // inserts the room
+      }
+    });*/
     if (!(object.user == null)) {
       if (bannedList.includes(object.user)) {
         console.log("Banned user " + object.user + " attempted to join.");
@@ -117,11 +134,16 @@ io.on('connection', (socket) => { // handle a user connecting
                         }
                       })
                     } else {
-                      io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
-                        "message": filter.clean(object.message), // set the message as a filtered version of the original
-                        "sender": object.sender, // set the sender to the sender's username
-                        "id": data.id // set the sender's ID from the API request
-                      });
+                      if (!filter.isProfane(object.message)) { // checks if message doesn't contain rude words
+                    io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
+                      "message": object.message,
+                      "sender": object.sender, // set the sender to the sender's username
+                      "id": doc[0].id // set the sender's ID from the database
+                    });
+                  } else {
+                    io.to(socket.id).emit('badWord');
+                    console.log('User ' + object.sender + ' tried to post something rude.'); // ROP
+                  }
                     }
                   });
                 })
@@ -145,13 +167,18 @@ io.on('connection', (socket) => { // handle a user connecting
                     }
                   })
                 } else {
-                  io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
-                    "message": filter.clean(object.message), // set the message as a filtered version of the original
-                    "sender": object.sender, // set the sender to the sender's username
-                    "id": doc[0].id // set the sender's ID from the database
-                  });
+                  if (!filter.isProfane(object.message)) { // checks if message doesn't contain rude words
+                    io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
+                      "message": object.message,
+                      "sender": object.sender, // set the sender to the sender's username
+                      "id": doc[0].id // set the sender's ID from the database
+                    });
+                  } else {
+                    io.to(socket.id).emit('badWord');
+                    console.log('User ' + object.sender + ' tried to post something rude.'); // ROP
+                  }
                 }
-              })
+              });
             }
           });
         }
@@ -214,7 +241,7 @@ io.on('connection', (socket) => { // handle a user connecting
       if (!docs[0] == undefined) {
         io.to(currentRoom).emit('botMessage', "😐 User <b>" + docs[0].username + "</b> left the <b>" + currentRoom + "</b> room."); // emit a welcome message with the Modchat bot
         console.log(docs[0].username); // ROP
-        console.log(docs);
+        console.log(docs); // ROP
         userDb.remove({
           socketId: socket.id
         })

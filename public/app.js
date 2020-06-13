@@ -181,7 +181,7 @@ socket.on('chatMessage', function(object) { // handle recieving chat messages
       mentionsMessage = mentionsMessage + word + ' ';
     }
   });
-  p.innerHTML = mentionsMessage; // add the message text to that element
+  p.innerText = mentionsMessage; // add the message text to that element
   m.appendChild(img);
   m.appendChild(p);
   document.getElementById('messages').appendChild(m); // append the message to the message area

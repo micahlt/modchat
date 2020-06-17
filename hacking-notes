@@ -1,0 +1,10 @@
+if (data.id == null) { // make sure that the user exists
+^ storing the user id as a string?
+^ considering that '==' converts the type
+Strict equality (===) means values which we are comparing must have the same type. This means "2" will not be equal to 2 ("2"===2 it will return false) Type converting equality (==) means automatically it will covert the variable to value irrespective of data type; either it is a string or a number. - https://www.c-sharpcorner.com/
+^ the 'data.id' var == null // if user doesn't exist // === null ==> data.id
+^ wait nu ===
+^ can data.id mean > null? is this literally a problem with how javascript was originally programmed?
+if the scratcher id is null then will null be < 0? [if data.id is already null and has converted to a value]
+^ by changing the value somehow of data.id - which stores a value, not a string, as it should
+be really helpful if it was open rn xd

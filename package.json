@@ -27,7 +27,7 @@
     "filipino-badwords-list": "^1.1.2",
     "french-badwords-list": "^1.0.5",
     "nedb": "^1.8.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "socket.io": "^2.3.0",
     "uws": "^10.148.1"
   },

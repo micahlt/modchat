@@ -92,6 +92,7 @@ document.getElementById("changeRoom").addEventListener('click', function() {
   document.getElementsByClassName("blocker")[0].addEventListener('click', function() {
     document.getElementsByClassName("blocker")[0].style.display = "none";
     document.getElementById("roomName").style.display = "none";
+    document.getElementsByClassName("blocker")[0].removeEventListener('click');
   })
 });
 
@@ -177,7 +178,8 @@ socket.on('chatMessage', function(object) { // handle recieving chat messages
   }
   img.setAttribute('title', object.sender);
   let mentionsMessage = ''; // resets the metions in the message
-  object.message.split(' ').forEach((word) => {
+  let messageToRender = object.message.replace(/(<([^>]+)>)/gi, "");
+  messageToRender.split(' ').forEach((word) => {
     if (word[0] == '@') {
       const link = '<a class="mention" target="_blank" href="https://scratch.mit.edu/users/' + word.substring(1, word.length) + '">' + word + '</a> '; // creates a link relevant to the user
       mentionsMessage = mentionsMessage + link;
@@ -185,7 +187,7 @@ socket.on('chatMessage', function(object) { // handle recieving chat messages
       mentionsMessage = mentionsMessage + word + ' ';
     }
   });
-  p.innerText = mentionsMessage; // add the message text to that element
+  p.innerHTML = mentionsMessage; // add the message text to that element
   m.appendChild(img);
   m.appendChild(p);
   document.getElementById('messages').appendChild(m); // append the message to the message area

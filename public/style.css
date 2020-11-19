@@ -266,12 +266,16 @@ button:focus {
 
 .mention {
   font-weight: bold;
-  color: white;
   text-decoration: none;
+  color: var(--text-primary);
+}
+
+.yourMessage .mention {
+  color: white !important;
 }
 
 .mention:hover {
-  color: #6e31ff;
+  text-shadow: 0 0 0.3em rgba(0, 0, 0, 0.8);
 }
 
 .sidebar {

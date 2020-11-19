@@ -31,7 +31,7 @@ filter.addWords(...frenchBadwords.array); // Add French curse words to the filte
 filter.addWords(...filipinoBadwords.array); // Add Filipino curse words to the filter
 filter.addWords(...moreBadwords); // Add other curse words to the filter
 // End Filter Setup
-let bannedList = ['WhatImWorkingOn', 'Spammer', 'PFPboi', 'WhatAmIWorkingOn'];
+let bannedList = process.env.MCBANNED.split(' ');
 let modsList = ['-Ekmand-', '-Archon-', 'MicahLT', 'ContourLines', 'YodaLightsabr', 'MetaLabs', '--Velocity--', 'ConvexPolygon'];
 var svAppId = process.env.SVID; // register SV app id
 var svAppSecret = process.env.SVSECRET; // register SV app (secret token)

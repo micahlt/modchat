@@ -41,6 +41,7 @@ body {
   transform: translateY(-10px);
   border-bottom: solid 2px transparent;
   font-family: 'Montserrat', sans-serif;
+  z-index: 1;
 }
 
 #form input:hover {
@@ -57,6 +58,10 @@ body {
 
 #form button:hover {
   color: var(--text-primary);
+}
+
+.padded-btn {
+  padding: 1em;
 }
 
 #messages {
@@ -123,16 +128,19 @@ button:focus {
 }
 
 .register, #roomName {
-  background-color: var(--background-primary);
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 100vw;
-  height: 100vh;
   z-index: 21;
   padding: 10px;
   text-align: center;
+}
+
+.register {
+  background-color: var(--background-primary);
+  width: 100vw;
+  height: 100vh;
 }
 
 .register h1 {
@@ -247,7 +255,7 @@ button:focus {
   position: fixed;
   bottom: 0.9em;
   right: 2em;
-  z-index: 1;
+  z-index: 2;
 }
 
 .flashing {
@@ -305,7 +313,9 @@ button:focus {
 }
 
 @keyframes spinner {
-  to {transform: rotate(360deg);}
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .loader {

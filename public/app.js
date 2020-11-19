@@ -89,12 +89,16 @@ if (!(getParams(window.location.href).r)) {
 document.getElementById("changeRoom").addEventListener('click', function() {
   document.getElementById("roomName").style.display = "block";
   document.getElementsByClassName("blocker")[0].style.display = "block";
+  document.getElementsByClassName("blocker")[0].addEventListener('click', function() {
+    document.getElementsByClassName("blocker")[0].style.display = "none";
+    document.getElementById("roomName").style.display = "none";
+  })
 });
 
 document.getElementById("roomName").addEventListener("submit", function(event) {
   event.stopImmediatePropagation(); // stop reloads
   event.preventDefault(); // stop reloads
-  window.location.replace("https://modchatdevelopment2.contourrepl.repl.co/chat/?r=" + document.getElementById("r").value);
+  window.location.replace(window.location.href.split('?')[0] + "?r=" + document.getElementById("r").value);
 })
 
 document.getElementById("form").addEventListener("submit", function(event) { // listen for submits on the message sending form
@@ -203,7 +207,7 @@ socket.on('botMessage', function(msg) { // handle recieving chat messages
   var m = document.createElement('li'); // create an element to display the message
   var p = document.createElement('p'); // create the actual message
   var img = document.createElement('img'); // create an element to display the sender's profile picture
-  img.src = "https://cdn2.scratch.mit.edu/get_image/user/61090562_60x60.png";
+  img.src = "https://images.emojiterra.com/openmoji/v12.2/512px/1f916.png";
   img.classList.add("pfp");
   img.onclick = function() {
     window.open('https://scratch.mit.edu/users/Modchat-Bot', '_blank');
@@ -220,7 +224,7 @@ socket.on('botMessage', function(msg) { // handle recieving chat messages
 });
 
 socket.on('svCodeToVerify', function(msg) { // handle recieving the SV code (after triggering the setUsername function)
-document.getElementsByClassName('loader')[0].style.opacity = "0";
+  document.getElementsByClassName('loader')[0].style.opacity = "0";
   document.getElementById('svCode').value = msg; // display the code
   document.getElementById('completeSV').style.display = "block"; // display the completion button
   document.getElementById('completeSV').addEventListener('click', function() { // listen for clicks on the completion button

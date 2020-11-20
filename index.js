@@ -122,31 +122,43 @@ io.on('connection', (socket) => { // handle a user connecting
                     room: currentRoom
                   }
                   userDb.insert(userDoc, function(err, docc) { // insert the document to the database
-                    if (object.message == "/who") {
-                      var onlineList = userDb.find({
-                        room: currentRoom
-                      }, function(err, locatedDocs) {
-                        var online = "";
-                        console.log(locatedDocs);
-                        if (locatedDocs[1] == undefined) {
-                          io.to(socket.id).emit('botMessage', "😫 Looks like you're all alone...");
-                        } else {
-                          for (let i = 0; i < locatedDocs.length; i++) {
-                            online += "<br><b>" + locatedDocs[i].username + "</b>"
+                    switch (object.message) {
+                      case "/who": {
+                        var onlineList = userDb.find({
+                          room: currentRoom
+                        }, function(err, locatedDocs) {
+                          var online = "";
+                          console.log(locatedDocs);
+                          if (locatedDocs[1] == undefined) {
+                            io.to(socket.id).emit('botMessage', "😫 Looks like you're all alone...");
+                          } else {
+                            for (let i = 0; i < locatedDocs.length; i++) {
+                              online += "<br><b>" + locatedDocs[i].username + "</b>"
+                            }
+                            io.to(socket.id).emit('botMessage', "Online users:<br>" + online);
                           }
-                          io.to(currentRoom).emit('botMessage', "Online users:<br>" + online);
-                        }
-                      })
-                    } else {
-                      if (!filter.isProfane(object.message)) { // checks if message doesn't contain rude words
-                        io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
-                          "message": object.message,
-                          "sender": object.sender, // set the sender to the sender's username
-                          "id": data.id // set the sender's ID from the database
                         });
-                      } else {
-                        io.to(socket.id).emit('badWord');
-                        console.log('User ' + object.sender + ' tried to post something rude.'); // ROP
+                        break;
+                      }
+                      case "/help": {
+                        io.to(socket.id).emit('botMessage', "Thanks for using the Modchat Bot!  Here are your command options:<br> /help generates this message<br> /who prints users in your room<br> /shrug sends a shruggie to the room");
+                      }
+                      case "/shrug": {
+                        io.to(currentRoom).emit('botMessage', `<a href="https://scratch.mit.edu/users/${object.sender}" target="_blank" class="mention">${object.sender}</a> shrugged ¯\\_(ツ)_/¯`);
+                        break;
+                      }
+                      default: {
+                        if (!filter.isProfane(object.message)) { // checks if message doesn't contain rude words
+                          io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
+                            "message": object.message,
+                            "sender": object.sender, // set the sender to the sender's username
+                            "id": data.id // set the sender's ID from the database
+                          });
+                        } else {
+                          io.to(socket.id).emit('badWord');
+                          console.log('User ' + object.sender + ' tried to post something rude.'); // ROP
+                        }
+                        break;
                       }
                     }
                   });
@@ -155,31 +167,43 @@ io.on('connection', (socket) => { // handle a user connecting
               var locateDoc = userDb.find({ // if the user does exist
                 username: object.sender // set the username to the sender's username
               }, function(err, doc) {
-                if (object.message == "/who") {
-                  var onlineList = userDb.find({
-                    room: currentRoom
-                  }, function(err, locatedDocs) {
-                    var online = "";
-                    console.log(locatedDocs);
-                    if (locatedDocs[1] == undefined) {
-                      io.to(socket.id).emit('botMessage', "😫 Looks like you're all alone...");
-                    } else {
-                      for (let i = 0; i < locatedDocs.length; i++) {
-                        online += "<br><b>" + locatedDocs[i].username + "</b>";
+                switch (object.message) {
+                  case "/who": {
+                    var onlineList = userDb.find({
+                      room: currentRoom
+                    }, function(err, locatedDocs) {
+                      var online = "";
+                      console.log(locatedDocs);
+                      if (locatedDocs[1] == undefined) {
+                        io.to(socket.id).emit('botMessage', "😫 Looks like you're all alone...");
+                      } else {
+                        for (let i = 0; i < locatedDocs.length; i++) {
+                          online += "<br><b>" + locatedDocs[i].username + "</b>"
+                        }
+                        io.to(socket.id).emit('botMessage', "Online users:<br>" + online);
                       }
-                      io.to(currentRoom).emit('botMessage', "Online users:<br>" + online);
-                    }
-                  })
-                } else {
-                  if (!filter.isProfane(object.message)) { // checks if message doesn't contain rude words
-                    io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
-                      "message": object.message,
-                      "sender": object.sender, // set the sender to the sender's username
-                      "id": doc[0].id // set the sender's ID from the database
                     });
-                  } else {
-                    io.to(socket.id).emit('badWord');
-                    console.log('User ' + object.sender + ' tried to post something rude.'); // ROP
+                    break;
+                  }
+                  case "/help": {
+                    io.to(socket.id).emit('botMessage', "Thanks for using the Modchat Bot!  Here are your command options:<br> /help generates this message<br> /who prints users in your room<br> /shrug sends a shruggie to the room");
+                  }
+                  case "/shrug": {
+                    io.to(currentRoom).emit('botMessage', `<a href="https://scratch.mit.edu/users/${object.sender}" target="_blank" class="mention">${object.sender}</a> shrugged ¯\\_(ツ)_/¯`);
+                    break;
+                  }
+                  default: {
+                    if (!filter.isProfane(object.message)) { // checks if message doesn't contain rude words
+                      io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
+                        "message": object.message,
+                        "sender": object.sender, // set the sender to the sender's username
+                        "id": doc[0].id // set the sender's ID from the database
+                      });
+                    } else {
+                      io.to(socket.id).emit('badWord');
+                      console.log('User ' + object.sender + ' tried to post something rude.'); // ROP
+                    }
+                    break;
                   }
                 }
               });

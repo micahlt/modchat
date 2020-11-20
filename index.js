@@ -52,7 +52,11 @@ io.on('connection', (socket) => { // handle a user connecting
   var currentRoom; // make a placeholder for the room name
   socket.on('roomChange', (object) => { // handle a change in rooms
     socket.leave(currentRoom); // leave the current room
-    currentRoom = object.room.toLowerCase(); // set the current room to the room sent by the client
+    if (object.room) {
+      currentRoom = object.room.toLowerCase(); // set the current room to the room sent by the client
+    } else {
+      currentRoom = 'default';
+    }
     socket.join(currentRoom); // join the new current room
     var roomStorage = roomDb.find({
       roomName: currentRoom // sets the room name to find as current room

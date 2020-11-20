@@ -66,6 +66,9 @@ io.on('connection', (socket) => { // handle a user connecting
         roomDb.insert(room); // inserts the room
       } else {
         console.log("Room already exists");
+        docs[0].roomMessages.forEach(el => {
+          io.to(socket.id).emit('chatMessage', el);
+        })
       }
     });
     if (!(object.user == null)) {
@@ -155,6 +158,31 @@ io.on('connection', (socket) => { // handle a user connecting
                             "sender": object.sender, // set the sender to the sender's username
                             "id": data.id // set the sender's ID from the database
                           });
+                          roomDb.find({
+                            roomName: currentRoom
+                          }, function(err, doccs) {
+                            if (doccs[0].roomMessages.length > 50) {
+                              db.update({
+                                roomName: currentRoom
+                              }, {
+                                $pop: {
+                                  roomMessages: -1
+                                }
+                              })
+                            }
+                          })
+                          roomDb.update({
+                            roomName: currentRoom
+                          }, {
+                            $push: {
+                              roomMessages: {
+                                "message": object.message,
+                                "sender": object.sender, // set the sender to the sender's username
+                                "id": data.id, // set the sender's ID from the database
+                                "old": true
+                              }
+                            }
+                          })
                         } else {
                           io.to(socket.id).emit('badWord');
                           console.log('User ' + object.sender + ' tried to post something rude.'); // ROP
@@ -201,6 +229,31 @@ io.on('connection', (socket) => { // handle a user connecting
                         "sender": object.sender, // set the sender to the sender's username
                         "id": doc[0].id // set the sender's ID from the database
                       });
+                      roomDb.find({
+                        roomName: currentRoom
+                      }, function(err, doccs) {
+                        if (doccs[0].roomMessages.length > 75) {
+                          db.update({
+                            roomName: currentRoom
+                          }, {
+                            $pop: {
+                              roomMessages: -1
+                            }
+                          })
+                        }
+                      })
+                      roomDb.update({
+                        roomName: currentRoom
+                      }, {
+                        $push: {
+                          roomMessages: {
+                            "message": object.message,
+                            "sender": object.sender, // set the sender to the sender's username
+                            "id": doc[0].id, // set the sender's ID from the database
+                            "old": true
+                          }
+                        }
+                      })
                     } else {
                       io.to(socket.id).emit('badWord');
                       console.log('User ' + object.sender + ' tried to post something rude.'); // ROP

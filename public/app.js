@@ -194,10 +194,12 @@ socket.on('chatMessage', function(object) { // handle recieving chat messages
   window.scrollBy(0, 1700);
   if (document.hidden) {
     document.getElementById("favicon").href = "/fav-msg.png";
-    var notification = new Notification('Modchat', {
-      body: object.sender + " says: '" + object.message + "'",
-      icon: "/fav-normal.png"
-    })
+    if (!object.old) {
+      var notification = new Notification('Modchat', {
+        body: object.sender + " says: '" + object.message + "'",
+        icon: "/fav-normal.png"
+      })
+    }
   }
 });
 document.addEventListener("visibilitychange", function() {

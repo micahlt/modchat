@@ -142,6 +142,7 @@ io.on('connection', (socket) => { // handle a user connecting
                       }
                       case "/help": {
                         io.to(socket.id).emit('botMessage', "Thanks for using the Modchat Bot!  Here are your command options:<br> /help generates this message<br> /who prints users in your room<br> /shrug sends a shruggie to the room");
+                        break;
                       }
                       case "/shrug": {
                         io.to(currentRoom).emit('botMessage', `<a href="https://scratch.mit.edu/users/${object.sender}" target="_blank" class="mention">${object.sender}</a> shrugged ¯\\_(ツ)_/¯`);
@@ -187,6 +188,7 @@ io.on('connection', (socket) => { // handle a user connecting
                   }
                   case "/help": {
                     io.to(socket.id).emit('botMessage', "Thanks for using the Modchat Bot!  Here are your command options:<br> /help generates this message<br> /who prints users in your room<br> /shrug sends a shruggie to the room");
+                    break;
                   }
                   case "/shrug": {
                     io.to(currentRoom).emit('botMessage', `<a href="https://scratch.mit.edu/users/${object.sender}" target="_blank" class="mention">${object.sender}</a> shrugged ¯\\_(ツ)_/¯`);

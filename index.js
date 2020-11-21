@@ -166,7 +166,7 @@ io.on('connection', (socket) => { // handle a user connecting
                             roomName: currentRoom
                           }, function(err, doccs) {
                             if (doccs[0].roomMessages.length > 50) {
-                              db.update({
+                              roomDb.update({
                                 roomName: currentRoom
                               }, {
                                 $pop: {
@@ -237,7 +237,7 @@ io.on('connection', (socket) => { // handle a user connecting
                         roomName: currentRoom
                       }, function(err, doccs) {
                         if (doccs[0].roomMessages.length > 75) {
-                          db.update({
+                          roomDb.update({
                             roomName: currentRoom
                           }, {
                             $pop: {

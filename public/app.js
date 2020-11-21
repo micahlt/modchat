@@ -266,10 +266,10 @@ setInterval(whosTyping, 500);
 
 function whosTyping() {
   if (usersTyping.length > 0 && usersTyping.length < 2) {
-    document.getElementById('typingSection').innerText = usersTyping[0] + " is typing...";
+    document.getElementById('typingSection').innerHTML = "<strong>" + usersTyping[0] + "</strong> is typing...";
   } else if (usersTyping.length > 1) {
-    document.getElementById('typingSection').innerText = usersTyping[0] + " and " + (usersTyping.length - 1) + " more are typing...";
+    document.getElementById('typingSection').innerHTML = "<strong>" + usersTyping[0] + "</strong> and " + (usersTyping.length - 1) + " more are typing...";
   } else {
-    document.getElementById('typingSection').innerText = "";
+    document.getElementById('typingSection').innerHTML = "";
   }
 }

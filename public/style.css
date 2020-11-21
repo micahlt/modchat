@@ -95,7 +95,7 @@ body {
 }
 
 #messages li:last-child {
-  margin-bottom: 5em;
+  margin-bottom: 6em;
 }
 
 #m:focus {
@@ -218,7 +218,7 @@ button:focus {
   position: fixed;
   text-decoration: none;
   border-radius: 1.2em;
-  color: var(--background-primary);
+  color: var(--text-primary);
   padding: 0.5em;
   width: 15%;
   right: 2.5vw;
@@ -227,7 +227,7 @@ button:focus {
 }
 
 .sidebar-btn:hover {
-  background-color: var(--text-primary);
+  background-color: var(--background-primary);
 }
 
 #changeRoom {
@@ -244,10 +244,12 @@ button:focus {
 
 #typingSection {
   position: fixed;
-  color: var(--background-secondary);
+  color: var(--text-primary);
   font-family: 'Montserrat', sans-serif;
   padding-left: 20px;
-  bottom: 3.3em;
+  bottom: 5em;
+  font-size: 0.8em;
+  opacity: 0.55;
   background-color: var(--background-primary);
 }
 

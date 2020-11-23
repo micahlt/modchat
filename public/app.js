@@ -219,6 +219,9 @@ socket.on("chatMessage", function (object) {
     } else if (word.startsWith("https://") || word.startsWith("http://")) {
       const link = '<a class="mention" target="_blank" href="' + word + '">' + word + "</a> "; // creates a link
       mentionsMessage = mentionsMessage + link;
+    } else if (word[0] == "#") {
+      const link = '<a class="mention" target="" href="/chat?r=' + word.substring(1, word.length) + '">' + word + "</a> "; // creates a link relevant to the room
+      mentionsMessage = mentionsMessage + link;
     } else {
       mentionsMessage = mentionsMessage + word + " ";
     }

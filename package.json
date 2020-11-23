@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/micahlt/modchat#readme",
   "dependencies": {
+    "atob": "^2.1.2",
     "bad-words": "^3.0.3",
     "badwordspluss": "0.0.1",
     "bcrypt": "^5.0.0",
@@ -26,6 +27,7 @@
     "express": "^4.17.1",
     "filipino-badwords-list": "^1.1.2",
     "french-badwords-list": "^1.0.5",
+    "imgbbjs": "^1.0.4",
     "nedb": "^1.8.0",
     "node-fetch": "^2.6.1",
     "socket.io": "^2.3.0",

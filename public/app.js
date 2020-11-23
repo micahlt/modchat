@@ -24,6 +24,30 @@ if (userName) { // if the user object contains a name
 }
 document.getElementById("changeTheme").addEventListener("click", changeTheme);
 
+document.getElementById("imgUpload").addEventListener('click', function(e) {
+  e.preventDefault();
+  document.getElementById("pseudoUpload").click();
+  document.getElementById("pseudoUpload").addEventListener('change', function() {
+    let file = document.getElementById("pseudoUpload").files[0];
+    var reader = new FileReader();
+    reader.onload = function() {
+      console.log(reader.result);
+      socket.emit('image', {
+        image: reader.result,
+        sender: window.localStorage.getItem('userName')
+      });
+    }
+    reader.readAsDataURL(file);
+  })
+})
+
+const toBase64 = file => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload = () => resolve(reader.result);
+  reader.onerror = error => reject(error);
+});
+
 if (Notification.permission == "default") {
   Notification.requestPermission();
 }
@@ -178,7 +202,11 @@ socket.on('chatMessage', function(object) { // handle recieving chat messages
   }
   img.setAttribute('title', object.sender);
   let mentionsMessage = ''; // resets the metions in the message
-  let messageToRender = object.message.replace(/(<([^>]+)>)/gi, "");
+  messageToRender = object.message;
+  console.log(messageToRender);
+  if (messageToRender.includes('<img')) {
+    p.classList.add("image");
+  }
   messageToRender.split(' ').forEach((word) => {
     if (word[0] == '@') {
       const link = '<a class="mention" target="_blank" href="https://scratch.mit.edu/users/' + word.substring(1, word.length) + '">' + word + '</a> '; // creates a link relevant to the user

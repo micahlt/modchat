@@ -156,7 +156,7 @@ io.on('connection', (socket) => { // handle a user connecting
                         break;
                       }
                       case "/help": {
-                        io.to(socket.id).emit('botMessage', "Thanks for using the Modchat Bot!  Here are your command options:<br> /help generates this message<br> /who prints users in your room<br> /shrug sends a shruggie to the room");
+                        io.to(socket.id).emit('botMessage', "Thanks for using the Modchat Bot!  Here are your command options:<br><strong>/help</strong> generates this message<br><strong>/who</strong> prints users in your room<br><strong>/shrug</strong> sends a shruggie to the room<br><br>You can find a list of supported emoji codes <a href=\"https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md\" target=\"_blank\">here</a>.");
                         break;
                       }
                       case "/shrug": {
@@ -186,31 +186,7 @@ io.on('connection', (socket) => { // handle a user connecting
                             "sender": object.sender, // set the sender to the sender's username
                             "id": data.id // set the sender's ID from the database
                           });
-                          roomDb.find({
-                            roomName: currentRoom
-                          }, function(err, doccs) {
-                            if (doccs[0].roomMessages.length > 50) {
-                              roomDb.update({
-                                roomName: currentRoom
-                              }, {
-                                $pop: {
-                                  roomMessages: -1
-                                }
-                              })
-                            }
-                          })
-                          roomDb.update({
-                            roomName: currentRoom
-                          }, {
-                            $push: {
-                              roomMessages: {
-                                "message": message,
-                                "sender": object.sender, // set the sender to the sender's username
-                                "id": data.id, // set the sender's ID from the database
-                                "old": true
-                              }
-                            }
-                          })
+                          updateHistory(currentRoom, message, object.sender, data.id);
                         } else {
                           io.to(socket.id).emit('badWord');
                           console.log('User ' + object.sender + ' tried to post something rude.'); // ROP
@@ -243,7 +219,7 @@ io.on('connection', (socket) => { // handle a user connecting
                     break;
                   }
                   case "/help": {
-                    io.to(socket.id).emit('botMessage', "Thanks for using the Modchat Bot!  Here are your command options:<br> /help generates this message<br> /who prints users in your room<br> /shrug sends a shruggie to the room");
+                    io.to(socket.id).emit('botMessage', "Thanks for using the Modchat Bot!  Here are your command options:<br><strong>/help</strong> generates this message<br><strong>/who</strong> prints users in your room<br><strong>/shrug</strong> sends a shruggie to the room<br><br>You can find a list of supported emoji codes <a class=\"mention\" href=\"https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md\" target=\"_blank\">here</a>.");
                     break;
                   }
                   case "/shrug": {
@@ -273,31 +249,7 @@ io.on('connection', (socket) => { // handle a user connecting
                         "sender": object.sender, // set the sender to the sender's username
                         "id": doc[0].id // set the sender's ID from the database
                       });
-                      roomDb.find({
-                        roomName: currentRoom
-                      }, function(err, doccs) {
-                        if (doccs[0].roomMessages.length > 75) {
-                          roomDb.update({
-                            roomName: currentRoom
-                          }, {
-                            $pop: {
-                              roomMessages: -1
-                            }
-                          })
-                        }
-                      })
-                      roomDb.update({
-                        roomName: currentRoom
-                      }, {
-                        $push: {
-                          roomMessages: {
-                            "message": message,
-                            "sender": object.sender, // set the sender to the sender's username
-                            "id": doc[0].id, // set the sender's ID from the database
-                            "old": true
-                          }
-                        }
-                      })
+                      updateHistory(currentRoom, message, object.sender, doc[0].id);
                     } else {
                       io.to(socket.id).emit('badWord');
                       console.log('User ' + object.sender + ' tried to post something rude.'); // ROP
@@ -482,6 +434,33 @@ io.on('connection', (socket) => { // handle a user connecting
       }); */
   })
 });
+var updateHistory = (room, message, sender, senderId) => {
+  roomDb.find({
+    roomName: room
+  }, function(err, doccs) {
+    if (doccs[0].roomMessages.length > 75) {
+      roomDb.update({
+        roomName: room
+      }, {
+        $pop: {
+          roomMessages: -1
+        }
+      })
+    }
+  })
+  roomDb.update({
+    roomName: room
+  }, {
+    $push: {
+      roomMessages: {
+        "message": message,
+        "sender": sender, // set the sender to the sender's username
+        "id": senderId, // set the sender's ID from the database
+        "old": true
+      }
+    }
+  })
+}
 http.listen((process.env.PORT || 3001), () => { // initialize the server
   console.log('listening on a port'); // ROP
 });

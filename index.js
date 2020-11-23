@@ -26,7 +26,7 @@ var filter = new Filter({
 }); // set up the filter
 let removeWords = ['GOD']; // Make a list of word to be uncensored.
 filter.removeWords(...removeWords); //Remove those from the filter
-let addWords = ['WTF', 'LMAO', 'DISCORD', 'INSTAGRAM', 'SLACK', 'SNAPCHAT']; // Any words in this list will be censored.
+let addWords = ['WTF', 'LMAO', 'DISCORD', 'INSTAGRAM', 'SLACK', 'SNAPCHAT', 'FUCK', 'FRICK', 'SHIT', 'ASS', 'WHORE', 'PORN', 'CUNT', 'PUSSY', 'HENTAI', 'KINKY', 'GAY', 'ASS', 'GAE', 'HORNY', 'CUM', 'SPERM', 'WHITE STUFF', 'KKK', 'COCK', 'COKE', 'COCIANE', 'COCIANE', 'SHROOM', 'MARY JANE', 'WEED', 'CIGGY', 'ANAL', 'ANUS', 'ARSE', 'ASS', 'BALLSACK', 'BALLS', 'BASTARD', 'BITCH', 'BIATCH', 'BLOODY', 'BLOWJOB', 'BLOW JOB', 'BOLLOCK', 'BOLLOK', 'BONER', 'BOOB', 'BUGGER', 'BUM', 'BUTT', 'BUTTPLUG', 'CLITORIS', 'COCK', 'COON', 'CRAP', 'CUNT', 'DAMN', 'DICK', 'DILDO', 'DYKE', 'FAG', 'FECK', 'FELLATE', 'FELLATIO', ', 'FELCHING', 'FUCK', 'F U C K', 'FUDGEPACKER', 'FUDGE PACKER', 'FLANGE', 'GODDAMN', 'GOD DAMN', 'HELL', 'HOMO', 'JERK', 'JIZZ', 'KNOBEND', 'KNOB END', 'LABIA', 'LMAO', 'LMFAO', 'MUFF', 'NIGGER', 'NIGGA', 'OMG', 'PENIS', 'PISS', 'POOP', 'PRICK', 'PUBE', 'PUSSY', 'QUEER', 'SCROTUM', 'SEX', 'SHIT', 'S HIT', 'SH1T', 'SLUT', 'SMEGMA', 'SPUNK', 'TIT', 'TOSSER', 'TURD', 'TWAT', 'VAGINA', 'WANK', 'WHORE', 'WTF']; // Any words in this list will be censored.
 filter.addWords(...addWords); // Add those to the filter
 filter.addWords(...frenchBadwords.array); // Add French curse words to the filter
 filter.addWords(...filipinoBadwords.array); // Add Filipino curse words to the filter

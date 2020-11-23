@@ -37,8 +37,6 @@ if (process.env.MCBANNED) {
   bannedList = process.env.MCBANNED.split(' ');
 }
 let modsList = ['-Ekmand-', '-Archon-', 'MicahLT', 'ContourLines', 'YodaLightsabr', 'MetaLabs', '--Velocity--', 'ConvexPolygon'];
-var svAppId = process.env.SVID; // register SV app id
-var svAppSecret = process.env.SVSECRET; // register SV app (secret token)
 roomDb.persistence.setAutocompactionInterval(30000);
 userDb.persistence.setAutocompactionInterval(30000);
 const Imgbb = require('imgbbjs')
@@ -292,28 +290,34 @@ io.on('connection', (socket) => { // handle a user connecting
           console.log("user doesn't exist"); // ROP
         } else { // if they do exist, continue with registration
           console.log("confirming user id " + data.id); // ROP
-          fetch('http://scratchverifier.ddns.net:8888/verify/' + msg, { // make a request to the SV server
-            method: 'PUT',
+          var reqBody = {
+            "user": msg
+          }
+          fetch('https://sv2-server.herokuapp.com/api/init', { // make a request to the SV2 server
             headers: {
-              'Authorization': "Basic " + btoa(svAppId + ":" + svAppSecret) // use basic token auth to connect
-            }
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            method: 'POST',
+            body: JSON.stringify(reqBody)
           }).then((response) => {
             return response.json();
           }).then((data) => {
-            console.log(data.code); // ROP
             socket.emit("svCodeToVerify", data.code); // send the SV verification code back to the registering user
             socket.on('finishVerification', (msgTwo) => { // handle finishing verification
               console.log("AHH VERIFYY"); // ROP
-              fetch('http://scratchverifier.ddns.net:8888/verify/' + msg, { // make a request to the SV server (again)
-                method: 'POST',
+              fetch('https://sv2-server.herokuapp.com/api/verify', { // make a request to the SV2 server (again)
                 headers: {
-                  'Authorization': "Basic " + btoa(svAppId + ":" + svAppSecret) // use basic token auth again
-                }
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                method: 'POST',
+                body: JSON.stringify(reqBody)
               }).then((response) => {
-                return response.ok;
+                return response.status;
               }).then((data) => {
                 console.log('Response: ' + data); // ROP
-                if (data) { // if the response was okay
+                if (data == 200) { // if the response was okay
                   bcrypt.hash(msg, 10, function(err, hash) { // hash the username
                     socket.emit("verificationSuccess", {
                       "hash": hash,

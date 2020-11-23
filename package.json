@@ -24,6 +24,7 @@
     "bcrypt": "^5.0.0",
     "btoa": "^1.2.1",
     "crabby-grab": "^1.0.5",
+    "emoji-name-map": "^1.2.9",
     "express": "^4.17.1",
     "filipino-badwords-list": "^1.1.2",
     "french-badwords-list": "^1.0.5",

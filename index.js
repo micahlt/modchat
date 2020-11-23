@@ -7,6 +7,7 @@ var Filter = require('bad-words'); // for filtering messages
 var frenchBadwords = require('french-badwords-list'); // import French curse words for filtering
 var filipinoBadwords = require("filipino-badwords-list"); // import Filipino curse words for filtering
 var moreBadwords = require("badwordspluss");
+const emoji = require("emoji-name-map"); // import emoji name map
 var Datastore = require('nedb'); // for username info storage
 var bcrypt = require('bcrypt'); // for hashing usernames
 var roomDb = new Datastore({
@@ -164,7 +165,22 @@ io.on('connection', (socket) => { // handle a user connecting
                       }
                       default: {
                         if (!filter.isProfane(object.message)) { // checks if message doesn't contain rude words
-                          let message = object.message.replace(/(<([^>]+)>)/gi, "");
+                          var message = object.message.replace(/(<([^>]+)>)/gi, "");
+                          var emojiRegex = /:[^:\s]*(?:::[^:\s]*)*:/gi;
+                          var match = message.match(emojiRegex);
+                          if (match) {
+                            console.log(`Found ${match.length} emojis`);
+                            match.forEach((el) => {
+                              console.log(el);
+                              var unicodeEmoji = el.substring(1, el.length - 1);
+                              unicodeEmoji = emoji.get(unicodeEmoji);
+                              if (unicodeEmoji == undefined) {
+                                unicodeEmoji = "[missing emoji]"
+                              }
+                              console.log(el + ' is equal to ' + unicodeEmoji);
+                              message = message.replace(el, unicodeEmoji);
+                            });
+                          }
                           io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
                             "message": message,
                             "sender": object.sender, // set the sender to the sender's username
@@ -188,7 +204,7 @@ io.on('connection', (socket) => { // handle a user connecting
                           }, {
                             $push: {
                               roomMessages: {
-                                "message": object.message,
+                                "message": message,
                                 "sender": object.sender, // set the sender to the sender's username
                                 "id": data.id, // set the sender's ID from the database
                                 "old": true
@@ -236,8 +252,24 @@ io.on('connection', (socket) => { // handle a user connecting
                   }
                   default: {
                     if (!filter.isProfane(object.message)) { // checks if message doesn't contain rude words
+                      var message = object.message.replace(/(<([^>]+)>)/gi, "");
+                      var emojiRegex = /:[^:\s]*(?:::[^:\s]*)*:/gi;
+                      var match = message.match(emojiRegex);
+                      if (match) {
+                        console.log(`Found ${match.length} emojis`);
+                        match.forEach((el) => {
+                          console.log(el);
+                          var unicodeEmoji = el.substring(1, el.length - 1);
+                          unicodeEmoji = emoji.get(unicodeEmoji);
+                          if (unicodeEmoji == undefined) {
+                            unicodeEmoji = "[missing emoji]"
+                          }
+                          console.log(el + ' is equal to ' + unicodeEmoji);
+                          message = message.replace(el, unicodeEmoji);
+                        });
+                      }
                       io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
-                        "message": object.message,
+                        "message": message,
                         "sender": object.sender, // set the sender to the sender's username
                         "id": doc[0].id // set the sender's ID from the database
                       });
@@ -259,7 +291,7 @@ io.on('connection', (socket) => { // handle a user connecting
                       }, {
                         $push: {
                           roomMessages: {
-                            "message": object.message,
+                            "message": message,
                             "sender": object.sender, // set the sender to the sender's username
                             "id": doc[0].id, // set the sender's ID from the database
                             "old": true

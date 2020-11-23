@@ -14,7 +14,7 @@
 }
 
 body {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Work Sans', sans-serif;
   color: var(--text-primary);
   background-color: var(--background-primary);
   overflow-x: hidden;
@@ -45,7 +45,7 @@ body {
   transition: 0.2s;
   transform: translateY(-10px);
   border-bottom: solid 2px transparent;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Work Sans', sans-serif;
 }
 
 #form input:hover {
@@ -156,7 +156,7 @@ button:focus {
 #username-input, #r {
   border: none;
   border-bottom: 2px solid #6e31ff;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Work Sans', sans-serif;
   color: var(--text-primary);
   height: 2.3em;
   background-color: var(--background-tertiary);
@@ -178,7 +178,7 @@ button:focus {
 #completeSV {
   display: none;
   color: var(--text-primary);
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Work Sans', sans-serif;
   height: 2.3em;
   background-color: var(--background-tertiary);
   border-radius: 40px;
@@ -253,7 +253,7 @@ button:focus {
 #typingSection {
   position: fixed;
   color: var(--text-primary);
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Work Sans', sans-serif;
   padding-left: 20px;
   bottom: 5em;
   font-size: 0.8em;
@@ -310,6 +310,10 @@ button:focus {
   text-align: left;
   padding-left: 10%;
   font-weight: 700;
+}
+
+.small-left {
+  font-weight: normal;
 }
 
 #roomTitle {

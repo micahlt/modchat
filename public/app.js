@@ -34,7 +34,7 @@ document.getElementById("imgUpload").addEventListener("click", function (e) {
     let file = document.getElementById("pseudoUpload").files[0];
     var reader = new FileReader();
     reader.onload = function () {
-      console.log(reader.result);
+      console.log(reader.result); // ROP
       socket.emit("image", {
         image: reader.result,
         sender: window.localStorage.getItem("userName")
@@ -177,7 +177,7 @@ document.getElementById("username").addEventListener("submit", function (event) 
   return false;
 });
 socket.on("isTyping", function (username) {
-  console.log(usersTyping.length);
+  console.log(usersTyping.length); // ROP
   if (!usersTyping.includes(username)) {
     usersTyping.push(username);
     whosTyping();
@@ -208,14 +208,22 @@ socket.on("chatMessage", function (object) {
   img.setAttribute("title", object.sender);
   let mentionsMessage = ""; // resets the mentions in the message
   messageToRender = object.message;
-  console.log(messageToRender);
+  console.log(messageToRender); // ROP
   if (messageToRender.includes("<img")) {
     p.classList.add("image");
   }
   messageToRender.split(" ").forEach(word => {
     if (word[0] == "@") {
-      const link = '<a class="mention" target="_blank" href="https://scratch.mit.edu/users/' + word.substring(1, word.length) + '">' + word + "</a> "; // creates a link relevant to the user
-      mentionsMessage = mentionsMessage + link;
+      const USERNAME_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
+      let mentionName = "";
+      let i = 1;
+      while (USERNAME_CHARS.includes(word[i])) {
+        mentionName += word[i];
+        i++;
+      }
+      let afterName = word.slice(i);
+      const link = '<a class="mention" target="_blank" href="https://scratch.mit.edu/users/' + mentionName + '">@' + mentionName + "</a>"; // creates a link relevant to the user
+      mentionsMessage = mentionsMessage + link + afterName + " ";
     } else if (word.startsWith("https://") || word.startsWith("http://")) {
       const link = '<a class="mention" target="_blank" href="' + word + '">' + word + "</a> "; // creates a link
       mentionsMessage = mentionsMessage + link;

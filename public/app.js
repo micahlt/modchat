@@ -214,8 +214,19 @@ socket.on("chatMessage", function (object) {
   }
   messageToRender.split(" ").forEach(word => {
     if (word[0] == "@") {
-      const link = '<a class="mention" target="_blank" href="https://scratch.mit.edu/users/' + word.substring(1, word.length) + '">' + word + "</a> "; // creates a link relevant to the user
-      mentionsMessage = mentionsMessage + link;
+      const USERNAME_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
+      let mentionName = "";
+      let i = 1;
+      while (USERNAME_CHARS.includes(word[i])) {
+        mentionName += word[i];
+        i++;
+      }
+      console.log(mentionName);
+      let afterName = word.slice(i);
+      console.log(afterName);
+
+      const link = '<a class="mention" target="_blank" href="https://scratch.mit.edu/users/' + mentionName + '">@' + mentionName + "</a>"; // creates a link relevant to the user
+      mentionsMessage = mentionsMessage + link + afterName + " ";
     } else if (word.startsWith("https://") || word.startsWith("http://")) {
       const link = '<a class="mention" target="_blank" href="' + word + '">' + word + "</a> "; // creates a link
       mentionsMessage = mentionsMessage + link;

@@ -29,9 +29,10 @@
       <span id="roomTitle"></span>
     </div>
     <div class="bottom-sidebar">
+      <a href="#form" id="imgUpload" class="sidebar-btn">UPLOAD IMAGE</a>
       <a href="#form" id="signOut" class="sidebar-btn">SIGN OUT</a>
       <a id="changeRoom" class="sidebar-btn" href="#form">SWITCH ROOM</a>
-      <a href="#form" id="changeTheme" class="sidebar-btn">CHANGE THEME</a>
+      <a href="#form" id="changeTheme" class="sidebar-btn">TOGGLE THEME</a>
     </div>
   </div>
   <ul id="messages"></ul>
@@ -39,7 +40,7 @@
   <span id="messageCharCount">0/250 chars</span>
   <form action="" id="form" autocomplete="off">
     <input id="m" autocomplete="off" data-lpignore="true" />
-    <button><span class="material-icons">
+    <button id="send"><span class="material-icons">
         send
       </span></button>
   </form>
@@ -60,6 +61,7 @@
       <a href="#" id="completeSV">Complete Verification</a>
     </div>
   </div>
+  <input type="file" id="pseudoUpload" />
   <script src="/socket.io/socket.io.js"></script>
   <script src="/app.js">
   </script>

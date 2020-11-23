@@ -1,6 +1,7 @@
 // Import all needed modules
 global.fetch = require("node-fetch"); // for web requests
 global.btoa = require('btoa'); // for SV authenication
+const atob = require('atob');
 var express = require('express'); // for main server
 var Filter = require('bad-words'); // for filtering messages
 var frenchBadwords = require('french-badwords-list'); // import French curse words for filtering
@@ -31,12 +32,20 @@ filter.addWords(...frenchBadwords.array); // Add French curse words to the filte
 filter.addWords(...filipinoBadwords.array); // Add Filipino curse words to the filter
 filter.addWords(...moreBadwords); // Add other curse words to the filter
 // End Filter Setup
-let bannedList = process.env.MCBANNED.split(' ');
+let bannedList = [];
+if (process.env.MCBANNED) {
+  bannedList = process.env.MCBANNED.split(' ');
+}
 let modsList = ['-Ekmand-', '-Archon-', 'MicahLT', 'ContourLines', 'YodaLightsabr', 'MetaLabs', '--Velocity--', 'ConvexPolygon'];
 var svAppId = process.env.SVID; // register SV app id
 var svAppSecret = process.env.SVSECRET; // register SV app (secret token)
 roomDb.persistence.setAutocompactionInterval(30000);
 userDb.persistence.setAutocompactionInterval(30000);
+const Imgbb = require('imgbbjs')
+
+const imgbb = new Imgbb({
+  key: 'ff348c6f89506809bb1f260006e774c7'
+});
 app.use(express.static(__dirname + '/public')); // tell express where to get public assets
 app.get('/chat', (req, res) => { // set chat location to the chat page
   res.sendFile(__dirname + '/index.html');
@@ -157,8 +166,9 @@ io.on('connection', (socket) => { // handle a user connecting
                       }
                       default: {
                         if (!filter.isProfane(object.message)) { // checks if message doesn't contain rude words
+                          let message = object.message.replace(/(<([^>]+)>)/gi, "");
                           io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
-                            "message": object.message,
+                            "message": message,
                             "sender": object.sender, // set the sender to the sender's username
                             "id": data.id // set the sender's ID from the database
                           });
@@ -337,6 +347,104 @@ io.on('connection', (socket) => { // handle a user connecting
       }
     })
   });
+  socket.on('image', (msg) => {
+    let image = msg.image;
+    image = image.split(',')[1];
+    // image = escape(image).toString('binary');
+    // console.log(image);
+    io.to(socket.id).emit('botMessage', 'uploading your image...');
+    imgbb.upload(image).then((data) => {
+      userDb.find({
+        socketId: socket.id,
+        room: currentRoom
+      }, function(err, docs) {
+        if (docs[0] !== undefined) {
+          io.to(socket.id).emit('botMessage', 'moderating your image...');
+          fetch(`https://api.moderatecontent.com/moderate/?key=${process.env.MODERATIONKEY}&url=${data.data.url}`)
+            .then((res) => {
+              return res.json();
+            })
+            .then((json) => {
+              if (json.error_code == 0) {
+                if (json.rating_index < 3) {
+                  io.to(currentRoom).emit('chatMessage', {
+                    message: `<img title="open in new tab" src="${data.data.url}" onclick="window.open('${data.data.url}')"></img>`,
+                    sender: msg.sender,
+                    id: docs[0].id
+                  });
+                  roomDb.find({
+                    roomName: currentRoom
+                  }, function(err, doccs) {
+                    if (doccs[0].roomMessages.length > 50) {
+                      roomDb.update({
+                        roomName: currentRoom
+                      }, {
+                        $pop: {
+                          roomMessages: -1
+                        }
+                      })
+                    }
+                  })
+                  roomDb.update({
+                    roomName: currentRoom
+                  }, {
+                    $push: {
+                      roomMessages: {
+                        "message": `<img title="open in new tab" src="${data.data.url}" onclick="window.open('${data.data.url}')"></img>`,
+                        "sender": msg.sender, // set the sender to the sender's username
+                        "id": docs[0].id, // set the sender's ID from the database
+                        "old": true
+                      }
+                    }
+                  })
+                } else {
+                  switch (json.error_code) {
+                    case 1001:
+                    case 1003:
+                    case 1004:
+                    case 1005:
+                    case 1006:
+                    case 1007:
+                      io.to(socket.id).emit('botMessage', 'ERR: URL not accessible or malformed image');
+                      break;
+                    case 1002:
+                      io.to(socket.id).emit('botMessage', 'ERR: Invalid URL');
+                      break;
+                    case 1008:
+                      io.to(socket.id).emit('botMessage', 'ERR: File size too large');
+                      break;
+                    default:
+                      io.to(socket.id).emit('botMessage', 'ERR: Unknown');
+                      break;
+                  }
+
+                  console.log(json);
+                }
+              }
+            })
+
+        } else {
+          io.to(socket.id).emit('botMessage', 'We could not communicate with our moderation server.  Try again later!');
+        }
+      })
+    });
+    /*
+    fetch('https://api.imgbb.com/1/upload?key=ff348c6f89506809bb1f260006e774c7&image=' + image, {
+        method: 'POST'
+      })
+      .then((response) => {
+        if (!response.ok) {
+          throw Error(response.statusText);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        io.to(currentRoom).emit('botMessage', 'img uploaded ' + JSON.stringify(data));
+      })
+      .catch(function(error) {
+        console.log(error);
+      }); */
+  })
 });
 http.listen((process.env.PORT || 3001), () => { // initialize the server
   console.log('listening on a port'); // ROP

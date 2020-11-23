@@ -20,6 +20,10 @@ body {
   overflow-x: hidden;
 }
 
+#pseudoUpload {
+  display: none;
+}
+
 #form {
   background: var(--background-secondary);
   padding: 3px;
@@ -49,7 +53,7 @@ body {
 }
 
 #form button {
-  width: 9%;
+  width: 3em;
   background: transparent;
   border: none;
   padding: 10px;
@@ -242,6 +246,10 @@ button:focus {
   bottom: 11em;
 }
 
+#imgUpload {
+  bottom: 14em;
+}
+
 #typingSection {
   position: fixed;
   color: var(--text-primary);
@@ -357,6 +365,23 @@ button:focus {
   100% {
     opacity: 1;
   }
+}
+
+.image {
+  overflow: hidden;
+  max-height: 30vh;
+}
+
+p img {
+  max-width: 112%;
+  margin: -13px;
+  height: auto;
+}
+
+p img:hover {
+  filter: brightness(0.7);
+  cursor: pointer;
+  transform: scale(1.1);
 }
 
 @media only screen and (max-width: 1050px) {

@@ -1,5 +1,5 @@
 var socket = io(); // define socket
-var getParams = function (url) {
+var getParams = function(url) {
   // set up the getParams function
   var params = {}; // set up a params object
   var parser = document.createElement("a"); // create a link parse
@@ -27,21 +27,22 @@ if (userName) {
 }
 document.getElementById("changeTheme").addEventListener("click", changeTheme);
 
-document.getElementById("imgUpload").addEventListener("click", function (e) {
+document.getElementById("pseudoUpload").addEventListener("input", function() {
+  console.log('FILE UPLOADIG');
+  let file = document.getElementById("pseudoUpload").files[0];
+  var reader = new FileReader();
+  reader.onload = function() {
+    console.log(reader.result); // ROP
+    socket.emit("image", {
+      image: reader.result,
+      sender: window.localStorage.getItem("userName")
+    });
+  };
+  reader.readAsDataURL(file);
+});
+document.getElementById("imgUpload").addEventListener("click", function(e) {
   e.preventDefault();
   document.getElementById("pseudoUpload").click();
-  document.getElementById("pseudoUpload").addEventListener("change", function () {
-    let file = document.getElementById("pseudoUpload").files[0];
-    var reader = new FileReader();
-    reader.onload = function () {
-      console.log(reader.result); // ROP
-      socket.emit("image", {
-        image: reader.result,
-        sender: window.localStorage.getItem("userName")
-      });
-    };
-    reader.readAsDataURL(file);
-  });
 });
 
 const toBase64 = file => new Promise((resolve, reject) => {
@@ -55,7 +56,7 @@ if (Notification.permission == "default") {
   Notification.requestPermission();
 }
 
-document.getElementById("signOut").addEventListener("click", function () {
+document.getElementById("signOut").addEventListener("click", function() {
   window.localStorage.removeItem("userName");
   window.localStorage.removeItem("userHash");
   window.location.reload();
@@ -113,23 +114,23 @@ if (!getParams(window.location.href).r) {
   window.location.replace(window.location.href + "?r=default");
 }
 
-document.getElementById("changeRoom").addEventListener("click", function () {
+document.getElementById("changeRoom").addEventListener("click", function() {
   document.getElementById("roomName").style.display = "block";
   document.getElementsByClassName("blocker")[0].style.display = "block";
-  document.getElementsByClassName("blocker")[0].addEventListener("click", function () {
+  document.getElementsByClassName("blocker")[0].addEventListener("click", function() {
     document.getElementsByClassName("blocker")[0].style.display = "none";
     document.getElementById("roomName").style.display = "none";
     document.getElementsByClassName("blocker")[0].removeEventListener("click");
   });
 });
 
-document.getElementById("roomName").addEventListener("submit", function (event) {
+document.getElementById("roomName").addEventListener("submit", function(event) {
   event.stopImmediatePropagation(); // stop reloads
   event.preventDefault(); // stop reloads
   window.location.replace(window.location.href.split("?")[0] + "?r=" + document.getElementById("r").value);
 });
 
-document.getElementById("form").addEventListener("submit", function (event) {
+document.getElementById("form").addEventListener("submit", function(event) {
   // listen for submits on the message sending form
   event.stopImmediatePropagation(); // stop reloads
   event.preventDefault(); // stop reloads
@@ -147,19 +148,21 @@ document.getElementById("form").addEventListener("submit", function (event) {
     document.getElementById("m").value = ""; // reset the chat form's value
   } else if (charCount > charLimit) {
     document.getElementById("messageCharCount").classList.add("flashing");
-    window.setTimeout(function () {
+    window.setTimeout(function() {
       document.getElementById("messageCharCount").classList.remove("flashing");
     }, 1000);
   } else {
     document.getElementById("messageCharCount").classList.add("flashing");
-    window.setTimeout(function () {
+    window.setTimeout(function() {
       document.getElementById("messageCharCount").classList.remove("flashing");
     }, 1000);
   }
   return false;
 });
-document.getElementById("form").addEventListener("keydown", function (event) {
-  socket.emit("userTyping", {username: window.localStorage.getItem("userName")});
+document.getElementById("form").addEventListener("keydown", function(event) {
+  socket.emit("userTyping", {
+    username: window.localStorage.getItem("userName")
+  });
   charCount = document.getElementById("m").value.length;
   document.getElementById("messageCharCount").innerHTML = charCount + "/" + charLimit + " chars"; // displays the amount of chars to the user
   if (charCount > charLimit) {
@@ -168,7 +171,7 @@ document.getElementById("form").addEventListener("keydown", function (event) {
     document.getElementById("messageCharCount").style.color = "var(--text-primary)";
   }
 });
-document.getElementById("username").addEventListener("submit", function (event) {
+document.getElementById("username").addEventListener("submit", function(event) {
   // listen for user registration
   event.stopImmediatePropagation(); // stop reloads
   event.preventDefault(); // stop reloads
@@ -176,30 +179,31 @@ document.getElementById("username").addEventListener("submit", function (event) 
   socket.emit("userRegister", document.getElementById("username-input").value); // send the username to verify to the server
   return false;
 });
-socket.on("isTyping", function (username) {
+socket.on("isTyping", function(username) {
   console.log(usersTyping.length); // ROP
   if (!usersTyping.includes(username)) {
     usersTyping.push(username);
     whosTyping();
-    setTimeout(function () {
+    setTimeout(function() {
       var index = usersTyping.indexOf(username);
       usersTyping.splice(index, 1);
     }, 600);
     whosTyping();
   }
 });
-socket.on("bannedUser", function (boot) {
+socket.on("bannedUser", function(boot) {
   localStorage.removeItem("userName");
   window.location.reload();
 });
-socket.on("chatMessage", function (object) {
+socket.on("chatMessage", function(object) {
+  console.log('msg recieved');
   // handle recieving chat messages
   var m = document.createElement("li"); // create an element to display the message
   var p = document.createElement("p"); // create the actual message
   var img = document.createElement("img"); // create an element to display the sender's profile picture
   img.src = "https://cdn2.scratch.mit.edu/get_image/user/" + object.id + "_60x60.png";
   img.classList.add("pfp");
-  img.onclick = function () {
+  img.onclick = function() {
     window.open("https://scratch.mit.edu/users/" + object.sender, "_blank");
   };
   if (object.sender == localStorage.getItem("userName")) {
@@ -249,19 +253,19 @@ socket.on("chatMessage", function (object) {
     }
   }
 });
-document.addEventListener("visibilitychange", function () {
+document.addEventListener("visibilitychange", function() {
   if (document.visibilityState === "visible") {
     document.getElementById("favicon").href = "/fav-normal.png";
   }
 });
-socket.on("botMessage", function (msg) {
+socket.on("botMessage", function(msg) {
   // handle recieving chat messages
   var m = document.createElement("li"); // create an element to display the message
   var p = document.createElement("p"); // create the actual message
   var img = document.createElement("img"); // create an element to display the sender's profile picture
   img.src = "https://images.emojiterra.com/openmoji/v12.2/512px/1f916.png";
   img.classList.add("pfp");
-  img.onclick = function () {
+  img.onclick = function() {
     window.open("https://scratch.mit.edu/users/Modchat-Bot", "_blank");
   };
   p.innerHTML = msg; // add the message text to that element
@@ -275,18 +279,18 @@ socket.on("botMessage", function (msg) {
   }
 });
 
-socket.on("svCodeToVerify", function (msg) {
+socket.on("svCodeToVerify", function(msg) {
   // handle recieving the SV code (after triggering the setUsername function)
   document.getElementsByClassName("loader")[0].style.opacity = "0";
   document.getElementById("svCode").value = msg; // display the code
   document.getElementById("completeSV").style.display = "block"; // display the completion button
-  document.getElementById("completeSV").addEventListener("click", function () {
+  document.getElementById("completeSV").addEventListener("click", function() {
     // listen for clicks on the completion button
     socket.emit("finishVerification"); // tell the server to finish verification
   });
 });
 
-socket.on("verificationSuccess", function (msg) {
+socket.on("verificationSuccess", function(msg) {
   // handle a successful verification with SV
   console.log("Verified!"); // ROP
   window.localStorage.setItem("userName", msg.username);
@@ -298,12 +302,12 @@ function setUsername() {
   socket.emit("setUsername", document.getElementById("name").value); // tell the server to begin SV registration
 }
 
-socket.on("disconnect", function () {
+socket.on("disconnect", function() {
   socket.emit("userDisconnect", window.localStorage.getItem("userName"));
   console.log("user disconnected"); // ROP
 });
 
-socket.on("connect", function () {
+socket.on("connect", function() {
   console.log("user connected"); // ROP
   document.getElementById("roomTitle").innerText = getParams(window.location.href).r;
   socket.emit("roomChange", {
@@ -320,7 +324,7 @@ function whosTyping() {
     document.getElementById("typingSection").innerHTML = "<strong>" + usersTyping[0] + "</strong> is typing...";
   } else if (usersTyping.length > 1) {
     document.getElementById("typingSection").innerHTML = "<strong>" + usersTyping[0] + "</strong> and " + (
-    usersTyping.length - 1) + " more are typing...";
+      usersTyping.length - 1) + " more are typing...";
   } else {
     document.getElementById("typingSection").innerHTML = "";
   }

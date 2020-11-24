@@ -43,8 +43,9 @@ if (process.env.MODLIST) {
   modList = process.env.MODLIST.split(',');
 }
 console.log('Introducing our moderators: ');
-modList.forEach((item) => {
+modList.forEach((item, i) => {
   console.log(item);
+  modList[i] = modList[i].toLowerCase();
 });
 console.log('\n');
 roomDb.persistence.setAutocompactionInterval(30000);
@@ -253,7 +254,7 @@ io.on('connection', (socket) => { // handle a user connecting
   socket.on('admin', (object) => {
     bcrypt.compare(object.sender, object.hash).then(result => {
       if (result) {
-        if (modList.includes(object.sender)) {
+        if (modList.includes(object.sender.toLowerCase())) {
           io.to(socket.id).emit('admin', true);
           console.log(`${object.sender} is a mod!`);
         } else {
@@ -270,7 +271,7 @@ io.on('connection', (socket) => { // handle a user connecting
     bcrypt.compare(object.sender, object.hash).then(result => {
       if (result) {
         bannedDb.insert({
-          user: object.bannedUser
+          user: object.bannedUser.toLowerCase()
         }, (err, doc) => {
           if (err) {
             socket.emit('banError');

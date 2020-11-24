@@ -18,6 +18,11 @@ var userDb = new Datastore({
   filename: 'users.db',
   autoload: true
 });
+const bannedDb = new Datastore({
+  filename: 'banned.db',
+  autoload: true
+});
+bannedDb.persistence.setAutocompactionInterval(30000);
 var app = express(); // define the app var
 var http = require('http').createServer(app); // init http server
 var io = require('socket.io')(http); // attach socket to the server
@@ -118,7 +123,16 @@ io.on('connection', (socket) => { // handle a user connecting
     bcrypt.compare(object.sender, object.hash).then(function(result) {
       // console.log(result) // ROP
       if (result) {
-        if (bannedList.includes(object.sender)) {
+        const banned = bannedDb.find({
+          user: object.user
+        }, (err, docs) => {
+          if (docs) {
+            return true;
+          } else {
+            return false;
+          }
+        });
+        if (banned) {
           socket.emit('bannedUser', true);
           socket.leave(currentRoom);
         } else {
@@ -137,126 +151,14 @@ io.on('connection', (socket) => { // handle a user connecting
                     room: currentRoom
                   }
                   userDb.insert(userDoc, function(err, docc) { // insert the document to the database
-                    switch (object.message) {
-                      case "/who": {
-                        var onlineList = userDb.find({
-                          room: currentRoom
-                        }, function(err, locatedDocs) {
-                          var online = "";
-                          console.log(locatedDocs);
-                          if (locatedDocs[1] == undefined) {
-                            io.to(socket.id).emit('botMessage', "😫 Looks like you're all alone...");
-                          } else {
-                            for (let i = 0; i < locatedDocs.length; i++) {
-                              online += "<br><b>" + locatedDocs[i].username + "</b>"
-                            }
-                            io.to(socket.id).emit('botMessage', "Online users:<br>" + online);
-                          }
-                        });
-                        break;
-                      }
-                      case "/help": {
-                        io.to(socket.id).emit('botMessage', "Thanks for using the Modchat Bot!  Here are your command options:<br><strong>/help</strong> generates this message<br><strong>/who</strong> prints users in your room<br><strong>/shrug</strong> sends a shruggie to the room<br><br>You can find a list of supported emoji codes <a href=\"https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md\" target=\"_blank\">here</a>.");
-                        break;
-                      }
-                      case "/shrug": {
-                        io.to(currentRoom).emit('botMessage', `<a href="https://scratch.mit.edu/users/${object.sender}" target="_blank" class="mention">${object.sender}</a> shrugged ¯\\_(ツ)_/¯`);
-                        break;
-                      }
-                      default: {
-                        if (!filter.isProfane(object.message)) { // checks if message doesn't contain rude words
-                          var message = object.message.replace(/(<([^>]+)>)/gi, "");
-                          var emojiRegex = /:[^:\s]*(?:::[^:\s]*)*:/gi;
-                          var match = message.match(emojiRegex);
-                          if (match) {
-                            console.log(`Found ${match.length} emojis`);
-                            match.forEach((el) => {
-                              console.log(el);
-                              var unicodeEmoji = el.substring(1, el.length - 1);
-                              unicodeEmoji = emoji.get(unicodeEmoji);
-                              if (unicodeEmoji == undefined) {
-                                unicodeEmoji = "[missing emoji]"
-                              }
-                              console.log(el + ' is equal to ' + unicodeEmoji);
-                              message = message.replace(el, unicodeEmoji);
-                            });
-                          }
-                          io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
-                            "message": message,
-                            "sender": object.sender, // set the sender to the sender's username
-                            "id": data.id // set the sender's ID from the database
-                          });
-                          updateHistory(currentRoom, message, object.sender, data.id);
-                        } else {
-                          io.to(socket.id).emit('badWord');
-                          console.log('User ' + object.sender + ' tried to post something rude.'); // ROP
-                        }
-                        break;
-                      }
-                    }
+                    sendMessage(currentRoom, object.message, object.sender, [data], socket.id);
                   });
                 })
             } else {
               var locateDoc = userDb.find({ // if the user does exist
                 username: object.sender // set the username to the sender's username
               }, function(err, doc) {
-                switch (object.message) {
-                  case "/who": {
-                    var onlineList = userDb.find({
-                      room: currentRoom
-                    }, function(err, locatedDocs) {
-                      var online = "";
-                      console.log(locatedDocs);
-                      if (locatedDocs[1] == undefined) {
-                        io.to(socket.id).emit('botMessage', "😫 Looks like you're all alone...");
-                      } else {
-                        for (let i = 0; i < locatedDocs.length; i++) {
-                          online += "<br><b>" + locatedDocs[i].username + "</b>"
-                        }
-                        io.to(socket.id).emit('botMessage', "Online users:<br>" + online);
-                      }
-                    });
-                    break;
-                  }
-                  case "/help": {
-                    io.to(socket.id).emit('botMessage', "Thanks for using the Modchat Bot!  Here are your command options:<br><strong>/help</strong> generates this message<br><strong>/who</strong> prints users in your room<br><strong>/shrug</strong> sends a shruggie to the room<br><br>You can find a list of supported emoji codes <a class=\"mention\" href=\"https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md\" target=\"_blank\">here</a>.");
-                    break;
-                  }
-                  case "/shrug": {
-                    io.to(currentRoom).emit('botMessage', `<a href="https://scratch.mit.edu/users/${object.sender}" target="_blank" class="mention">${object.sender}</a> shrugged ¯\\_(ツ)_/¯`);
-                    break;
-                  }
-                  default: {
-                    if (!filter.isProfane(object.message)) { // checks if message doesn't contain rude words
-                      var message = object.message.replace(/(<([^>]+)>)/gi, "");
-                      var emojiRegex = /:[^:\s]*(?:::[^:\s]*)*:/gi;
-                      var match = message.match(emojiRegex);
-                      if (match) {
-                        console.log(`Found ${match.length} emojis`);
-                        match.forEach((el) => {
-                          console.log(el);
-                          var unicodeEmoji = el.substring(1, el.length - 1);
-                          unicodeEmoji = emoji.get(unicodeEmoji);
-                          if (unicodeEmoji == undefined) {
-                            unicodeEmoji = "[missing emoji]"
-                          }
-                          console.log(el + ' is equal to ' + unicodeEmoji);
-                          message = message.replace(el, unicodeEmoji);
-                        });
-                      }
-                      io.to(currentRoom).emit('chatMessage', { // emit the message to all clients in the room
-                        "message": message,
-                        "sender": object.sender, // set the sender to the sender's username
-                        "id": doc[0].id // set the sender's ID from the database
-                      });
-                      updateHistory(currentRoom, message, object.sender, doc[0].id);
-                    } else {
-                      io.to(socket.id).emit('badWord');
-                      console.log('User ' + object.sender + ' tried to post something rude.'); // ROP
-                    }
-                    break;
-                  }
-                }
+                sendMessage(currentRoom, object.message, object.sender, doc, socket.id);
               });
             }
           });
@@ -335,6 +237,36 @@ io.on('connection', (socket) => { // handle a user connecting
       }
     })
   });
+  socket.on('admin', (object) => {
+    bcrypt.compare(object.sender, object.hash).then(result => {
+      if (result) {
+        if (object.sender in modsList) {
+          socket.emit('admin', true);
+        } else {
+          socket.emit('admin', false);
+        }
+      } else {
+        socket.emit('admin', false);
+      }
+    });
+  });
+  socket.on('ban', (object) => {
+    bcrypt.compare(object.sender, object.hash).then(result => {
+      if (result) {
+        bannedDb.insert({
+          user: object.bannedUser
+        }, (err, doc) => {
+          if (err) {
+            socket.emit('banError');
+          } else {
+            socket.emit('banSuccess');
+          }
+        });
+      } else {
+        socket.emit('error');
+      }
+    });
+  });
   socket.on('image', (msg) => {
     let image = msg.image;
     image = image.split(',')[1];
@@ -354,7 +286,7 @@ io.on('connection', (socket) => { // handle a user connecting
             })
             .then((json) => {
               if (json.error_code == 0) {
-                if (json.rating_index < 3) {
+                if (json.rating_index < 2) {
                   io.to(currentRoom).emit('chatMessage', {
                     message: `<img title="open in new tab" src="${data.data.url}" onclick="window.open('${data.data.url}')"></img>`,
                     sender: msg.sender,
@@ -386,33 +318,35 @@ io.on('connection', (socket) => { // handle a user connecting
                     }
                   })
                 } else {
-                  switch (json.error_code) {
-                    case 1001:
-                    case 1003:
-                    case 1004:
-                    case 1005:
-                    case 1006:
-                    case 1007:
-                      io.to(socket.id).emit('botMessage', 'ERR: URL not accessible or malformed image');
-                      break;
-                    case 1002:
-                      io.to(socket.id).emit('botMessage', 'ERR: Invalid URL');
-                      break;
-                    case 1008:
-                      io.to(socket.id).emit('botMessage', 'ERR: File size too large');
-                      break;
-                    default:
-                      io.to(socket.id).emit('botMessage', 'ERR: Unknown');
-                      break;
-                  }
-
-                  console.log(json);
+                  io.to(socket.id).emit('botMessage', `That image didn't pass through our filter.  Please make sure you're sending an image that is not objectionable and is appropriate for all ages!`);
                 }
+              } else {
+                switch (json.error_code) {
+                  case 1001:
+                  case 1003:
+                  case 1004:
+                  case 1005:
+                  case 1006:
+                  case 1007:
+                    io.to(socket.id).emit('botMessage', 'ERR: URL not accessible or malformed image');
+                    break;
+                  case 1002:
+                    io.to(socket.id).emit('botMessage', 'ERR: Invalid URL');
+                    break;
+                  case 1008:
+                    io.to(socket.id).emit('botMessage', 'ERR: File size too large');
+                    break;
+                  default:
+                    io.to(socket.id).emit('botMessage', 'ERR: Unknown');
+                    break;
+                }
+
+                console.log(json);
               }
             })
 
         } else {
-          io.to(socket.id).emit('botMessage', 'We could not communicate with our moderation server.  Try again later!');
+          io.to(socket.id).emit('botMessage', `You haven't sent any messages!  Please do so before sending images.`);
         }
       })
     });
@@ -460,6 +394,65 @@ var updateHistory = (room, message, sender, senderId) => {
       }
     }
   })
+}
+var sendMessage = (room, msg, sender, document, socketIdd) => {
+  switch (msg) {
+    case "/who": {
+      var onlineList = userDb.find({
+        room: room
+      }, function(err, locatedDocs) {
+        var online = "";
+        console.log(locatedDocs);
+        if (locatedDocs[1] == undefined) {
+          io.to(socketIdd).emit('botMessage', "😫 Looks like you're all alone...");
+        } else {
+          for (let i = 0; i < locatedDocs.length; i++) {
+            online += "<br><b>" + locatedDocs[i].username + "</b>"
+          }
+          io.to(socketIdd).emit('botMessage', "Online users:<br>" + online);
+        }
+      });
+      break;
+    }
+    case "/help": {
+      io.to(socketIdd).emit('botMessage', "Thanks for using the Modchat Bot!  Here are your command options:<br><strong>/help</strong> generates this message<br><strong>/who</strong> prints users in your room<br><strong>/shrug</strong> sends a shruggie to the room<br><br>You can find a list of supported emoji codes <a class=\"mention\" href=\"https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md\" target=\"_blank\">here</a>.");
+      break;
+    }
+    case "/shrug": {
+      io.to(room).emit('botMessage', `<a href="https://scratch.mit.edu/users/${sender}" target="_blank" class="mention">${sender}</a> shrugged ¯\\_(ツ)_/¯`);
+      break;
+    }
+    default: {
+      if (!filter.isProfane(msg)) { // checks if message doesn't contain rude words
+        var message = msg.replace(/(<([^>]+)>)/gi, "");
+        var emojiRegex = /:[^:\s]*(?:::[^:\s]*)*:/gi;
+        var match = message.match(emojiRegex);
+        if (match) {
+          console.log(`Found ${match.length} emojis`);
+          match.forEach((el) => {
+            console.log(el);
+            var unicodeEmoji = el.substring(1, el.length - 1);
+            unicodeEmoji = emoji.get(unicodeEmoji);
+            if (unicodeEmoji == undefined) {
+              unicodeEmoji = "[missing emoji]"
+            }
+            console.log(el + ' is equal to ' + unicodeEmoji);
+            message = message.replace(el, unicodeEmoji);
+          });
+        }
+        io.to(room).emit('chatMessage', { // emit the message to all clients in the room
+          "message": message,
+          "sender": sender, // set the sender to the sender's username
+          "id": document[0].id // set the sender's ID from the database
+        });
+        updateHistory(room, message, sender, document[0].id);
+      } else {
+        io.to(socketIdd).emit('badWord');
+        console.log('User ' + sender + ' tried to post something rude.'); // ROP
+      }
+      break;
+    }
+  }
 }
 http.listen((process.env.PORT || 3001), () => { // initialize the server
   console.log('listening on a port'); // ROP

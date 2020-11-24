@@ -3,3 +3,4 @@ dist
 node_modules
 users.db
 rooms.db
+banned.db

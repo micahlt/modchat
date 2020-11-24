@@ -38,11 +38,15 @@ filter.addWords(...frenchBadwords.array); // Add French curse words to the filte
 filter.addWords(...filipinoBadwords.array); // Add Filipino curse words to the filter
 filter.addWords(...moreBadwords); // Add other curse words to the filter
 // End Filter Setup
-let bannedList = [];
-if (process.env.MCBANNED) {
-  bannedList = process.env.MCBANNED.split(' ');
+let modList;
+if (process.env.MODLIST) {
+  modList = process.env.MODLIST.split(',');
 }
-let modsList = ['-Ekmand-', '-Archon-', 'MicahLT', 'ContourLines', 'YodaLightsabr', 'MetaLabs', '--Velocity--', 'ConvexPolygon'];
+console.log('Introducing our moderators: ');
+modList.forEach((item) => {
+  console.log(item);
+});
+console.log('\n');
 roomDb.persistence.setAutocompactionInterval(30000);
 userDb.persistence.setAutocompactionInterval(30000);
 const Imgbb = require('imgbbjs')
@@ -89,7 +93,16 @@ io.on('connection', (socket) => { // handle a user connecting
       }
     });
     if (!(object.user == null)) {
-      if (bannedList.includes(object.user)) {
+      const banned = bannedDb.find({
+        user: object.user
+      }, (err, docs) => {
+        if (docs) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+      if (banned) {
         console.log("Banned user " + object.user + " attempted to join.");
         socket.emit('bannedUser', true);
         socket.leave(currentRoom);
@@ -240,13 +253,16 @@ io.on('connection', (socket) => { // handle a user connecting
   socket.on('admin', (object) => {
     bcrypt.compare(object.sender, object.hash).then(result => {
       if (result) {
-        if (object.sender in modsList) {
-          socket.emit('admin', true);
+        if (modList.includes(object.sender)) {
+          io.to(socket.id).emit('admin', true);
+          console.log(`${object.sender} is a mod!`);
         } else {
-          socket.emit('admin', false);
+          io.to(socket.id).emit('admin', false);
+          console.log(`Did not locate user ${object.sender} in the modlist.`);
         }
       } else {
-        socket.emit('admin', false);
+        io.to(socket.io).emit('admin', false);
+        console.log(`Wrong hash from ${object.sender}!  Beware of tampering!`);
       }
     });
   });
@@ -260,10 +276,31 @@ io.on('connection', (socket) => { // handle a user connecting
             socket.emit('banError');
           } else {
             socket.emit('banSuccess');
+            console.log(`${object.sender} successfully requested a ban of ${object.bannedUser}.`);
           }
         });
       } else {
-        socket.emit('error');
+        socket.emit('banError');
+      }
+    });
+  });
+  socket.on('unban', (object) => {
+    bcrypt.compare(object.sender, object.hash).then(result => {
+      if (result) {
+        bannedDb.remove({
+          user: object.unbannedUser
+        }, {
+          multi: true
+        }, (err, numRemoved) => {
+          if (err) {
+            socket.emit('unbanError');
+          } else {
+            socket.emit('unbanSuccess');
+            console.log(`${object.sender} successfully requested that ${object.bannedUser} be unbanned.`);
+          }
+        });
+      } else {
+        socket.emit('unbanError');
       }
     });
   });

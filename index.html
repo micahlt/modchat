@@ -13,6 +13,21 @@
 </head>
 
 <body>
+  <div class="customize">
+    <div class="customize-options">
+      <label for="themeSelect">Select a theme:</label>
+      <select id="themeSelect">
+        <option value="dark">Dark</option>
+        <option value="light">Light</option>
+      </select>
+      <br>
+      <label for="fontSelect">Select a font:</label>
+      <select id="themeSelect">
+        <option value="dark">Dark</option>
+        <option value="light">Light</option>
+      </select>
+    </div>
+  </div>
   <a href="#" id="sidebarControl">
     <span class="material-icons menu-m">
       menu_open
@@ -63,6 +78,7 @@
     </div>
   </div>
   <input type="file" id="pseudoUpload" />
+  <script src="https://unpkg.com/keyboardjs@2.6.4/dist/keyboard.min.js" charset="utf-8"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/app.js">
   </script>

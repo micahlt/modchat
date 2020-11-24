@@ -19,6 +19,66 @@ let usersTyping = [];
 let root = document.documentElement;
 let userName = window.localStorage.getItem("userName"); // grab the user object from localStorage if it exists
 let sidebarOpen = false;
+keyboardJS.bind('alt + b', (e) => {
+  e.preventRepeat();
+  console.log('checking for admin');
+  socket.emit('admin', {
+    sender: window.localStorage.getItem("userName"),
+    hash: window.localStorage.getItem("userHash")
+  });
+  socket.on('admin', (isAdmin) => {
+    if (isAdmin) {
+      window.alert('Admin privileges accepted');
+      let bannedUser = window.prompt('enter a username to ban');
+      socket.emit('ban', {
+        sender: window.localStorage.getItem("userName"),
+        hash: window.localStorage.getItem("userHash"),
+        bannedUser: bannedUser
+      });
+      socket.on('banError', () => {
+        window.alert('There was an error with banning the user.');
+        socket.off('admin');
+      })
+      socket.on('banSuccess', () => {
+        window.alert('You successfully banned the user.');
+        socket.off('admin');
+      })
+    } else {
+      window.alert('Admin privileges denied');
+      socket.off('admin');
+    }
+  })
+});
+keyboardJS.bind('alt + u', (e) => {
+  e.preventRepeat();
+  console.log('checking for admin');
+  socket.emit('admin', {
+    sender: window.localStorage.getItem("userName"),
+    hash: window.localStorage.getItem("userHash")
+  });
+  socket.on('admin', (isAdmin) => {
+    if (isAdmin) {
+      window.alert('Admin privileges accepted');
+      let unbannedUser = window.prompt('enter a username to unban');
+      socket.emit('unban', {
+        sender: window.localStorage.getItem("userName"),
+        hash: window.localStorage.getItem("userHash"),
+        unbannedUser: unbannedUser
+      });
+      socket.on('unbanError', () => {
+        window.alert('There was an error with unbanning the user.');
+        socket.off('admin');
+      })
+      socket.on('unbanSuccess', () => {
+        window.alert('You successfully unbanned the user.');
+        socket.off('admin');
+      })
+    } else {
+      window.alert('Admin privileges denied');
+      socket.off('admin');
+    }
+  })
+})
 if (userName) {
   // if the user object contains a name
   console.log("User has already verified"); // ROP

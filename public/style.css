@@ -175,18 +175,34 @@ button:focus {
   border: none;
 }
 
+.scratchverifier {
+  opacity: 0;
+  width: 90vw;
+}
+
 #completeSV {
-  display: none;
   color: var(--text-primary);
   font-family: 'Heebo', sans-serif;
   height: 2.3em;
   background-color: var(--background-tertiary);
   border-radius: 40px;
-  padding: 10px;
+  padding: 10px 20px;
   text-decoration: none;
   color: white;
   background: rgb(110, 48, 251);
   background: linear-gradient(90deg, rgba(110, 48, 251, 1) 0%, rgba(119, 41, 216, 1) 100%);
+}
+
+.tos {
+  font-size: 0.8em;
+}
+
+.tos a {
+  color: #712EF0;
+}
+
+.tos a:hover {
+  text-decoration: none;
 }
 
 #roomName {

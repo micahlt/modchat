@@ -343,7 +343,7 @@ socket.on("svCodeToVerify", function(msg) {
   // handle recieving the SV code (after triggering the setUsername function)
   document.getElementsByClassName("loader")[0].style.opacity = "0";
   document.getElementById("svCode").value = msg; // display the code
-  document.getElementById("completeSV").style.display = "block"; // display the completion button
+  document.getElementsByClassName("scratchverifier")[0].style.opacity = "1"; // display the completion button
   document.getElementById("completeSV").addEventListener("click", function() {
     // listen for clicks on the completion button
     socket.emit("finishVerification"); // tell the server to finish verification

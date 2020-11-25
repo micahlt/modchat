@@ -57,13 +57,16 @@ const imgbb = new Imgbb({
 });
 app.use(express.static(__dirname + '/public')); // tell express where to get public assets
 app.get('/chat', (req, res) => { // set chat location to the chat page
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(__dirname + '/public/index.html');
 });
 app.get('/', (req, res) => { // set root location to the landing page
-  res.sendFile(__dirname + '/home.html');
+  res.sendFile(__dirname + '/public/home.html');
 });
 app.get('/about', (req, res) => { // set about location to the about page
-  res.sendFile(__dirname + '/about.html');
+  res.sendFile(__dirname + '/public/about.html');
+});
+app.get('/tos', (req, res) => { // set about location to the about page
+  res.sendFile(__dirname + '/public/tos.html');
 });
 io.on('connection', (socket) => { // handle a user connecting
   console.log(socket.id)

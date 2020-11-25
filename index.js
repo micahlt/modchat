@@ -57,7 +57,7 @@ const imgbb = new Imgbb({
 });
 app.use(express.static(__dirname + '/public')); // tell express where to get public assets
 app.get('/chat', (req, res) => { // set chat location to the chat page
-  res.sendFile(__dirname + '/public/index.html');
+  res.sendFile(__dirname + '/public/app.html');
 });
 app.get('/', (req, res) => { // set root location to the landing page
   res.sendFile(__dirname + '/public/home.html');

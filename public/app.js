@@ -304,6 +304,16 @@ socket.on("chatMessage", function(object) {
   p.innerHTML = mentionsMessage; // add the message text to that element
   m.appendChild(img);
   m.appendChild(p);
+  if (object.stamp) {
+    var date = new Date(object.stamp);
+    var timestamp = date.toUTCString();
+    m.title = `Sent on ${date}`
+    p.title = `Sent on ${date}`
+  }
+  m.addEventListener('click', (e) => {
+    e.preventDefault();
+    replyPost(e.target.innerText, e.target.parentNode.childNodes[0].getAttribute('title'));
+  })
   document.getElementById("messages").appendChild(m); // append the message to the message area
   window.scrollBy(0, 1700);
   if (document.hidden) {
@@ -391,4 +401,9 @@ function whosTyping() {
   } else {
     document.getElementById("typingSection").innerHTML = "";
   }
+}
+
+function replyPost(post, sender) {
+  document.getElementById("m").value =
+    "-q @" + sender + ": " + post + " q-" + document.getElementById("m").value;
 }

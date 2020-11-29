@@ -98,6 +98,13 @@ body {
   color: white !important;
 }
 
+.quote {
+  background: rgba(255, 255, 255, 0.1);
+  border-bottom: 0.2em solid rgba(0, 0, 0, 0.5);
+  padding: 0.5em;
+  border-radius: 15px;
+}
+
 #messages li:last-child {
   margin-bottom: 6em;
 }

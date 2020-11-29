@@ -431,7 +431,8 @@ var updateHistory = (room, message, sender, senderId) => {
         "message": message,
         "sender": sender, // set the sender to the sender's username
         "id": senderId, // set the sender's ID from the database
-        "old": true
+        "old": true,
+        "stamp": Date.now()
       }
     }
   })
@@ -481,10 +482,12 @@ var sendMessage = (room, msg, sender, document, socketIdd) => {
             message = message.replace(el, unicodeEmoji);
           });
         }
+        message = betterReplace(betterReplace(betterReplace(message, "q-", "</div>"), "-q", "<div class=quote>"), "---", "<hr>");
         io.to(room).emit('chatMessage', { // emit the message to all clients in the room
           "message": message,
           "sender": sender, // set the sender to the sender's username
-          "id": document[0].id // set the sender's ID from the database
+          "id": document[0].id, // set the sender's ID from the database
+          "stamp": Date.now()
         });
         updateHistory(room, message, sender, document[0].id);
       } else {
@@ -498,3 +501,7 @@ var sendMessage = (room, msg, sender, document, socketIdd) => {
 http.listen((process.env.PORT || 3001), () => { // initialize the server
   console.log('listening on a port'); // ROP
 });
+
+function betterReplace(a, b, c) {
+  return a.split(b).join(c);
+}

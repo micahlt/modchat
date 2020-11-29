@@ -239,6 +239,9 @@ document.getElementById("username").addEventListener("submit", function(event) {
   socket.emit("userRegister", document.getElementById("username-input").value); // send the username to verify to the server
   return false;
 });
+socket.on("reload", () => {
+  window.location.reload();
+})
 socket.on("isTyping", function(username) {
   console.log(usersTyping.length); // ROP
   if (!usersTyping.includes(username)) {

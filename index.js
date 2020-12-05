@@ -104,13 +104,13 @@ io.on('connection', (socket) => { // handle a user connecting
         })
       }
     });
-    
+
     if (!(object.user == null)) {
       const banned = bannedDb.find({
         user: object.user
       }, (err, docs) => {
         if (docs != null && docs.length >= 1) {
-          
+
           console.log("Banned user " + object.user + " attempted to join.");
           socket.emit('bannedUser', true);
           socket.leave(currentRoom);
@@ -124,20 +124,27 @@ io.on('connection', (socket) => { // handle a user connecting
               }
             });
           console.log("User " + object.user + " joined the " + object.room + " room"); // ROP
-          if(!whoIsOnline[object.room].map(JSON.stringify).includes(JSON.stringify({user:object.user,socketID:object.socket}))) {
-            whoIsOnline[object.room].push({user:object.user,socketID:object.socket});
+          if (object.room in whoIsOnline && !whoIsOnline[object.room].map(JSON.stringify).includes(JSON.stringify({ user: object.user, socketID: object.socket }))) {
+            whoIsOnline[object.room].push({ user: object.user, socketID: object.socket });
           }
           userDb.find({
             user: object.user
           }, (error, doc) => {
-            var hashFromDb = doc[0].hashString;
-            bcrypt.compare(hashFromDb, object.hash).then(function(result) {
-              if (result) {
-                io.to(currentRoom).emit('botMessage', "🎉 Welcome <b>" + object.user + "</b> to the <b>" + currentRoom + "</b> room! 🎉"); // emit a welcome message with the Modchat bot
-              }
-            }).catch(function(err) {
-              console.log("Error:", err); // ROP
-            });
+            if (doc[0]) {
+              var hashFromDb = doc[0].hashString;
+              bcrypt.compare(hashFromDb, object.hash).then(function(result) {
+                if (result) {
+                  io.to(currentRoom).emit('botMessage', "🎉 Welcome <b>" + object.user + "</b> to the <b>" + currentRoom + "</b> room! 🎉"); // emit a welcome message with the Modchat bot
+                }
+              }).catch(function(err) {
+                console.log("Error:", err); // ROP
+              });
+            } else {
+              io.to(socket.id).emit('reload');
+              io.to(socket.id).emit('kick');
+              socket.leave(currentRoom);
+
+            }
           });
         }
       });
@@ -152,7 +159,7 @@ io.on('connection', (socket) => { // handle a user connecting
     userDb.find({
       user: object.sender
     }, (error, doc) => {
-      if(doc.length==0)return;
+      if (doc.length == 0) return;
       var hashFromDb = doc[0].hashString;
       bcrypt.compare(hashFromDb, object.hash).then(async function(result) {
         // console.log(result) // ROP
@@ -300,7 +307,7 @@ io.on('connection', (socket) => { // handle a user connecting
       if (docs[0] !== undefined) {
         io.to(currentRoom).emit('botMessage', "😐 User <b>" + docs[0].user + "</b> left the <b>" + currentRoom + "</b> room."); // emit a welcome message with the Modchat bot
         console.log(docs[0].user, "left the room");
-        whoIsOnline[currentRoom] = whoIsOnline[currentRoom].filter(n=>n.socketID!=socket.id);
+        whoIsOnline[currentRoom] = whoIsOnline[currentRoom].filter(n => n.socketID != socket.id);
         // Need to use this for getting if a user is online
         //  userDb.remove({
         //    socketId: socket.id
@@ -314,7 +321,6 @@ io.on('connection', (socket) => { // handle a user connecting
     userDb.find({
       user: object.sender
     }, (error, doc) => {
-      
       var hashFromDb = doc[0].hashString;
       bcrypt.compare(hashFromDb, object.hash).then(result => {
         if (result) {
@@ -336,7 +342,7 @@ io.on('connection', (socket) => { // handle a user connecting
     userDb.find({
       user: object.sender
     }, (error, doc) => {
-      
+
       var hashFromDb = doc[0].hashString;
       bcrypt.compare(hashFromDb, object.hash).then(result => {
         if (result && modList.includes(object.sender.toLowerCase())) {
@@ -360,7 +366,7 @@ io.on('connection', (socket) => { // handle a user connecting
     userDb.find({
       user: object.sender
     }, (error, doc) => {
-      
+
       var hashFromDb = doc[0].hashString;
       bcrypt.compare(hashFromDb, object.hash).then(result => {
         if (result && modList.includes(object.sender.toLowerCase())) {
@@ -518,7 +524,7 @@ var sendMessage = (room, msg, sender, document, socketIdd) => {
         room: room
       }, function(err, _locatedDocs) {
         var online = "";
-        const locatedDocs = whoIsOnline[room].map(n=>n.user).filter((a,b,c)=>c.indexOf(a)==b);
+        const locatedDocs = whoIsOnline[room].map(n => n.user).filter((a, b, c) => c.indexOf(a) == b);
         console.log(locatedDocs); // Remove?
         if (locatedDocs[1] == undefined) {
           io.to(socketIdd).emit('botMessage', "😫 Looks like you're all alone...");

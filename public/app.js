@@ -49,6 +49,11 @@ keyboardJS.bind('alt + b', (e) => {
     }
   })
 });
+socket.on('kick', () => {
+window.localStorage.removeItem("userName");
+  window.localStorage.removeItem("userHash");
+  window.location.reload();
+})
 keyboardJS.bind('alt + u', (e) => {
   e.preventRepeat();
   console.log('checking for admin');

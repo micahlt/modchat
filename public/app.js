@@ -1,4 +1,9 @@
 var socket = io(); // define socket
+
+function filterHTML(html) {
+  return html.split("<").join("&lt;").split(">").join("&gt;");
+}
+
 var getParams = function(url) {
   // set up the getParams function
   var params = {}; // set up a params object
@@ -399,9 +404,9 @@ setInterval(whosTyping, 500);
 
 function whosTyping() {
   if (usersTyping.length > 0 && usersTyping.length < 2) {
-    document.getElementById("typingSection").innerHTML = "<strong>" + usersTyping[0] + "</strong> is typing...";
+    document.getElementById("typingSection").innerHTML = "<strong>" + filterHTML(usersTyping[0]) + "</strong> is typing...";
   } else if (usersTyping.length > 1) {
-    document.getElementById("typingSection").innerHTML = "<strong>" + usersTyping[0] + "</strong> and " + (
+    document.getElementById("typingSection").innerHTML = "<strong>" + filterHTML(usersTyping[0]) + "</strong> and " + (
       usersTyping.length - 1) + " more are typing...";
   } else {
     document.getElementById("typingSection").innerHTML = "";

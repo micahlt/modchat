@@ -548,29 +548,34 @@ var sendMessage = (room, msg, sender, document, socketIdd) => {
     default: {
       if (!filter.isProfane(msg)) { // checks if message doesn't contain rude words
         var message = msg.replace(/(<([^>]+)>)/gi, "");
-        var emojiRegex = /:[^:\s]*(?:::[^:\s]*)*:/gi;
-        var match = message.match(emojiRegex);
-        if (match) {
-          console.log(`Found ${match.length} emojis`);
-          match.forEach((el) => {
-            console.log(el);
-            var unicodeEmoji = el.substring(1, el.length - 1);
-            unicodeEmoji = emoji.get(unicodeEmoji);
-            if (unicodeEmoji == undefined) {
-              unicodeEmoji = "[missing emoji]"
-            }
-            console.log(el + ' is equal to ' + unicodeEmoji);
-            message = message.replace(el, unicodeEmoji);
+        if (message.length > 250) {
+          io.to(socketIdd).emit('botMessage', 'Do not bypass the char limits!  This is a warning!');
+        } else {
+          var emojiRegex = /:[^:\s]*(?:::[^:\s]*)*:/gi;
+          var match = message.match(emojiRegex);
+          if (match) {
+            console.log(`Found ${match.length} emojis`);
+            match.forEach((el) => {
+              console.log(el);
+              var unicodeEmoji = el.substring(1, el.length - 1);
+              unicodeEmoji = emoji.get(unicodeEmoji);
+              if (unicodeEmoji == undefined) {
+                console.log('missing emoji!');
+              } else {
+                console.log(el + ' is equal to ' + unicodeEmoji);
+                message = message.replace(el, unicodeEmoji);
+              }
+            });
+          }
+          message = betterReplace(betterReplace(betterReplace(message, "q-", "</div>"), "-q", "<div class=quote>"), "---", "<hr>");
+          io.to(room).emit('chatMessage', { // emit the message to all clients in the room
+            "message": message,
+            "sender": sender, // set the sender to the sender's username
+            "id": document[0].id, // set the sender's ID from the database
+            "stamp": Date.now()
           });
+          updateHistory(room, message, sender, document[0].id);
         }
-        message = betterReplace(betterReplace(betterReplace(message, "q-", "</div>"), "-q", "<div class=quote>"), "---", "<hr>");
-        io.to(room).emit('chatMessage', { // emit the message to all clients in the room
-          "message": message,
-          "sender": sender, // set the sender to the sender's username
-          "id": document[0].id, // set the sender's ID from the database
-          "stamp": Date.now()
-        });
-        updateHistory(room, message, sender, document[0].id);
       } else {
         io.to(socketIdd).emit('badWord');
         console.log('User ' + sender + ' tried to post something rude.'); // ROP

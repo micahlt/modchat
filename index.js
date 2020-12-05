@@ -9,7 +9,8 @@ var filipinoBadwords = require("filipino-badwords-list"); // import Filipino cur
 var moreBadwords = require("badwordspluss");
 const emoji = require("emoji-name-map"); // import emoji name map
 var Datastore = require('nedb'); // for username info storage
-var bcrypt = require('bcrypt'); // for hashing usernames
+var bcrypt = require('bcrypt'); // for hashing randos
+var cryptoRandomString = require('crypto-random-string'); // for hash generation
 var roomDb = new Datastore({
   filename: 'rooms.db',
   autoload: true
@@ -22,6 +23,12 @@ const bannedDb = new Datastore({
   filename: 'banned.db',
   autoload: true
 });
+const whoIsOnline = {};
+roomDb.find({}, (err, doc) => {
+  doc.forEach(n => {
+    whoIsOnline[n.roomName] = [];
+  })
+})
 bannedDb.persistence.setAutocompactionInterval(30000);
 var app = express(); // define the app var
 var http = require('http').createServer(app); // init http server
@@ -88,6 +95,7 @@ io.on('connection', (socket) => { // handle a user connecting
           roomName: currentRoom,
           roomMessages: []
         }; // creates a db object for the room
+        whoIsOnline[currentRoom] = [];
         roomDb.insert(room); // inserts the room
       } else {
         console.log("Room already exists");
@@ -96,38 +104,43 @@ io.on('connection', (socket) => { // handle a user connecting
         })
       }
     });
+    
     if (!(object.user == null)) {
       const banned = bannedDb.find({
         user: object.user
       }, (err, docs) => {
-        if (docs) {
-          return true;
+        if (docs != null && docs.length >= 1) {
+          
+          console.log("Banned user " + object.user + " attempted to join.");
+          socket.emit('bannedUser', true);
+          socket.leave(currentRoom);
         } else {
-          return false;
+          userDb.update({
+            user: object.user
+          }, {
+              $set: {
+                room: currentRoom,
+                socketId: object.socket
+              }
+            });
+          console.log("User " + object.user + " joined the " + object.room + " room"); // ROP
+          if(!whoIsOnline[object.room].map(JSON.stringify).includes(JSON.stringify({user:object.user,socketID:object.socket}))) {
+            whoIsOnline[object.room].push({user:object.user,socketID:object.socket});
+          }
+          userDb.find({
+            user: object.user
+          }, (error, doc) => {
+            var hashFromDb = doc[0].hashString;
+            bcrypt.compare(hashFromDb, object.hash).then(function(result) {
+              if (result) {
+                io.to(currentRoom).emit('botMessage', "🎉 Welcome <b>" + object.user + "</b> to the <b>" + currentRoom + "</b> room! 🎉"); // emit a welcome message with the Modchat bot
+              }
+            }).catch(function(err) {
+              console.log("Error:", err); // ROP
+            });
+          });
         }
       });
-      if (banned) {
-        console.log("Banned user " + object.user + " attempted to join.");
-        socket.emit('bannedUser', true);
-        socket.leave(currentRoom);
-      } else {
-        userDb.update({
-          username: object.user
-        }, {
-          $set: {
-            room: currentRoom,
-            socketId: object.socket
-          }
-        });
-        console.log("User " + object.user + " joined the " + object.room + " room"); // ROP
-        bcrypt.compare(object.user, object.hash).then(function(result) {
-          if (result) {
-            io.to(currentRoom).emit('botMessage', "🎉 Welcome <b>" + object.user + "</b> to the <b>" + currentRoom + "</b> room! 🎉"); // emit a welcome message with the Modchat bot
-          }
-        }).catch(function(err) {
-          console.log("Error:", err); // ROP
-        });
-      }
     } else {
       console.log("An unauthorized user is trying to join the " + currentRoom + " room."); // ROP
     }
@@ -136,53 +149,63 @@ io.on('connection', (socket) => { // handle a user connecting
     socket.to(currentRoom).emit('isTyping', object.username);
   });
   socket.on('chatMessage', (object) => { // handle the server recieving messages
-    // console.log(object.sender, object.hash); // ROP
-    bcrypt.compare(object.sender, object.hash).then(function(result) {
-      // console.log(result) // ROP
-      if (result) {
-        const banned = bannedDb.find({
-          user: object.user
-        }, (err, docs) => {
-          if (docs) {
-            return true;
+    userDb.find({
+      user: object.sender
+    }, (error, doc) => {
+      if(doc.length==0)return;
+      var hashFromDb = doc[0].hashString;
+      bcrypt.compare(hashFromDb, object.hash).then(async function(result) {
+        // console.log(result) // ROP
+        if (result) {
+          const banned = await (new Promise((resolve, reject) => {
+            bannedDb.find({
+              user: object.sender
+            }, (err, docs) => {
+              if (docs != null && docs.length >= 1) {
+                resolve(true);
+              } else {
+                resolve(false);
+              }
+            })
+          }));
+          if (banned) {
+            socket.emit('bannedUser', true);
+            socket.leave(currentRoom);
           } else {
-            return false;
-          }
-        });
-        if (banned) {
-          socket.emit('bannedUser', true);
-          socket.leave(currentRoom);
-        } else {
-          var locatedDoc = userDb.find({ // see if the user has a listing in the database; this reduces API requests to Scratch
-            username: object.sender // set the username to find as the message sender's username
-          }, function(err, docs) {
-            if (docs[0] == null) { // if the user does not exist
-              console.log("adding user " + object.sender); // ROP
-              fetch('https://api.scratch.mit.edu/users/' + object.sender) // fetch the user's info from the Scratch API
-                .then(response => response.json())
-                .then(data => {
-                  var userDoc = { // make a new document object
-                    username: object.sender, // set the username as the message sender's name
-                    id: data.id, // set the user's ID to the ID recieved by the Scratch API
-                    socketId: object.socket,
-                    room: currentRoom
-                  }
-                  userDb.insert(userDoc, function(err, docc) { // insert the document to the database
-                    sendMessage(currentRoom, object.message, object.sender, [data], socket.id);
+            var locatedDoc = userDb.find({ // see if the user has a listing in the database; this reduces API requests to Scratch
+              user: object.sender // set the username to find as the message sender's username
+            }, function(err, docs) {
+              if (docs[0] == null) { // if the user does not exist
+                console.log("adding user " + object.sender); // ROP
+                fetch('https://api.scratch.mit.edu/users/' + object.sender) // fetch the user's info from the Scratch API
+                  .then(response => response.json())
+                  .then(data => {
+                    var toHash = cryptoRandomString({ length: 30, type: 'alphanumeric' });
+                    var userDoc = { // make a new document object
+                      user: object.sender, // set the username as the message sender's name
+                      id: data.id, // set the user's ID to the ID recieved by the Scratch API
+                      socketId: object.socket,
+                      room: currentRoo,
+                      hashString: toHash
+                    }
+                    userDb.insert(userDoc, function(err, docc) { // insert the document to the database
+                      sendMessage(currentRoom, object.message, object.sender, [data], socket.id)
+                    })
                   });
-                })
-            } else {
-              var locateDoc = userDb.find({ // if the user does exist
-                username: object.sender // set the username to the sender's username
-              }, function(err, doc) {
-                sendMessage(currentRoom, object.message, object.sender, doc, socket.id);
-              });
+              } else {
+                var locateDoc = userDb.find({ // if the user does exist
+                  user: object.sender // set the username to the sender's username
+                }, function(err, doc) {
+                  sendMessage(currentRoom, object.message, object.sender, doc, socket.id);
+                });
+              }
             }
-          });
+            );
+          }
+        } else {
+          console.log('User tampering!');
         }
-      } else {
-        console.log('User tampering!');
-      }
+      });
     });
   });
   socket.on('userRegister', (msg) => { // handle user registration
@@ -218,19 +241,50 @@ io.on('connection', (socket) => { // handle a user connecting
                 body: JSON.stringify(reqBody)
               }).then((response) => {
                 return response.status;
-              }).then((data) => {
-                console.log('Response: ' + data); // ROP
-                if (data == 200) { // if the response was okay
-                  bcrypt.hash(msg, 10, function(err, hash) { // hash the username
-                    socket.emit("verificationSuccess", {
-                      "hash": hash,
-                      "username": msg
-                    }); // Send success  to the registering user
-                    console.log(hash);
+              }).then((good) => {
+                console.log('Response: ' + good); // ROP
+                if (good == 200) { // if the response was okay
+                  var locatedDoc = userDb.find({ // see if the user has a listing in the database; this reduces API requests to Scratch
+                    user: msg // set the username to find as the message sender's username
+                  }, function(err, docs) {
+                    if (docs == null || docs.length == 0) { // if the user does not exist
+                      console.log("adding user " + msg); // ROP
+                      fetch('https://api.scratch.mit.edu/users/' + msg) // fetch the user's info from the Scratch API
+                        .then(response => response.json())
+                        .then(data => {
+                          var toHash = cryptoRandomString({ length: 30, type: 'alphanumeric' });
+                          var userDoc = { // make a new document object
+                            user: msg, // set the username as the message sender's name
+                            id: data.id, // set the user's ID to the ID recieved by the Scratch API
+                            socketId: socket.id,
+                            room: currentRoom,
+                            hashString: toHash
+                          }
+                          userDb.insert(userDoc, function(err, docc) { // insert the document to the database
+                            bcrypt.hash(docc.hashString, 10, function(err, hash) { // hash the username
+                              socket.emit("verificationSuccess", {
+                                "hash": hash,
+                                "username": msg
+                              }); // Send success  to the registering user
+                            });
+                          })
+                        });
+                    } else {
+                      userDb.find({
+                        user: msg
+                      }, (err, docs) => {
+                        bcrypt.hash(docs[0].hashString, 10, function(err, hash) { // hash the username
+                          socket.emit("verificationSuccess", {
+                            "hash": hash,
+                            "username": msg
+                          }); // Send success  to the registering user
+                        });
+                      });;
+                    }
                   });
                 } else { // if verification failed
                   // generate error here...
-                  console.error("Error with verification: " + data); // ROP
+                  console.error("Error with verification: " + good); // ROP
                 }
               })
             })
@@ -244,68 +298,88 @@ io.on('connection', (socket) => { // handle a user connecting
       room: currentRoom
     }, function(err, docs) {
       if (docs[0] !== undefined) {
-        io.to(currentRoom).emit('botMessage', "😐 User <b>" + docs[0].username + "</b> left the <b>" + currentRoom + "</b> room."); // emit a welcome message with the Modchat bot
-        console.log(docs[0].username, "left the room");
-        userDb.remove({
-          socketId: socket.id
-        })
+        io.to(currentRoom).emit('botMessage', "😐 User <b>" + docs[0].user + "</b> left the <b>" + currentRoom + "</b> room."); // emit a welcome message with the Modchat bot
+        console.log(docs[0].user, "left the room");
+        whoIsOnline[currentRoom] = whoIsOnline[currentRoom].filter(n=>n.socketID!=socket.id);
+        // Need to use this for getting if a user is online
+        //  userDb.remove({
+        //    socketId: socket.id
+        //  })
       } else {
         console.log('a user disconnected:', socket.id);
       }
     })
   });
   socket.on('admin', (object) => {
-    bcrypt.compare(object.sender, object.hash).then(result => {
-      if (result) {
-        if (modList.includes(object.sender.toLowerCase())) {
-          io.to(socket.id).emit('admin', true);
-          console.log(`${object.sender} is a mod!`);
+    userDb.find({
+      user: object.sender
+    }, (error, doc) => {
+      
+      var hashFromDb = doc[0].hashString;
+      bcrypt.compare(hashFromDb, object.hash).then(result => {
+        if (result) {
+          if (modList.includes(object.sender.toLowerCase())) {
+            io.to(socket.id).emit('admin', true);
+            console.log(`${object.sender} is a mod!`);
+          } else {
+            io.to(socket.id).emit('admin', false);
+            console.log(`Did not locate user ${object.sender} in the modlist.`);
+          }
         } else {
-          io.to(socket.id).emit('admin', false);
-          console.log(`Did not locate user ${object.sender} in the modlist.`);
+          io.to(socket.io).emit('admin', false);
+          console.log(`Wrong hash from ${object.sender}!  Beware of tampering!`);
         }
-      } else {
-        io.to(socket.io).emit('admin', false);
-        console.log(`Wrong hash from ${object.sender}!  Beware of tampering!`);
-      }
+      });
     });
   });
   socket.on('ban', (object) => {
-    bcrypt.compare(object.sender, object.hash).then(result => {
-      if (result) {
-        bannedDb.insert({
-          user: object.bannedUser.toLowerCase()
-        }, (err, doc) => {
-          if (err) {
-            socket.emit('banError');
-          } else {
-            socket.emit('banSuccess');
-            console.log(`${object.sender} successfully requested a ban of ${object.bannedUser}.`);
-          }
-        });
-      } else {
-        socket.emit('banError');
-      }
+    userDb.find({
+      user: object.sender
+    }, (error, doc) => {
+      
+      var hashFromDb = doc[0].hashString;
+      bcrypt.compare(hashFromDb, object.hash).then(result => {
+        if (result && modList.includes(object.sender.toLowerCase())) {
+          bannedDb.insert({
+            user: object.bannedUser.toLowerCase()
+          }, (err, doc) => {
+            if (err) {
+              socket.emit('banError');
+            } else {
+              socket.emit('banSuccess');
+              console.log(`${object.sender} successfully requested a ban of ${object.bannedUser}.`);
+            }
+          });
+        } else {
+          socket.emit('banError');
+        }
+      });
     });
   });
   socket.on('unban', (object) => {
-    bcrypt.compare(object.sender, object.hash).then(result => {
-      if (result) {
-        bannedDb.remove({
-          user: object.unbannedUser
-        }, {
-          multi: true
-        }, (err, numRemoved) => {
-          if (err) {
-            socket.emit('unbanError');
-          } else {
-            socket.emit('unbanSuccess');
-            console.log(`${object.sender} successfully requested that ${object.bannedUser} be unbanned.`);
-          }
-        });
-      } else {
-        socket.emit('unbanError');
-      }
+    userDb.find({
+      user: object.sender
+    }, (error, doc) => {
+      
+      var hashFromDb = doc[0].hashString;
+      bcrypt.compare(hashFromDb, object.hash).then(result => {
+        if (result && modList.includes(object.sender.toLowerCase())) {
+          bannedDb.remove({
+            user: object.unbannedUser
+          }, {
+              multi: true
+            }, (err, numRemoved) => {
+              if (err) {
+                socket.emit('unbanError');
+              } else {
+                socket.emit('unbanSuccess');
+                console.log(`${object.sender} successfully requested that ${object.bannedUser} be unbanned.`);
+              }
+            });
+        } else {
+          socket.emit('unbanError');
+        }
+      });
     });
   });
   socket.on('image', (msg) => {
@@ -340,24 +414,24 @@ io.on('connection', (socket) => { // handle a user connecting
                       roomDb.update({
                         roomName: currentRoom
                       }, {
-                        $pop: {
-                          roomMessages: -1
-                        }
-                      })
+                          $pop: {
+                            roomMessages: -1
+                          }
+                        })
                     }
                   })
                   roomDb.update({
                     roomName: currentRoom
                   }, {
-                    $push: {
-                      roomMessages: {
-                        "message": `<img title="open in new tab" src="${data.data.url}" onclick="window.open('${data.data.url}')"></img>`,
-                        "sender": msg.sender, // set the sender to the sender's username
-                        "id": docs[0].id, // set the sender's ID from the database
-                        "old": true
+                      $push: {
+                        roomMessages: {
+                          "message": `<img title="open in new tab" src="${data.data.url}" onclick="window.open('${data.data.url}')"></img>`,
+                          "sender": msg.sender, // set the sender to the sender's username
+                          "id": docs[0].id, // set the sender's ID from the database
+                          "old": true
+                        }
                       }
-                    }
-                  })
+                    })
                 } else {
                   io.to(socket.id).emit('botMessage', `That image didn't pass through our filter.  Please make sure you're sending an image that is not objectionable and is appropriate for all ages!`);
                 }
@@ -417,39 +491,40 @@ var updateHistory = (room, message, sender, senderId) => {
       roomDb.update({
         roomName: room
       }, {
-        $pop: {
-          roomMessages: -1
-        }
-      })
+          $pop: {
+            roomMessages: -1
+          }
+        })
     }
   })
   roomDb.update({
     roomName: room
   }, {
-    $push: {
-      roomMessages: {
-        "message": message,
-        "sender": sender, // set the sender to the sender's username
-        "id": senderId, // set the sender's ID from the database
-        "old": true,
-        "stamp": Date.now()
+      $push: {
+        roomMessages: {
+          "message": message,
+          "sender": sender, // set the sender to the sender's username
+          "id": senderId, // set the sender's ID from the database
+          "old": true,
+          "stamp": Date.now()
+        }
       }
-    }
-  })
+    })
 }
 var sendMessage = (room, msg, sender, document, socketIdd) => {
   switch (msg) {
     case "/who": {
       var onlineList = userDb.find({
         room: room
-      }, function(err, locatedDocs) {
+      }, function(err, _locatedDocs) {
         var online = "";
-        console.log(locatedDocs);
+        const locatedDocs = whoIsOnline[room].map(n=>n.user).filter((a,b,c)=>c.indexOf(a)==b);
+        console.log(locatedDocs); // Remove?
         if (locatedDocs[1] == undefined) {
           io.to(socketIdd).emit('botMessage', "😫 Looks like you're all alone...");
         } else {
           for (let i = 0; i < locatedDocs.length; i++) {
-            online += "<br><b>" + locatedDocs[i].username + "</b>"
+            online += "<br><b>" + locatedDocs[i] + "</b>"
           }
           io.to(socketIdd).emit('botMessage', "Online users:<br>" + online);
         }
@@ -499,7 +574,7 @@ var sendMessage = (room, msg, sender, document, socketIdd) => {
   }
 }
 http.listen((process.env.PORT || 3001), () => { // initialize the server
-  console.log('listening on a port'); // ROP
+  console.log('listening on port'); // ROP
 });
 
 function betterReplace(a, b, c) {

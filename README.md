@@ -5,7 +5,7 @@
 Modchat (stylized modchat) is a moderated real-time chatting platform designed for [Scratch](https://scratch.mit.edu/) users.
 
 ## For Users
-Modchat uses a secure server combined with [ScratchVerifier](http://scratchverifier.ddns.net:8888/site) to sign you in.  While this is very safe, Modchat is currently under development and you could potentially expose your verification token to code contributors while they are working on it.  If you want to stay safe, we reccommend that you not use Modchat until a stable, secured version is released.
+Modchat uses a secure server combined with [SV2](https://sv2-server.herokuapp.com) to sign you in.  While this is very safe, Modchat is currently under development and you could potentially expose your verification token to code contributors while they are working on it.  If you want to stay safe, we reccommend that you not use Modchat until a stable, secured version is released.
 
 ## For Contributors
 If you're interested in contributing, I'd love to have your help!  I ask that you do the following things:
@@ -20,6 +20,5 @@ If you're interested in contributing, I'd love to have your help!  I ask that yo
 
 ### Notes on hosting
 - We use [Heroku](https://heroku.com) for hosting.  
-- Currently the real address of the live version of Modchat is [https://modchat-app.herokuapp.com](https://modchat-app.herokuapp.com), but it is also URL masked at [https://modchat.micahlindley.com](https://modchat.micahlindley.com).
-- Due to Heroku free time restrictions, the Modchat web app will shut down for a few days each month since I can't currently pay for premium dynos.
-- I cannot set up a real, unmasked custom domain without setting up a credit card with Heroku, so it'll be awhile, but when we're ready for production I plan on buying https://modchat.app
+- Currently the real address of the live version of Modchat is [https://modchat-app.herokuapp.com](https://modchat-app.herokuapp.com), but it is also found at [https://modchat.micahlindley.com](https://modchat.micahlindley.com).
+- I am currently providing Heroku Hobby dynos

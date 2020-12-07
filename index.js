@@ -156,8 +156,11 @@ io.on('connection', (socket) => { // handle a user connecting
     }
   });
   socket.on('userTyping', (object) => {
-    socket.to(currentRoom).emit('isTyping', object.username);
-  });
+    userDb.find({user: object.username}, (err, doc) => {
+      if(doc!=null&&doc.length>0)
+        socket.to(currentRoom).emit('isTyping', object.username);
+    });
+  }); 
   socket.on('chatMessage', (object) => { // handle the server recieving messages
     userDb.find({
       user: object.sender

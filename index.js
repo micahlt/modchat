@@ -11,6 +11,9 @@ const emoji = require("emoji-name-map"); // import emoji name map
 var Datastore = require('nedb'); // for username info storage
 var bcrypt = require('bcrypt'); // for hashing randos
 var cryptoRandomString = require('crypto-random-string'); // for hash generation
+var filterHTML = (html) => {
+  return html.split("<").join("&lt;").split(">").join("&gt;");
+}
 var roomDb = new Datastore({
   filename: 'rooms.db',
   autoload: true
@@ -548,7 +551,7 @@ var sendMessage = (room, msg, sender, document, socketIdd) => {
     }
     default: {
       if (!filter.isProfane(msg.replace(String.fromCharCode(8203), ''))) { // checks if message doesn't contain rude words
-      var message = msg;
+      var message = filterHTML(msg);
         if (message.length > 250) {
           io.to(socketIdd).emit('botMessage', 'Do not bypass the char limits!  This is a warning!');
         } else {
@@ -591,4 +594,7 @@ http.listen((process.env.PORT || 3001), () => { // initialize the server
 
 function betterReplace(a, b, c) {
   return a.split(b).join(c);
+}
+function filterHTML(html) {
+  return html.split("<").join("&lt;").split(">").join("&gt;");
 }

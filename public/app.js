@@ -282,7 +282,7 @@ socket.on("chatMessage", function(object) {
   }
   img.setAttribute("title", object.sender);
   let mentionsMessage = ""; // resets the mentions in the message
-  messageToRender = filterHTML(object.message);
+  messageToRender = object.message;
   if (messageToRender.includes("<img")) {
     p.classList.add("image");
   }

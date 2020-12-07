@@ -319,7 +319,7 @@ socket.on("chatMessage", function(object) {
   }
   m.addEventListener('click', (e) => {
     e.preventDefault();
-    replyPost(e.target.innerText, e.target.parentNode.childNodes[0].getAttribute('title'));
+    replyPost(object.raw_message, e.target.parentNode.childNodes[0].getAttribute('title'));
   })
   document.getElementById("messages").appendChild(m); // append the message to the message area
   window.scrollBy(0, 1700);

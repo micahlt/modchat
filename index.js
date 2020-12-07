@@ -571,9 +571,11 @@ var sendMessage = (room, msg, sender, document, socketIdd) => {
               }
             });
           }
+          let rawMessage = message;
           message = betterReplace(betterReplace(betterReplace(message, "q-", "</div>"), "-q", "<div class=quote>"), "---", "<hr>");
           io.to(room).emit('chatMessage', { // emit the message to all clients in the room
             "message": message,
+            "raw_message": rawMessage,
             "sender": sender, // set the sender to the sender's username
             "id": document[0].id, // set the sender's ID from the database
             "stamp": Date.now()

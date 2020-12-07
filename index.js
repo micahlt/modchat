@@ -39,7 +39,7 @@ var filter = new Filter({
 }); // set up the filter
 let removeWords = ['GOD']; // Make a list of word to be uncensored.
 filter.removeWords(...removeWords); //Remove those from the filter
-let addWords = ['WTF', 'LMAO', 'DISCORD', 'INSTAGRAM', 'SLACK', 'SNAPCHAT']; // Any words in this list will be censored.
+let addWords = ['WTF', 'LMAO', 'DISCORD', 'INSTAGRAM', 'SLACK', 'SNAPCHAT', "SIACK", "LNSTAGRAM"]; // Any words in this list will be censored. SIACK because SIACK looks like SLACK. Same for LNSTAGRAM.
 filter.addWords(...addWords); // Add those to the filter
 filter.addWords(...frenchBadwords.array); // Add French curse words to the filter
 filter.addWords(...filipinoBadwords.array); // Add Filipino curse words to the filter
@@ -160,6 +160,7 @@ io.on('connection', (socket) => { // handle a user connecting
       user: object.sender
     }, (error, doc) => {
       if (doc.length == 0) return;
+      var safemsg = betterReplace(object.message, "", "​");
       var hashFromDb = doc[0].hashString;
       bcrypt.compare(hashFromDb, object.hash).then(async function(result) {
         // console.log(result) // ROP
@@ -546,8 +547,8 @@ var sendMessage = (room, msg, sender, document, socketIdd) => {
       break;
     }
     default: {
-      if (!filter.isProfane(msg)) { // checks if message doesn't contain rude words
-        var message = msg.replace(/(<([^>]+)>)/gi, "");
+      if (!filter.isProfane(msg.replace(String.fromCharCode(8203), ''))) { // checks if message doesn't contain rude words
+      var message = msg;
         if (message.length > 250) {
           io.to(socketIdd).emit('botMessage', 'Do not bypass the char limits!  This is a warning!');
         } else {

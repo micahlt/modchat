@@ -253,7 +253,6 @@ socket.on("reload", () => {
   window.location.reload();
 })
 socket.on("isTyping", function(username) {
-  console.log(usersTyping.length); // ROP
   if (!usersTyping.includes(username)) {
     usersTyping.push(username);
     whosTyping();
@@ -269,7 +268,6 @@ socket.on("bannedUser", function(boot) {
   window.location.reload();
 });
 socket.on("chatMessage", function(object) {
-  console.log('msg recieved');
   // handle recieving chat messages
   var m = document.createElement("li"); // create an element to display the message
   var p = document.createElement("p"); // create the actual message
@@ -284,8 +282,7 @@ socket.on("chatMessage", function(object) {
   }
   img.setAttribute("title", object.sender);
   let mentionsMessage = ""; // resets the mentions in the message
-  messageToRender = object.message;
-  console.log(messageToRender); // ROP
+  messageToRender = filterHTML(object.message);
   if (messageToRender.includes("<img")) {
     p.classList.add("image");
   }

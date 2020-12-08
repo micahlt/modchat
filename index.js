@@ -26,6 +26,7 @@ if (NEEDS_PERSISTENCE) {
     })
     .then(res => res.text())
     .then(text => {
+      console.log("File retrieved");
       require('fs').writeFileSync(file, text);
     });
   }
@@ -36,6 +37,8 @@ if (NEEDS_PERSISTENCE) {
       method: 'POST',
       body: JSON.stringify(body),
       headers: { 'Content-Type': 'application/json' },
+    }).then(n=>{
+      console.log("File updated");
     });
   }
 }
@@ -548,7 +551,7 @@ setTimeout(() => {
         }); */
     })
   });
-  var updateHistory = (room, message, sender, senderId) => {
+  var updateHistory = (room, message, sender, senderId, rawMessage) => {
     roomDb.find({
       roomName: room
     }, function(err, doccs) {
@@ -567,6 +570,7 @@ setTimeout(() => {
     }, {
         $push: {
           roomMessages: {
+            "raw_message": rawMesage,
             "message": message,
             "sender": sender, // set the sender to the sender's username
             "id": senderId, // set the sender's ID from the database
@@ -635,7 +639,7 @@ setTimeout(() => {
               "id": document[0].id, // set the sender's ID from the database
               "stamp": Date.now()
             });
-            updateHistory(room, message, sender, document[0].id);
+            updateHistory(room, message, sender, document[0].id, rawMessage);
           }
         } else {
           io.to(socketIdd).emit('badWord');

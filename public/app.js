@@ -265,7 +265,7 @@ socket.on("isTyping", function(username) {
 });
 socket.on("bannedUser", function(boot) {
   localStorage.removeItem("userName");
-  window.location.reload();
+  window.location.replace("/banned");
 });
 socket.on("chatMessage", function(object) {
   // handle recieving chat messages

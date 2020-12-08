@@ -570,7 +570,7 @@ setTimeout(() => {
     }, {
         $push: {
           roomMessages: {
-            "raw_message": rawMesage,
+            "raw_message": rawMessage,
             "message": message,
             "sender": sender, // set the sender to the sender's username
             "id": senderId, // set the sender's ID from the database

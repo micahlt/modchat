@@ -1,3 +1,20 @@
+const crypto = require('crypto');
+let cipher = crypto.createCipher('aes-128-cbc', process.env.CIPHER_KEY || process.env.BACKUP_KEY);
+function aesEncrypt(txt) {
+  cipher = crypto.createCipher('aes-128-cbc', process.env.CIPHER_KEY || process.env.BACKUP_KEY);
+  let temp = cipher.update(txt, 'utf8', 'hex');
+  temp += cipher.final('hex');
+  return temp;
+}
+
+function aesDecrypt(txt) {
+  cipher = crypto.createDecipher('aes-128-cbc', process.env.CIPHER_KEY || process.env.BACKUP_KEY);
+  let temp = cipher.update(txt, 'hex', 'utf8');
+  temp += cipher.final('utf8');
+  return temp;
+}
+
+
 const NEEDS_PERSISTENCE = process.env.BACKUP_SERVER && process.env.BACKUP_KEY;
 // Import all needed modules
 global.fetch = require("node-fetch"); // for web requests
@@ -190,13 +207,13 @@ setTimeout(() => {
             }, (error, doc) => {
               if (doc[0]) {
                 var hashFromDb = doc[0].hashString;
-                bcrypt.compare(hashFromDb, object.hash).then(function(result) {
-                  if (result) {
+                //bcrypt.compare(hashFromDb, object.hash).then(function(result) {
+                  if (object.hash == aesEncrypt(hashFromDb)) {
                     io.to(currentRoom).emit('botMessage', "🎉 Welcome <b>" + object.user + "</b> to the <b>" + currentRoom + "</b> room! 🎉"); // emit a welcome message with the Modchat bot
                   }
-                }).catch(function(err) {
-                  console.log("Error:", err); // ROP
-                });
+                //}).catch(function(err) {
+                //  console.log("Error:", err); // ROP
+                //});
               } else {
                 io.to(socket.id).emit('reload');
                 io.to(socket.id).emit('kick');
@@ -223,9 +240,10 @@ setTimeout(() => {
         if (doc.length == 0) return;
         var safemsg = betterReplace(object.message, "", "​");
         var hashFromDb = doc[0].hashString;
-        bcrypt.compare(hashFromDb, object.hash).then(async function(result) {
+        //bcrypt.compare(hashFromDb, object.hash).then(async function(result) {
           // console.log(result) // ROP
-          if (result) {
+        (async function() {
+          if (object.hash == aesEncrypt(hashFromDb)) {
             const banned = await (new Promise((resolve, reject) => {
               bannedDb.find({
                 user: object.sender.toLowerCase()
@@ -274,7 +292,7 @@ setTimeout(() => {
           } else {
             console.log('User tampering!');
           }
-        });
+        })();
       });
     });
     socket.on('userRegister', (msg) => { // handle user registration
@@ -330,7 +348,8 @@ setTimeout(() => {
                               hashString: toHash
                             }
                             userDb.insert(userDoc, function(err, docc) { // insert the document to the database
-                              bcrypt.hash(docc.hashString, 10, function(err, hash) { // hash the username
+                              bcrypt.hash(docc.hashString, 10, function(err, _hash) { // hash the username
+                                let hash = aesEncrypt(docc.hashString);
                                 socket.emit("verificationSuccess", {
                                   "hash": hash,
                                   "username": msg
@@ -342,7 +361,8 @@ setTimeout(() => {
                         userDb.find({
                           user: msg
                         }, (err, docs) => {
-                          bcrypt.hash(docs[0].hashString, 10, function(err, hash) { // hash the username
+                          bcrypt.hash(docs[0].hashString, 10, function(err, _hash) { // hash the username
+                            let hash = aesEncrypt(docs[0].hashString);
                             socket.emit("verificationSuccess", {
                               "hash": hash,
                               "username": msg
@@ -384,8 +404,8 @@ setTimeout(() => {
         user: object.sender
       }, (error, doc) => {
         var hashFromDb = doc[0].hashString;
-        bcrypt.compare(hashFromDb, object.hash).then(result => {
-          if (result) {
+        //bcrypt.compare(hashFromDb, object.hash).then(result => {
+          if (object.hash == aesEncrypt(hashFromDb)) {
             if (modList.includes(object.sender.toLowerCase())) {
               io.to(socket.id).emit('admin', true);
               console.log(`${object.sender} is a mod!`);
@@ -397,7 +417,7 @@ setTimeout(() => {
             io.to(socket.io).emit('admin', false);
             console.log(`Wrong hash from ${object.sender}!  Beware of tampering!`);
           }
-        });
+        //});
       });
     });
     socket.on('ban', (object) => {
@@ -406,8 +426,8 @@ setTimeout(() => {
       }, (error, doc) => {
 
         var hashFromDb = doc[0].hashString;
-        bcrypt.compare(hashFromDb, object.hash).then(result => {
-          if (result && modList.includes(object.sender.toLowerCase())) {
+        //bcrypt.compare(hashFromDb, object.hash).then(result => {
+          if (object.hash == aesEncrypt(hashFromDb) && modList.includes(object.sender.toLowerCase())) {
             bannedDb.insert({
               user: object.bannedUser.toLowerCase()
             }, (err, doc) => {
@@ -421,7 +441,7 @@ setTimeout(() => {
           } else {
             socket.emit('banError');
           }
-        });
+        //});
       });
     });
     socket.on('unban', (object) => {
@@ -430,8 +450,8 @@ setTimeout(() => {
       }, (error, doc) => {
 
         var hashFromDb = doc[0].hashString;
-        bcrypt.compare(hashFromDb, object.hash).then(result => {
-          if (result && modList.includes(object.sender.toLowerCase())) {
+        //bcrypt.compare(hashFromDb, object.hash).then(result => {
+          if (object.hash == aesEncrypt(hashFromDb) && modList.includes(object.sender.toLowerCase())) {
             bannedDb.remove({
               user: object.unbannedUser.toLowerCase()
             }, {
@@ -447,7 +467,7 @@ setTimeout(() => {
           } else {
             socket.emit('unbanError');
           }
-        });
+        //});
       });
     });
     socket.on('image', (msg) => {

@@ -1,3 +1,13 @@
+@font-face {
+      font-family: 'feather';
+      src: url('https://okj579.github.io/feather-font/font/feather.eot?52352131');
+      src: url('https://okj579.github.io/feather-font/font/feather.eot?52352131#iefix') format('embedded-opentype'),url('https://okj579.github.io/feather-font/font/feather.woff?52352131') format('woff'),
+           url('https://okj579.github.io/feather-font/font/feather.ttf?52352131') format('truetype'),
+           url('https://okj579.github.io/feather-font/font/feather.svg?52352131#feather') format('svg');
+      font-weight: normal;
+      font-style: normal;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -69,6 +79,14 @@ body {
   padding: 1em;
 }
 
+.feather {
+  font-family: 'feather';
+}
+
+a[href^="#reply"] {
+  text-decoration: none;
+}
+
 #messages {
   list-style-type: none;
   margin: 0;
@@ -90,6 +108,7 @@ body {
   border-top-left-radius: 0;
   width: max-content;
   max-width: 70%;
+  cursor: initial;
 }
 
 .yourMessage {
@@ -478,6 +497,9 @@ p img:hover {
   z-index : 500;
 }
 .reply {
-    font-size : 16px;
-    color : var(--semi-transparent);
+  font-size : 16px;
+  color : var(--semi-transparent);
+}
+.reply:hover {
+  color: var(--text-primary);
 }

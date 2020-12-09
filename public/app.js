@@ -279,16 +279,17 @@ socket.on("chatMessage", function(object) {
   var img = document.createElement("img"); // create an element to display the sender's profile picture
   img.src = "https://cdn2.scratch.mit.edu/get_image/user/" + object.id + "_60x60.png";
   img.classList.add("pfp");
-  replybutton.innerHTML = "reply";
-  replybutton.classList.add("material-icons");
+  replybutton.innerHTML = "&#xe83d;";
   replybutton.classList.add("reply");
+  replybutton.classList.add("feather");
+  replybutton.title = "Reply to " + object.sender;
   img.onclick = function() {
     window.open("https://scratch.mit.edu/users/" + object.sender, "_blank");
   };
   if (object.sender == localStorage.getItem("userName")) {
     p.classList.add("yourMessage");
   }
-  img.setAttribute("title", object.sender);
+  img.setAttribute("title", `Visit @${object.sender} on Scratch`);
   let mentionsMessage = ""; // resets the mentions in the message
   messageToRender = object.message;
   if (messageToRender.includes("<img")) {
@@ -326,8 +327,8 @@ socket.on("chatMessage", function(object) {
   if (object.stamp) {
     var date = new Date(object.stamp);
     var timestamp = date.toUTCString();
-    m.title = `Sent on ${date}`
-    p.title = `Sent on ${date}`
+    p.setAttribute("aria-label", `Sent on ${date}`);
+    p.setAttribute("data-balloon-pos", "right");
   }
   replybutton.addEventListener('click', (e) => {
     e.preventDefault();

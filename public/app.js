@@ -157,6 +157,7 @@ function setTheme() {
     root.style.setProperty("--background-tertiary", "lightgray");
     root.style.setProperty("--text-primary", "#0a0a0a");
     root.style.setProperty("--transparent", "rgba(0, 0, 0, 0.02)");
+    root.style.setProperty("--semi-transparent", "rgba(0, 0, 0, 0.2)");
     document.getElementsByClassName("register-img")[0].src = "/wordmark-black.png";
   } else if (window.localStorage.getItem("theme") == "dark") {
     root.style.setProperty("--background-primary", "#090A0B");
@@ -164,6 +165,7 @@ function setTheme() {
     root.style.setProperty("--background-tertiary", "rgb(20, 20, 20)");
     root.style.setProperty("--text-primary", "#ffffff");
     root.style.setProperty("--transparent", "rgba(255, 255, 255, 0.02)");
+    root.style.setProperty("--semi-transparent", "rgba(255, 255, 255, 0.2)");
     document.getElementsByClassName("register-img")[0].src = "/wordmark-white.png";
   }
 }
@@ -271,9 +273,15 @@ socket.on("chatMessage", function(object) {
   // handle recieving chat messages
   var m = document.createElement("li"); // create an element to display the message
   var p = document.createElement("p"); // create the actual message
+  var makereplybuttonchangecursorwhenyouhoveroverit = document.createElement("a"); // A short and consisce variable name
+  var msg = document.createElement("span"); // create the actual message
+  var replybutton = document.createElement("span"); // create the actual message
   var img = document.createElement("img"); // create an element to display the sender's profile picture
   img.src = "https://cdn2.scratch.mit.edu/get_image/user/" + object.id + "_60x60.png";
   img.classList.add("pfp");
+  replybutton.innerHTML = "reply";
+  replybutton.classList.add("material-icons");
+  replybutton.classList.add("reply");
   img.onclick = function() {
     window.open("https://scratch.mit.edu/users/" + object.sender, "_blank");
   };
@@ -308,18 +316,22 @@ socket.on("chatMessage", function(object) {
       mentionsMessage = mentionsMessage + word + " ";
     }
   });
-  p.innerHTML = mentionsMessage; // add the message text to that element
+  msg.innerHTML = mentionsMessage; // add the message text to that element
+  makereplybuttonchangecursorwhenyouhoveroverit.href = "#reply";
   m.appendChild(img);
   m.appendChild(p);
+  p.appendChild(msg);
+  p.appendChild(makereplybuttonchangecursorwhenyouhoveroverit);
+  makereplybuttonchangecursorwhenyouhoveroverit.appendChild(replybutton);
   if (object.stamp) {
     var date = new Date(object.stamp);
     var timestamp = date.toUTCString();
     m.title = `Sent on ${date}`
     p.title = `Sent on ${date}`
   }
-  m.addEventListener('click', (e) => {
+  replybutton.addEventListener('click', (e) => {
     e.preventDefault();
-    replyPost(object.raw_message, e.target.parentNode.childNodes[0].getAttribute('title'));
+    replyPost(object.raw_message, object.sender);
   })
   document.getElementById("messages").appendChild(m); // append the message to the message area
   window.scrollBy(0, 1700);

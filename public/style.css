@@ -11,6 +11,7 @@
   --background-secondary: rgb(230, 230, 230);
   --background-tertiary: lightgray;
   --transparent: rgba(0, 0, 0, 0.02);
+  --semi-transparent: rgba(0, 0, 0, 0.2);
 }
 
 body {
@@ -475,4 +476,8 @@ p img:hover {
   top : 10px;
   color : lime;
   z-index : 500;
+}
+.reply {
+    font-size : 16px;
+    color : var(--semi-transparent);
 }

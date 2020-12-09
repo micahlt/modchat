@@ -452,3 +452,27 @@ p img:hover {
     -webkit-tap-highlight-color: transparent;
   }
 }
+.button {
+  background : rgba(41,41,41,0.5);
+  border : 0px;
+  -wekkit-backdrop-filter : blur(3px);
+  backdrop-filter : blur(3px);
+  border-radius : 500px;
+  padding : 10px;
+  width : 100px;
+  font-weight : bold;
+}
+.ban {
+  position : fixed;
+  left : 10px;
+  top : 10px;
+  color : red;
+  z-index : 500;
+}
+.unban {
+  position : fixed;
+  left : 120px;
+  top : 10px;
+  color : lime;
+  z-index : 500;
+}

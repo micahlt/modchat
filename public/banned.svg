@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="155mm"
+   height="155mm"
+   viewBox="0 0 155 155"
+   version="1.1"
+   id="svg6"
+   inkscape:version="1.1-dev (4fbe0dc, 2020-11-01)"
+   sodipodi:docname="baned.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.35"
+     inkscape:cx="400"
+     inkscape:cy="560"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     height="296mm"
+     inkscape:window-width="1416"
+     inkscape:window-height="904"
+     inkscape:window-x="349"
+     inkscape:window-y="176"
+     inkscape:window-maximized="0" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       id="path845"
+       style="color:#000000;fill:#ff0029;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;paint-order:markers fill stroke"
+       d="M 77.745863,-0.00177167 C 77.127653,0.00542791 76.50955,0.02029008 75.891713,0.0421534 56.120937,0.74177998 36.615902,8.9469005 22.137889,24.487173 -6.8181341,55.567711 -5.0813853,104.63301 25.999152,133.58904 57.079688,162.54507 106.14447,160.8078 135.1005,129.72726 164.05652,98.646722 162.31977,49.581934 131.23924,20.62591 116.1846,6.6003298 96.910393,-0.22495935 77.745863,-0.00177167 Z M 78.032668,25.933079 c 8.634627,-0.09792 17.304343,2.003859 25.138002,6.329846 L 34.681826,103.26014 C 23.264374,84.229867 25.288106,59.395721 41.235431,42.278334 50.905891,31.898347 63.768714,26.42349 76.809486,25.962018 c 0.407525,-0.01442 0.815403,-0.02431 1.223182,-0.02894 z m 43.297092,23.080244 c 12.76582,19.255169 11.16889,45.217302 -5.3268,62.923287 -16.917214,18.15844 -43.604949,21.302 -63.920646,8.86199 z" />
+  </g>
+</svg>

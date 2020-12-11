@@ -1,0 +1,144 @@
+@font-face {
+      font-family: 'feather';
+      src: url('https://okj579.github.io/feather-font/font/feather.eot?52352131');
+      src: url('https://okj579.github.io/feather-font/font/feather.eot?52352131#iefix') format('embedded-opentype'),url('https://okj579.github.io/feather-font/font/feather.woff?52352131') format('woff'),
+           url('https://okj579.github.io/feather-font/font/feather.ttf?52352131') format('truetype'),
+           url('https://okj579.github.io/feather-font/font/feather.svg?52352131#feather') format('svg');
+      font-weight: normal;
+      font-style: normal;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Heebo', sans-serif;
+}
+
+.navbar {
+  width: 100%;
+  height: 5em;
+  box-shadow: 0 0.2em 1em rgba(0,0,0,0.4);
+  display: inline-block;
+  padding-left: 2em;
+  padding-right: 2em;
+}
+
+.nav-img {
+  height: 2em;
+  margin: 1.5em;
+}
+
+.nav-icons {
+  height: 2em;
+  font-size: 1.2em;
+  float: right;
+  margin: 1.3em;
+  margin-right: 4em;
+}
+
+.feather {
+  font-family: 'feather';
+}
+
+.nav-icons a {
+  color: black;
+  text-decoration: none;
+  padding-left: 1.1em;
+}
+
+.nav-icons a:hover {
+  color: rgba(0,0,0,0.6);
+}
+
+.main {
+  height: calc(100vh - 7em);
+  margin: 1em;
+  width: calc(100% - 2em);
+  display: grid;
+  grid-template-areas: 'a b'
+                       'a c';
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  grid-row-gap: 1em;
+  grid-column-gap: 1em;
+}
+
+.review {
+  background: white;
+  grid-area: a;
+  box-shadow: 0 0.2em 1em rgba(0,0,0,0.4);
+}
+
+canvas {
+  position: relative;
+  top: 50%;
+  /* transform: translateY(-50%); */
+}
+
+.chart1 {
+  background: white;
+  grid-area: b;
+  box-shadow: 0 0.2em 1em rgba(0,0,0,0.4);
+}
+
+.chart2 {
+  background: white;
+  grid-area: c;
+  box-shadow: 0 0.2em 1em rgba(0,0,0,0.4);
+}
+
+.report {
+  width: 80%;
+  margin: 1.75em 6%;
+  padding: 2%;
+  background: rgba(0,0,0,0.05);
+  border-radius: 0.3em;
+}
+
+.reported-message::before {
+  content: '';
+  font-family: 'feather';
+  color: rgba(0,0,0,0.4);
+  font-style: normal;
+  margin-right: 0.75em;
+}
+
+.reported-message {
+  font-style: italic;
+}
+
+.report .options {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-column-gap: 0.5em;
+  grid-row-gap: 0.5em;
+}
+
+.report .options a {
+  text-align: center;
+  padding: 0.3em;
+  text-decoration: none;
+  color: white;
+  border-radius: 0.3em;
+  margin-top: 1em;
+  border: solid rgba(0,0,0,0) 0.2em;
+}
+
+.report .options a:nth-of-type(1) {
+  background: #ff3a3a;
+}
+
+.report .options a:nth-of-type(2) {
+  background: #30c851;
+}
+
+.report .options a:nth-of-type(3) {
+  background: #e0ce29;
+}
+
+.report .options a:hover {
+  border: solid rgba(0,0,0,0.3) 0.2em;
+}

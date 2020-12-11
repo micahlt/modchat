@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+  <meta charset="utf-8">
+  <link rel="shortcut icon" href="/fav-normal.png" type="image/png">
+  <title>Modchat - Realtime moderated chat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/balloon-css@1.2.0/balloon.min.css">
+  <link href="modpanel.css" rel="stylesheet">
+</head>
+
+<body>
+  <div class="navbar">
+    <img src="wordmark-black.png" class="nav-img"> <div class="nav-icons"><a class="feather" href="#" id="refreshData" data-balloon-pos="left" aria-label="Refresh">&#xe8b2;</a><a class="feather" href="#" id="clearData" data-balloon-pos="left" aria-label="Clear">&#xe903;</a></div>
+  </div>
+  <div class="main">
+    <div class="review"></div>
+    <div class="chart1">
+      <canvas id="line"></canvas>
+    </div>
+    <div class="chart2">
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+  <script src="modpanel.js"></script>
+</body>
+
+</html>

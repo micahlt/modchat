@@ -472,6 +472,7 @@ p img:hover {
     -webkit-tap-highlight-color: transparent;
   }
 }
+
 .button {
   background : rgba(41,41,41,0.5);
   border : 0px;
@@ -482,6 +483,7 @@ p img:hover {
   width : 100px;
   font-weight : bold;
 }
+
 .ban {
   position : fixed;
   left : 10px;
@@ -489,6 +491,7 @@ p img:hover {
   color : red;
   z-index : 500;
 }
+
 .unban {
   position : fixed;
   left : 120px;
@@ -496,10 +499,14 @@ p img:hover {
   color : lime;
   z-index : 500;
 }
+
 .reply {
-  font-size : 16px;
-  color : var(--semi-transparent);
+  font-size: 16px;
+  color: var(--semi-transparent);
+  cursor: pointer;
+  margin: 0px 0.05em;
 }
+
 .reply:hover {
   color: var(--text-primary);
 }

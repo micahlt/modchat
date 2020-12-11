@@ -1,4 +1,6 @@
 const crypto = require('crypto');
+const basicAuth = require('express-basic-auth');
+var bodyParser = require('body-parser')
 let cipher = crypto.createCipher('aes-128-cbc', process.env.CIPHER_KEY || process.env.BACKUP_KEY);
 function aesEncrypt(txt) {
   cipher = crypto.createCipher('aes-128-cbc', process.env.CIPHER_KEY || process.env.BACKUP_KEY);
@@ -13,7 +15,6 @@ function aesDecrypt(txt) {
   temp += cipher.final('utf8');
   return temp;
 }
-
 
 const NEEDS_PERSISTENCE = process.env.BACKUP_SERVER && process.env.BACKUP_KEY;
 // Import all needed modules
@@ -41,11 +42,11 @@ if (NEEDS_PERSISTENCE) {
       body: JSON.stringify(body),
       headers: { 'Content-Type': 'application/json' },
     })
-    .then(res => res.text())
-    .then(text => {
-      console.log("File retrieved");
-      require('fs').writeFileSync(file, text);
-    });
+      .then(res => res.text())
+      .then(text => {
+        console.log("File retrieved");
+        require('fs').writeFileSync(file, text);
+      });
   }
 
   function backupFile(keyName, file) {
@@ -54,7 +55,7 @@ if (NEEDS_PERSISTENCE) {
       method: 'POST',
       body: JSON.stringify(body),
       headers: { 'Content-Type': 'application/json' },
-    }).then(n=>{
+    }).then(n => {
       console.log("File updated");
     });
   }
@@ -63,7 +64,7 @@ if (NEEDS_PERSISTENCE) {
 var filterHTML = (html) => {
   return html.split("<").join("&lt;").split(">").join("&gt;");
 }
-if(NEEDS_PERSISTENCE) {
+if (NEEDS_PERSISTENCE) {
   setTimeout(() => {
     getBackupFile('rooms', 'rooms.db');
     getBackupFile('users', 'users.db');
@@ -92,7 +93,7 @@ setTimeout(() => {
   bannedDb.persistence.setAutocompactionInterval(30000);
 
   // Update every minute
-  if(NEEDS_PERSISTENCE) {
+  if (NEEDS_PERSISTENCE) {
     setInterval(() => {
       console.log("backing up!");
       backupFile('rooms', 'rooms.db');
@@ -105,6 +106,7 @@ setTimeout(() => {
   var app = express(); // define the app var
   var http = require('http').createServer(app); // init http server
   var io = require('socket.io')(http); // attach socket to the server
+  let modpanels = ['https://modchat.micahlt.repl.co/panel', 'https://modchat.micahlindley.com/panel', 'https://modchat-app.herokuapp.com/panel']
   // Begin Filter Setup
   var filter = new Filter({
     placeHolder: '_'
@@ -118,6 +120,7 @@ setTimeout(() => {
   filter.addWords(...moreBadwords); // Add other curse words to the filter
   // End Filter Setup
   let modList;
+  let reportList = [];
   if (process.env.MODLIST) {
     modList = process.env.MODLIST.split(',');
   }
@@ -134,6 +137,7 @@ setTimeout(() => {
   const imgbb = new Imgbb({
     key: 'ff348c6f89506809bb1f260006e774c7'
   });
+  app.use(bodyParser.json())
   app.use(express.static(__dirname + '/public')); // tell express where to get public assets
   app.get('/chat', (req, res) => { // set chat location to the chat page
     res.sendFile(__dirname + '/public/app.html');
@@ -149,6 +153,70 @@ setTimeout(() => {
   });
   app.get('/banned', (req, res) => { // set about location to the banned page
     res.sendFile(__dirname + '/public/banned.html');
+  });
+  app.get('/panel', basicAuth({
+    users: { 'moderator': process.env.MODPASSWORD || 'password' },
+    challenge: true,
+    realm: 'foo'
+  }), (req, res) => {
+    res.sendFile(__dirname + '/public/modpanel.html');
+  });
+  app.get('/api/report/count', (req, res) => {
+    res.send({
+      "count": reportList.length
+    });
+  });
+  app.get('/api/report/all', (req, res) => {
+    if (reportList.length > 40) {
+      res.send(reportList.slice(0, 40));
+    } else {
+      res.send(reportList);
+    }
+  });
+  app.post('/api/report/ban', (req, res) => {
+    if (modpanels.includes(req.headers.referer)) {
+      bannedDb.insert({
+        user: req.body.user.toLowerCase()
+      }, (err, doc) => {
+        if (err) {
+          res.sendStatus(500);
+        } else {
+          console.log(`A console mod successfully requested a ban of ${req.body.user}.`);
+          var index = reportList.find(x => x.id == req.body.id);
+          index = reportList.indexOf(index);
+          if (index > -1) {
+            reportList.splice(index, 1);
+            res.sendStatus(200);
+          } else {
+            res.sendStatus(406);
+          }
+        }
+      });
+    } else {
+      res.sendStatus(403);
+    }
+  });
+  app.post('/api/report/delete', (req, res) => {
+    console.log(JSON.parse(req.body));
+    if (modpanels.includes(req.headers.referer)) {
+      res.sendStatus(405)
+    } else {
+      res.sendStatus(403);
+    }
+  });
+  app.post('/api/report/reject', (req, res) => {
+    if (modpanels.includes(req.headers.referer)) {
+      var index = reportList.find(x => x.id == req.body.id);
+      index = reportList.indexOf(index);
+      if (index > -1) {
+        reportList.splice(index, 1);
+        res.sendStatus(200);
+      } else {
+        res.sendStatus(406);
+      }
+    } else {
+      res.sendStatus(403);
+    }
   });
   io.on('connection', (socket) => { // handle a user connecting
     console.log(socket.id)
@@ -185,7 +253,6 @@ setTimeout(() => {
           user: object.user.toLowerCase()
         }, (err, docs) => {
           if (docs != null && docs.length >= 1) {
-
             console.log("Banned user " + object.user + " attempted to join.");
             socket.emit('bannedUser', true);
             socket.leave(currentRoom);
@@ -208,9 +275,9 @@ setTimeout(() => {
               if (doc[0]) {
                 var hashFromDb = doc[0].hashString;
                 //bcrypt.compare(hashFromDb, object.hash).then(function(result) {
-                  if (object.hash == aesEncrypt(hashFromDb)) {
-                    io.to(currentRoom).emit('botMessage', "🎉 Welcome <b>" + object.user + "</b> to the <b>" + currentRoom + "</b> room! 🎉"); // emit a welcome message with the Modchat bot
-                  }
+                if (object.hash == aesEncrypt(hashFromDb)) {
+                  io.to(currentRoom).emit('botMessage', "🎉 Welcome <b>" + object.user + "</b> to the <b>" + currentRoom + "</b> room! 🎉"); // emit a welcome message with the Modchat bot
+                }
                 //}).catch(function(err) {
                 //  console.log("Error:", err); // ROP
                 //});
@@ -241,7 +308,7 @@ setTimeout(() => {
         var safemsg = betterReplace(object.message, "", "​");
         var hashFromDb = doc[0].hashString;
         //bcrypt.compare(hashFromDb, object.hash).then(async function(result) {
-          // console.log(result) // ROP
+        // console.log(result) // ROP
         (async function() {
           if (object.hash == aesEncrypt(hashFromDb)) {
             const banned = await (new Promise((resolve, reject) => {
@@ -405,18 +472,18 @@ setTimeout(() => {
       }, (error, doc) => {
         var hashFromDb = doc[0].hashString;
         //bcrypt.compare(hashFromDb, object.hash).then(result => {
-          if (object.hash == aesEncrypt(hashFromDb)) {
-            if (modList.includes(object.sender.toLowerCase())) {
-              io.to(socket.id).emit('admin', true);
-              console.log(`${object.sender} is a mod!`);
-            } else {
-              io.to(socket.id).emit('admin', false);
-              console.log(`Did not locate user ${object.sender} in the modlist.`);
-            }
+        if (object.hash == aesEncrypt(hashFromDb)) {
+          if (modList.includes(object.sender.toLowerCase())) {
+            io.to(socket.id).emit('admin', true);
+            console.log(`${object.sender} is a mod!`);
           } else {
-            io.to(socket.io).emit('admin', false);
-            console.log(`Wrong hash from ${object.sender}!  Beware of tampering!`);
+            io.to(socket.id).emit('admin', false);
+            console.log(`Did not locate user ${object.sender} in the modlist.`);
           }
+        } else {
+          io.to(socket.io).emit('admin', false);
+          console.log(`Wrong hash from ${object.sender}!  Beware of tampering!`);
+        }
         //});
       });
     });
@@ -427,20 +494,20 @@ setTimeout(() => {
 
         var hashFromDb = doc[0].hashString;
         //bcrypt.compare(hashFromDb, object.hash).then(result => {
-          if (object.hash == aesEncrypt(hashFromDb) && modList.includes(object.sender.toLowerCase())) {
-            bannedDb.insert({
-              user: object.bannedUser.toLowerCase()
-            }, (err, doc) => {
-              if (err) {
-                socket.emit('banError');
-              } else {
-                socket.emit('banSuccess');
-                console.log(`${object.sender} successfully requested a ban of ${object.bannedUser}.`);
-              }
-            });
-          } else {
-            socket.emit('banError');
-          }
+        if (object.hash == aesEncrypt(hashFromDb) && modList.includes(object.sender.toLowerCase())) {
+          bannedDb.insert({
+            user: object.bannedUser.toLowerCase()
+          }, (err, doc) => {
+            if (err) {
+              socket.emit('banError');
+            } else {
+              socket.emit('banSuccess');
+              console.log(`${object.sender} successfully requested a ban of ${object.bannedUser}.`);
+            }
+          });
+        } else {
+          socket.emit('banError');
+        }
         //});
       });
     });
@@ -451,24 +518,29 @@ setTimeout(() => {
 
         var hashFromDb = doc[0].hashString;
         //bcrypt.compare(hashFromDb, object.hash).then(result => {
-          if (object.hash == aesEncrypt(hashFromDb) && modList.includes(object.sender.toLowerCase())) {
-            bannedDb.remove({
-              user: object.unbannedUser.toLowerCase()
-            }, {
-                multi: true
-              }, (err, numRemoved) => {
-                if (err) {
-                  socket.emit('unbanError');
-                } else {
-                  socket.emit('unbanSuccess');
-                  console.log(`${object.sender} successfully requested that ${object.unbannedUser} be unbanned.`);
-                }
-              });
-          } else {
-            socket.emit('unbanError');
-          }
+        if (object.hash == aesEncrypt(hashFromDb) && modList.includes(object.sender.toLowerCase())) {
+          bannedDb.remove({
+            user: object.unbannedUser.toLowerCase()
+          }, {
+              multi: true
+            }, (err, numRemoved) => {
+              if (err) {
+                socket.emit('unbanError');
+              } else {
+                socket.emit('unbanSuccess');
+                console.log(`${object.sender} successfully requested that ${object.unbannedUser} be unbanned.`);
+              }
+            });
+        } else {
+          socket.emit('unbanError');
+        }
         //});
       });
+    });
+    socket.on('report', (object) => {
+      console.log('Report recieved');
+      object.id = cryptoRandomString({ length: 50, type: 'base64' });
+      reportList.push(object);
     });
     socket.on('image', (msg) => {
       let image = msg.image;
@@ -683,4 +755,4 @@ setTimeout(() => {
     return html.split("<").join("&lt;").split(">").join("&gt;");
   }
 
-}, 10000);
+}, 3000);

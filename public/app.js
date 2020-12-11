@@ -271,18 +271,30 @@ socket.on("bannedUser", function(boot) {
 });
 socket.on("chatMessage", function(object) {
   // handle recieving chat messages
-  var m = document.createElement("li"); // create an element to display the message
-  var p = document.createElement("p"); // create the actual message
-  var makereplybuttonchangecursorwhenyouhoveroverit = document.createElement("a"); // A short and consisce variable name
-  var msg = document.createElement("span"); // create the actual message
-  var replybutton = document.createElement("span"); // create the actual message
-  var img = document.createElement("img"); // create an element to display the sender's profile picture
+  var m = document.createElement("li");
+  var p = document.createElement("p");
+  var replya = document.createElement("a");
+  var msg = document.createElement("span");
+  var replybutton = document.createElement("span");
+  var img = document.createElement("img");
+
+  var reportbutton = document.createElement("span");
+  var reporta = document.createElement("a");
+
   img.src = "https://cdn2.scratch.mit.edu/get_image/user/" + object.id + "_60x60.png";
   img.classList.add("pfp");
+
+
   replybutton.innerHTML = "&#xe83d;";
   replybutton.classList.add("reply");
   replybutton.classList.add("feather");
   replybutton.title = "Reply to " + object.sender;
+
+  reportbutton.innerHTML = "&#xe85b;";
+  reportbutton.classList.add("reply");
+  reportbutton.classList.add("feather");
+  reportbutton.title = "Report " + object.sender;
+
   img.onclick = function() {
     window.open("https://scratch.mit.edu/users/" + object.sender, "_blank");
   };
@@ -318,12 +330,14 @@ socket.on("chatMessage", function(object) {
     }
   });
   msg.innerHTML = mentionsMessage; // add the message text to that element
-  makereplybuttonchangecursorwhenyouhoveroverit.href = "#reply";
+  replybutton.href = "#reply";
   m.appendChild(img);
   m.appendChild(p);
   p.appendChild(msg);
-  p.appendChild(makereplybuttonchangecursorwhenyouhoveroverit);
-  makereplybuttonchangecursorwhenyouhoveroverit.appendChild(replybutton);
+  p.appendChild(replya);
+  replya.appendChild(replybutton);
+  p.appendChild(reporta);
+  reporta.appendChild(reportbutton);
   if (object.stamp) {
     var date = new Date(object.stamp);
     var timestamp = date.toUTCString();
@@ -333,6 +347,11 @@ socket.on("chatMessage", function(object) {
   replybutton.addEventListener('click', (e) => {
     e.preventDefault();
     replyPost(object.raw_message, object.sender);
+  })
+  reportbutton.addEventListener('click', (e) => {
+    e.preventDefault();
+    reportPost(object.raw_message, object.sender);
+    console.log(object.sender + ' was reported')
   })
   document.getElementById("messages").appendChild(m); // append the message to the message area
   window.scrollBy(0, 1700);
@@ -426,4 +445,13 @@ function whosTyping() {
 function replyPost(post, sender) {
   document.getElementById("m").value =
     "-q @" + sender + ": " + post + " q-" + document.getElementById("m").value;
+}
+
+function reportPost(post, sender) {
+  socket.emit("report", {
+    user: sender,
+    message: post,
+    reporter: window.localStorage.getItem("userName"),
+    socket: socket.id
+  });
 }

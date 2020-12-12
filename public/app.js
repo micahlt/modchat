@@ -55,7 +55,7 @@ keyboardJS.bind('alt + b', (e) => {
   })
 });
 socket.on('kick', () => {
-window.localStorage.removeItem("userName");
+  window.localStorage.removeItem("userName");
   window.localStorage.removeItem("userHash");
   window.location.reload();
 })
@@ -127,9 +127,18 @@ if (Notification.permission == "default") {
 }
 
 document.getElementById("signOut").addEventListener("click", function() {
-  window.localStorage.removeItem("userName");
-  window.localStorage.removeItem("userHash");
-  window.location.reload();
+  swal({
+    title: `Sign out?`,
+    text: "You'll have to log in to Modchat again.",
+    buttons: true
+  })
+    .then((value) => {
+      if (value) {
+        window.localStorage.removeItem("userName");
+        window.localStorage.removeItem("userHash");
+        window.location.reload();
+      }
+    });
 });
 
 window.addEventListener("load", setTheme);
@@ -306,6 +315,7 @@ socket.on("chatMessage", function(object) {
   messageToRender = object.message;
   if (messageToRender.includes("<img")) {
     p.classList.add("image");
+
   }
   messageToRender.split(" ").forEach(word => {
     if (word[0] == "@") {
@@ -448,10 +458,19 @@ function replyPost(post, sender) {
 }
 
 function reportPost(post, sender) {
-  socket.emit("report", {
-    user: sender,
-    message: post,
-    reporter: window.localStorage.getItem("userName"),
-    socket: socket.id
-  });
+  swal({
+    title: `Report ${sender}?`,
+    text: "This will send a message to the moderators.",
+    buttons: true
+  })
+    .then((value) => {
+      if (value) {
+        socket.emit("report", {
+          user: sender,
+          message: post,
+          reporter: window.localStorage.getItem("userName"),
+          socket: socket.id
+        });
+      }
+    });
 }

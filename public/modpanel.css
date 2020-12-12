@@ -15,6 +15,7 @@
 
 body {
   font-family: 'Heebo', sans-serif;
+  overflow-x: hidden;
 }
 
 .navbar {
@@ -54,7 +55,7 @@ body {
 }
 
 .main {
-  height: calc(100vh - 7em);
+  height: calc(100vh - 8em);
   margin: 1em;
   width: calc(100% - 2em);
   display: grid;
@@ -70,12 +71,14 @@ body {
   background: white;
   grid-area: a;
   box-shadow: 0 0.2em 1em rgba(0,0,0,0.4);
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 
 canvas {
   position: relative;
   top: 50%;
-  /* transform: translateY(-50%); */
+  transform: translateY(-50%)
 }
 
 .chart1 {
@@ -96,6 +99,7 @@ canvas {
   padding: 2%;
   background: rgba(0,0,0,0.05);
   border-radius: 0.3em;
+  position: relative;
 }
 
 .reported-message::before {
@@ -141,4 +145,48 @@ canvas {
 
 .report .options a:hover {
   border: solid rgba(0,0,0,0.3) 0.2em;
+}
+
+:root {
+  --scrollbarBG: rgb(236, 236, 236);
+  --thumbBG: rgb(48, 48, 48);
+}
+
+::-webkit-scrollbar {
+  width: 11px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--thumbBG) var(--scrollbarBG);
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbarBG);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--thumbBG) ;
+  border-radius: 6px;
+  border: 3px solid var(--scrollbarBG);
+}
+
+.clearing {
+  animation: clear 0.4s forwards;
+}
+
+@keyframes clear {
+  to {
+    right: -130%;
+  }
+}
+
+@media only screen and (max-width: 850px) {
+  .main {
+    grid-template-areas: 'a'
+                         'b'
+                         'c';
+    grid-template-columns: 1fr;
+    grid-template-rows: 60vh 40vh 0;
+  }
 }

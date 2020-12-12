@@ -39,10 +39,11 @@ body {
   background: var(--background-secondary);
   padding: 3px;
   position: fixed;
-  bottom: 0;
+  bottom: 0.4em;
   width: 100%;
   height: 3em;
   z-index: 1;
+  background: transparent;
 }
 
 #form input {
@@ -55,12 +56,15 @@ body {
   color: var(--text-primary);
   transition: 0.2s;
   transform: translateY(-10px);
-  border-bottom: solid 2px transparent;
+  border-bottom: solid 2px var(--semi-transparent);
   font-family: 'Heebo', sans-serif;
+  border-radius: 3em;
+  background: var(--background-secondary);
+
 }
 
 #form input:hover {
-  border-bottom: solid 2px var(--text-primary);
+  border-bottom: solid 2px #6e31ff;
 }
 
 #form button {
@@ -87,6 +91,20 @@ a[href^="#reply"] {
   text-decoration: none;
 }
 
+.image a:nth-of-type(2) {
+  position: absolute;
+  bottom: 1em;
+  right: 1em;
+  background: var(--semi-transparent);
+  color: black !important;
+  border-radius: 1em;
+  padding: 0.3em;
+}
+
+.image a .reply {
+  color: white;
+}
+
 #messages {
   list-style-type: none;
   margin: 0;
@@ -109,6 +127,7 @@ a[href^="#reply"] {
   width: max-content;
   max-width: 70%;
   cursor: initial;
+  position: relative;
 }
 
 .yourMessage {
@@ -446,7 +465,7 @@ p img:hover {
   }
 
   #messageCharCount {
-    right: -2.8em;
+    right: -2.47em;
   }
 
   #sidebarControl {
@@ -471,6 +490,54 @@ p img:hover {
     user-select: none;
     -webkit-tap-highlight-color: transparent;
   }
+  
+  #form {
+    bottom: 0;
+    padding-bottom: 3.5em;
+    padding-top: 0.5em;
+    background: white;
+  }
+}
+
+.swal-overlay {
+  background-color: rgba(110, 49, 255, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.swal-title {
+  margin: 0px;
+  font-size: 24px;
+  color: var(--text-primary);
+  font-family: 'Heebo', sans-serif;
+  margin-bottom: 28px;
+}
+
+.swal-text {
+  color: var(--text-primary);
+  font-family: 'Heebo', sans-serif;
+}
+
+.swal-modal {
+  background: var(--background-primary);
+}
+
+.swal-button--confirm {
+  background-color: #6e31ff;
+}
+
+.swal-button--cancel {
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+}
+
+.swal-button:not([disabled]):hover {
+  background-color: #6e31ff;
+  outline: 0.1em rgba(0, 0, 0, 0.2);
+  outline-offset: -0.1em;
+}
+
+.swal-button:not([disabled]):active {
+  border: none;
 }
 
 .button {

@@ -57,7 +57,7 @@
   <p id="typingSection"></p>
   <span id="messageCharCount">0/250 chars</span>
   <form action="" id="form" autocomplete="off">
-    <input id="m" autocomplete="off" data-lpignore="true" />
+    <input id="m" autocomplete="off" data-lpignore="true" placeholder="type a message" />
     <button id="send"><span class="material-icons">
         send
       </span></button>
@@ -83,6 +83,7 @@
     </div>
   </div>
   <input type="file" id="pseudoUpload" />
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
   <script src="https://unpkg.com/keyboardjs@2.6.4/dist/keyboard.min.js" charset="utf-8"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/app.js">

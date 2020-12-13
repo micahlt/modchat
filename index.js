@@ -1,3 +1,4 @@
+__dirname = process.cwd();
 const crypto = require('crypto');
 const basicAuth = require('express-basic-auth');
 var bodyParser = require('body-parser');
@@ -552,7 +553,10 @@ setTimeout(() => {
       let path = __dirname + "/public/temp/" + fileTitle;
       var buf = Buffer.from(image, 'base64');
       fs.writeFile(path, buf, 'binary', function(err) {
-        if (err) throw err
+        if (err) {
+          console.log(err);
+          io.to(socket.id).emit('botMessage', 'Error: failed writing file');
+        } else {
         app.get(path, (req, res) => {
           res.sendFile(path);
         })
@@ -638,6 +642,7 @@ setTimeout(() => {
             fs.unlinkSync(path);
             console.log('Removed old file ' + path);
           })
+      }
       })
     })
   });

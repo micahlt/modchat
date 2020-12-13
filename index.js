@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const basicAuth = require('express-basic-auth');
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
+const fs = require('fs');
 let cipher = crypto.createCipher('aes-128-cbc', process.env.CIPHER_KEY || process.env.BACKUP_KEY);
 function aesEncrypt(txt) {
   cipher = crypto.createCipher('aes-128-cbc', process.env.CIPHER_KEY || process.env.BACKUP_KEY);
@@ -135,7 +136,7 @@ setTimeout(() => {
   const Imgbb = require('imgbbjs')
 
   const imgbb = new Imgbb({
-    key: 'ff348c6f89506809bb1f260006e774c7'
+    key: process.env.IMGBB_KEY
   });
   app.use(bodyParser.json())
   app.use(express.static(__dirname + '/public')); // tell express where to get public assets
@@ -547,100 +548,97 @@ setTimeout(() => {
       image = image.split(',')[1];
       // image = escape(image).toString('binary');
       // console.log(image);
-      io.to(socket.id).emit('botMessage', 'uploading your image...');
-      imgbb.upload(image).then((data) => {
-        userDb.find({
-          socketId: socket.id,
-          room: currentRoom
-        }, function(err, docs) {
-          if (docs[0] !== undefined) {
-            io.to(socket.id).emit('botMessage', 'moderating your image...');
-            fetch(`https://api.moderatecontent.com/moderate/?key=${process.env.MODERATIONKEY}&url=${data.data.url}`)
-              .then((res) => {
-                return res.json();
-              })
-              .then((json) => {
-                if (json.error_code == 0) {
-                  if (json.rating_index < 2) {
-                    io.to(currentRoom).emit('chatMessage', {
-                      message: `<img title="open in new tab" src="${data.data.url}" onclick="window.open('${data.data.url}')"></img>`,
-                      sender: msg.sender,
-                      id: docs[0].id
-                    });
-                    roomDb.find({
-                      roomName: currentRoom
-                    }, function(err, doccs) {
-                      if (doccs[0].roomMessages.length > 50) {
-                        roomDb.update({
-                          roomName: currentRoom
-                        }, {
-                            $pop: {
-                              roomMessages: -1
-                            }
-                          })
-                      }
-                    })
-                    roomDb.update({
-                      roomName: currentRoom
-                    }, {
-                        $push: {
-                          roomMessages: {
-                            "message": `<img title="open in new tab" src="${data.data.url}" onclick="window.open('${data.data.url}')"></img>`,
-                            "sender": msg.sender, // set the sender to the sender's username
-                            "id": docs[0].id, // set the sender's ID from the database
-                            "old": true
-                          }
+      let fileTitle = cryptoRandomString({ length: 10, type: 'alphanumeric' }) + "." + msg.extension;
+      let path = __dirname + "/public/temp/" + fileTitle;
+      var buf = Buffer.from(image, 'base64');
+      fs.writeFile(path, buf, 'binary', function(err) {
+        if (err) throw err
+        app.get(path, (req, res) => {
+          res.sendFile(path);
+        })
+        console.log('File saved at ' + path);
+        console.log(`Moderating at ${"https://modchat-app.herokuapp.com/temp/" + fileTitle}`)
+        io.to(socket.id).emit('botMessage', 'moderating your image...');
+        fetch(`https://api.moderatecontent.com/moderate/?key=${process.env.MODERATIONKEY}&url=${process.env.DOMAIN_RUNNING + '/temp/' + fileTitle}`)
+          .then((res) => {
+            return res.json();
+          })
+          .then((json) => {
+            if (json.error_code == 0) {
+              if (json.rating_index < 2) {
+                io.to(socket.id).emit('botMessage', 'uploading your image...');
+                imgbb.upload(image).then((data) => {
+                  console.log(data.data.url);
+                  userDb.find({
+                    socketId: socket.id,
+                    room: currentRoom
+                  }, function(err, docs) {
+                    if (docs[0] !== undefined) {
+                      io.to(currentRoom).emit('chatMessage', {
+                        message: `<img title="open in new tab" src="${data.data.url}" onclick="window.open('${data.data.url}')"></img>`,
+                        sender: msg.sender,
+                        id: docs[0].id
+                      });
+                      roomDb.find({
+                        roomName: currentRoom
+                      }, function(err, doccs) {
+                        if (doccs[0].roomMessages.length > 50) {
+                          roomDb.update({
+                            roomName: currentRoom
+                          }, {
+                              $pop: {
+                                roomMessages: -1
+                              }
+                            })
                         }
                       })
-                  } else {
-                    io.to(socket.id).emit('botMessage', `That image didn't pass through our filter.  Please make sure you're sending an image that is not objectionable and is appropriate for all ages!`);
-                  }
-                } else {
-                  switch (json.error_code) {
-                    case 1001:
-                    case 1003:
-                    case 1004:
-                    case 1005:
-                    case 1006:
-                    case 1007:
-                      io.to(socket.id).emit('botMessage', 'ERR: URL not accessible or malformed image');
-                      break;
-                    case 1002:
-                      io.to(socket.id).emit('botMessage', 'ERR: Invalid URL');
-                      break;
-                    case 1008:
-                      io.to(socket.id).emit('botMessage', 'ERR: File size too large');
-                      break;
-                    default:
-                      io.to(socket.id).emit('botMessage', 'ERR: Unknown');
-                      break;
-                  }
+                      roomDb.update({
+                        roomName: currentRoom
+                      }, {
+                          $push: {
+                            roomMessages: {
+                              "message": `<img title="open in new tab" src="${data.data.url}" onclick="window.open('${data.data.url}')"></img>`,
+                              "sender": msg.sender, // set the sender to the sender's username
+                              "id": docs[0].id, // set the sender's ID from the database
+                              "old": true
+                            }
+                          }
+                        })
+                    } else {
+                      io.to(socket.id).emit('botMessage', `You haven't sent any messages!  Please do so before sending images.`);
+                    }
+                  })
+                });
+              } else {
+                io.to(socket.id).emit('botMessage', `That image didn't pass through our filter.  Please make sure you're sending an image that is not objectionable and is appropriate for all ages!`);
+              }
+            } else {
+              switch (json.error_code) {
+                case 1001:
+                case 1003:
+                case 1004:
+                case 1005:
+                case 1006:
+                case 1007:
+                  io.to(socket.id).emit('botMessage', 'ERR: URL not accessible or malformed image');
+                  break;
+                case 1002:
+                  io.to(socket.id).emit('botMessage', 'ERR: Invalid URL');
+                  break;
+                case 1008:
+                  io.to(socket.id).emit('botMessage', 'ERR: File size too large');
+                  break;
+                default:
+                  io.to(socket.id).emit('botMessage', 'ERR: Unknown');
+                  break;
+              }
 
-                  console.log(json);
-                }
-              })
-
-          } else {
-            io.to(socket.id).emit('botMessage', `You haven't sent any messages!  Please do so before sending images.`);
-          }
-        })
-      });
-      /*
-      fetch('https://api.imgbb.com/1/upload?key=ff348c6f89506809bb1f260006e774c7&image=' + image, {
-          method: 'POST'
-        })
-        .then((response) => {
-          if (!response.ok) {
-            throw Error(response.statusText);
-          }
-          return response.json();
-        })
-        .then((data) => {
-          io.to(currentRoom).emit('botMessage', 'img uploaded ' + JSON.stringify(data));
-        })
-        .catch(function(error) {
-          console.log(error);
-        }); */
+              console.log(json);
+            }
+            fs.unlinkSync(path);
+            console.log('Removed old file ' + path);
+          })
+      })
     })
   });
   var updateHistory = (room, message, sender, senderId, rawMessage) => {

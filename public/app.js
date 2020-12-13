@@ -54,6 +54,9 @@ keyboardJS.bind('alt + b', (e) => {
     }
   })
 });
+socket.on('delete', (postId) => {
+  
+})
 socket.on('kick', () => {
   window.localStorage.removeItem("userName");
   window.localStorage.removeItem("userHash");
@@ -104,6 +107,7 @@ document.getElementById("pseudoUpload").addEventListener("input", function() {
   reader.onload = function() {
     console.log(reader.result); // ROP
     socket.emit("image", {
+      extension: file.name.split('.').pop(),
       image: reader.result,
       sender: window.localStorage.getItem("userName")
     });

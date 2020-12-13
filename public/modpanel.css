@@ -75,16 +75,13 @@ body {
   overflow-x: hidden;
 }
 
-canvas {
-  position: relative;
-  top: 50%;
-  transform: translateY(-50%)
-}
-
 .chart1 {
   background: white;
   grid-area: b;
   box-shadow: 0 0.2em 1em rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .chart2 {

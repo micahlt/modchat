@@ -103,8 +103,10 @@ setTimeout(() => {
       backupFile('banned', 'banned.db');
     }, 60000);
   }
-
-
+  if (!fs.existsSync(__dirname + '/public/temp')) {
+    fs.mkdirSync(__dirname + '/public/temp');
+    console.log('Created new /public/temp directory');
+  }
   var app = express(); // define the app var
   var http = require('http').createServer(app); // init http server
   var io = require('socket.io')(http); // attach socket to the server
@@ -557,92 +559,92 @@ setTimeout(() => {
           console.log(err);
           io.to(socket.id).emit('botMessage', 'Error: failed writing file');
         } else {
-        app.get(path, (req, res) => {
-          res.sendFile(path);
-        })
-        console.log('File saved at ' + path);
-        console.log(`Moderating at ${"https://modchat-app.herokuapp.com/temp/" + fileTitle}`)
-        io.to(socket.id).emit('botMessage', 'moderating your image...');
-        fetch(`https://api.moderatecontent.com/moderate/?key=${process.env.MODERATIONKEY}&url=${process.env.DOMAIN_RUNNING + '/temp/' + fileTitle}`)
-          .then((res) => {
-            return res.json();
+          app.get(path, (req, res) => {
+            res.sendFile(path);
           })
-          .then((json) => {
-            if (json.error_code == 0) {
-              if (json.rating_index < 2) {
-                io.to(socket.id).emit('botMessage', 'uploading your image...');
-                imgbb.upload(image).then((data) => {
-                  console.log(data.data.url);
-                  userDb.find({
-                    socketId: socket.id,
-                    room: currentRoom
-                  }, function(err, docs) {
-                    if (docs[0] !== undefined) {
-                      io.to(currentRoom).emit('chatMessage', {
-                        message: `<img title="open in new tab" src="${data.data.url}" onclick="window.open('${data.data.url}')"></img>`,
-                        sender: msg.sender,
-                        id: docs[0].id
-                      });
-                      roomDb.find({
-                        roomName: currentRoom
-                      }, function(err, doccs) {
-                        if (doccs[0].roomMessages.length > 50) {
-                          roomDb.update({
-                            roomName: currentRoom
-                          }, {
-                              $pop: {
-                                roomMessages: -1
-                              }
-                            })
-                        }
-                      })
-                      roomDb.update({
-                        roomName: currentRoom
-                      }, {
-                          $push: {
-                            roomMessages: {
-                              "message": `<img title="open in new tab" src="${data.data.url}" onclick="window.open('${data.data.url}')"></img>`,
-                              "sender": msg.sender, // set the sender to the sender's username
-                              "id": docs[0].id, // set the sender's ID from the database
-                              "old": true
-                            }
+          console.log('File saved at ' + path);
+          console.log(`Moderating at ${"https://modchat-app.herokuapp.com/temp/" + fileTitle}`)
+          io.to(socket.id).emit('botMessage', 'moderating your image...');
+          fetch(`https://api.moderatecontent.com/moderate/?key=${process.env.MODERATIONKEY}&url=${process.env.DOMAIN_RUNNING + '/temp/' + fileTitle}`)
+            .then((res) => {
+              return res.json();
+            })
+            .then((json) => {
+              if (json.error_code == 0) {
+                if (json.rating_index < 2) {
+                  io.to(socket.id).emit('botMessage', 'uploading your image...');
+                  imgbb.upload(image).then((data) => {
+                    console.log(data.data.url);
+                    userDb.find({
+                      socketId: socket.id,
+                      room: currentRoom
+                    }, function(err, docs) {
+                      if (docs[0] !== undefined) {
+                        io.to(currentRoom).emit('chatMessage', {
+                          message: `<img title="open in new tab" src="${data.data.url}" onclick="window.open('${data.data.url}')"></img>`,
+                          sender: msg.sender,
+                          id: docs[0].id
+                        });
+                        roomDb.find({
+                          roomName: currentRoom
+                        }, function(err, doccs) {
+                          if (doccs[0].roomMessages.length > 50) {
+                            roomDb.update({
+                              roomName: currentRoom
+                            }, {
+                                $pop: {
+                                  roomMessages: -1
+                                }
+                              })
                           }
                         })
-                    } else {
-                      io.to(socket.id).emit('botMessage', `You haven't sent any messages!  Please do so before sending images.`);
-                    }
-                  })
-                });
+                        roomDb.update({
+                          roomName: currentRoom
+                        }, {
+                            $push: {
+                              roomMessages: {
+                                "message": `<img title="open in new tab" src="${data.data.url}" onclick="window.open('${data.data.url}')"></img>`,
+                                "sender": msg.sender, // set the sender to the sender's username
+                                "id": docs[0].id, // set the sender's ID from the database
+                                "old": true
+                              }
+                            }
+                          })
+                      } else {
+                        io.to(socket.id).emit('botMessage', `You haven't sent any messages!  Please do so before sending images.`);
+                      }
+                    })
+                  });
+                } else {
+                  io.to(socket.id).emit('botMessage', `That image didn't pass through our filter.  Please make sure you're sending an image that is not objectionable and is appropriate for all ages!`);
+                }
               } else {
-                io.to(socket.id).emit('botMessage', `That image didn't pass through our filter.  Please make sure you're sending an image that is not objectionable and is appropriate for all ages!`);
-              }
-            } else {
-              switch (json.error_code) {
-                case 1001:
-                case 1003:
-                case 1004:
-                case 1005:
-                case 1006:
-                case 1007:
-                  io.to(socket.id).emit('botMessage', 'ERR: URL not accessible or malformed image');
-                  break;
-                case 1002:
-                  io.to(socket.id).emit('botMessage', 'ERR: Invalid URL');
-                  break;
-                case 1008:
-                  io.to(socket.id).emit('botMessage', 'ERR: File size too large');
-                  break;
-                default:
-                  io.to(socket.id).emit('botMessage', 'ERR: Unknown');
-                  break;
-              }
+                switch (json.error_code) {
+                  case 1001:
+                  case 1003:
+                  case 1004:
+                  case 1005:
+                  case 1006:
+                  case 1007:
+                    io.to(socket.id).emit('botMessage', 'ERR: URL not accessible or malformed image');
+                    break;
+                  case 1002:
+                    io.to(socket.id).emit('botMessage', 'ERR: Invalid URL');
+                    break;
+                  case 1008:
+                    io.to(socket.id).emit('botMessage', 'ERR: File size too large');
+                    break;
+                  default:
+                    io.to(socket.id).emit('botMessage', 'ERR: Unknown');
+                    break;
+                }
 
-              console.log(json);
-            }
-            fs.unlinkSync(path);
-            console.log('Removed old file ' + path);
-          })
-      }
+                console.log(json);
+              }
+              fs.unlinkSync(path);
+              console.log('Removed old file ' + path);
+            })
+        }
       })
     })
   });

@@ -704,11 +704,11 @@ setTimeout(() => { // load all db's into memory
       }
       default: {
         if (!filter.isProfane(msg.replace(String.fromCharCode(8203), ''))) { // checks if message doesn't contain rude words
-          if (message.length > 250) {
+          if (msg.length > 250) {
             io.to(socketIdd).emit('botMessage', 'Do not bypass the char limits!  This is a warning!');
           } else {
             var emojiRegex = /:[^:\s]*(?:::[^:\s]*)*:/gi;
-            var match = message.match(emojiRegex);
+            var match = msg.match(emojiRegex);
             if (match) {
               console.log(`Found ${match.length} emojis`);
               match.forEach((el) => {
@@ -719,21 +719,21 @@ setTimeout(() => { // load all db's into memory
                   console.log('missing emoji!');
                 } else {
                   console.log(el + ' is equal to ' + unicodeEmoji);
-                  message = message.replace(el, unicodeEmoji);
+                  msg = msg.replace(el, unicodeEmoji);
                 }
               });
             }
-            let rawMessage = message;
-            message = betterReplace(betterReplace(betterReplace(message, "q-", "</div>"), "-q", "<div class=quote>"), "---", "<hr>");
+            let rawMessage = msg;
+            msg = betterReplace(betterReplace(betterReplace(msg, "q-", "</div>"), "-q", "<div class=quote>"), "---", "<hr>");
             io.to(room).emit('chatMessage', { // emit the message to all clients in the room
-              "message": message,
+              "message": msg,
               "raw_message": rawMessage,
               "sender": sender, // set the sender to the sender's username
               "id": document[0].id, // set the sender's ID from the database
               "stamp": Date.now()
             });
-						message = filterHTML(message);
-            updateHistory(room, message, sender, document[0].id, rawMessage);
+						msg = filterHTML(msg);
+            updateHistory(room, msg, sender, document[0].id, rawMessage);
           }
         } else {
           io.to(socketIdd).emit('badWord');

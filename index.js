@@ -1,24 +1,24 @@
 __dirname = process.cwd();
-const crypto = require('crypto');
-const basicAuth = require('express-basic-auth');
-var bodyParser = require('body-parser');
-const fs = require('fs');
-let cipher = crypto.createCipher('aes-128-cbc', process.env.CIPHER_KEY || process.env.BACKUP_KEY);
-function aesEncrypt(txt) {
+const crypto = require('crypto'); // import crypto library
+const basicAuth = require('express-basic-auth'); // import library for Express authorization
+var bodyParser = require('body-parser'); // enable parsing the body of POST requests in Express
+const fs = require('fs'); // require the filesystem module
+let cipher = crypto.createCipher('aes-128-cbc', process.env.CIPHER_KEY || process.env.BACKUP_KEY); // create a cipher for encryption and decryption
+function aesEncrypt(txt) { // fancy encryption for hashes
   cipher = crypto.createCipher('aes-128-cbc', process.env.CIPHER_KEY || process.env.BACKUP_KEY);
   let temp = cipher.update(txt, 'utf8', 'hex');
   temp += cipher.final('hex');
   return temp;
 }
 
-function aesDecrypt(txt) {
+function aesDecrypt(txt) { // fancy decryption for hashes
   cipher = crypto.createDecipher('aes-128-cbc', process.env.CIPHER_KEY || process.env.BACKUP_KEY);
   let temp = cipher.update(txt, 'hex', 'utf8');
   temp += cipher.final('utf8');
   return temp;
 }
 
-const NEEDS_PERSISTENCE = process.env.BACKUP_SERVER && process.env.BACKUP_KEY;
+const NEEDS_PERSISTENCE = process.env.BACKUP_SERVER && process.env.BACKUP_KEY; // Determine whether this instance is set up for persistence
 // Import all needed modules
 global.fetch = require("node-fetch"); // for web requests
 global.btoa = require('btoa'); // for SV authenication
@@ -31,13 +31,12 @@ var moreBadwords = require("badwordspluss");
 const emoji = require("emoji-name-map"); // import emoji name map
 var Datastore = require('nedb'); // for username info storage
 var bcrypt = require('bcrypt'); // for hashing randos
-var cryptoRandomString = require('crypto-random-string'); // for hash generation
+var cryptoRandomString = require('crypto-random-string'); // for generation random strings
 
-if (NEEDS_PERSISTENCE) {
-  console.log('persistence is ready to go');
+if (NEEDS_PERSISTENCE) { // if the instance does need persistence
+  console.log('persistence is ready to go'); // ROP
   const BACKUP_SERVER = process.env.BACKUP_SERVER; // Change if modifying or it will save to the same place.
-
-  function getBackupFile(keyName, file) {
+  function getBackupFile(keyName, file) { // define function for getting backups
     const body = { token: process.env.BACKUP_KEY, key: keyName };
     fetch(BACKUP_SERVER + 'get', {
       method: 'POST',
@@ -51,7 +50,7 @@ if (NEEDS_PERSISTENCE) {
       });
   }
 
-  function backupFile(keyName, file) {
+  function backupFile(keyName, file) { // define function for backing up databases
     const body = { token: process.env.BACKUP_KEY, key: keyName, val: require('fs').readFileSync(file).toString() };
     fetch(BACKUP_SERVER + 'set', {
       method: 'POST',
@@ -63,17 +62,17 @@ if (NEEDS_PERSISTENCE) {
   }
 }
 
-var filterHTML = (html) => {
+var filterHTML = (html) => { // sanatize HTML to prevent XSS
   return html.split("<").join("&lt;").split(">").join("&gt;");
 }
-if (NEEDS_PERSISTENCE) {
+if (NEEDS_PERSISTENCE) { // if the instance needs persistence
   setTimeout(() => {
-    getBackupFile('rooms', 'rooms.db');
-    getBackupFile('users', 'users.db');
-    getBackupFile('banned', 'banned.db');
+    getBackupFile('rooms', 'rooms.db'); // get the rooms.db backup
+    getBackupFile('users', 'users.db'); // get the users.db backup
+    getBackupFile('banned', 'banned.db'); // get the banned.db backup
   }, 0);
 }
-setTimeout(() => {
+setTimeout(() => { // load all db's into memory
   var roomDb = new Datastore({
     filename: 'rooms.db',
     autoload: true
@@ -86,10 +85,10 @@ setTimeout(() => {
     filename: 'banned.db',
     autoload: true
   });
-  const whoIsOnline = {};
-  roomDb.find({}, (err, doc) => {
-    doc.forEach(n => {
-      whoIsOnline[n.roomName] = [];
+  const whoIsOnline = {}; // define an object for who is online
+  roomDb.find({}, (err, doc) => { // get all objects in the room db
+    doc.forEach(n => { // loop through all objects in the room db
+      whoIsOnline[n.roomName] = []; // add them to the whoIsOnline object
     })
   })
   bannedDb.persistence.setAutocompactionInterval(30000);
@@ -123,25 +122,21 @@ setTimeout(() => {
   filter.addWords(...filipinoBadwords.array); // Add Filipino curse words to the filter
   filter.addWords(...moreBadwords); // Add other curse words to the filter
   // End Filter Setup
-  let modList;
-  let reportList = [];
-  if (process.env.MODLIST) {
-    modList = process.env.MODLIST.split(',');
+  let modList; // set up a moderator list
+  let reportList = []; // define an array to store reports in
+  if (process.env.MODLIST) { // if there is a list of mods in the env
+    modList = process.env.MODLIST.split(','); // set modList to an array from the env
   }
-  console.log('Introducing our moderators: ');
-  modList.forEach((item, i) => {
-    console.log(item);
-    modList[i] = modList[i].toLowerCase();
+  console.log('Introducing our moderators: '); // ROP
+  modList.forEach((item, i) => { // loop through the list of moderators
+    console.log(item + '\n'); // log each moderator's username
+    modList[i] = modList[i].toLowerCase(); // change username to lowercase for compatibility
   });
-  console.log('\n');
-  roomDb.persistence.setAutocompactionInterval(30000);
-  userDb.persistence.setAutocompactionInterval(30000);
-  const Imgbb = require('imgbbjs')
-
-  const imgbb = new Imgbb({
-    key: process.env.IMGBB_KEY
+  const Imgbb = require('imgbbjs'); // import ImgBB API wrapper
+  const imgbb = new Imgbb({ // define the imgbb object
+    key: process.env.IMGBB_KEY // set the key to the ImgBB API key from the env
   });
-  app.use(bodyParser.json())
+  app.use(bodyParser.json()) // make Express use bodyParser for handling POST requests
   app.use(express.static(__dirname + '/public')); // tell express where to get public assets
   app.get('/chat', (req, res) => { // set chat location to the chat page
     res.sendFile(__dirname + '/public/app.html');
@@ -158,68 +153,70 @@ setTimeout(() => {
   app.get('/banned', (req, res) => { // set about location to the banned page
     res.sendFile(__dirname + '/public/banned.html');
   });
-  app.get('/panel', basicAuth({
-    users: { 'moderator': process.env.MODPASSWORD || 'password' },
-    challenge: true,
-    realm: 'foo'
+  app.get('/panel', basicAuth({ // set panel location to the mod panel protected with a password
+    users: { 'moderator': process.env.MODPASSWORD || 'password' }, // add a single user with a password set from an env with a default of "password"
+    challenge: true, // make a login appear on the client side
+    realm: 'foo' // unknown?
   }), (req, res) => {
     res.sendFile(__dirname + '/public/modpanel.html');
   });
-  app.get('/api/report/count', (req, res) => {
-    res.send({
-      "count": reportList.length
+  app.get('/api/report/count', (req, res) => { // define an API endpoint to get the total number of reports
+    res.send({ // return a JSON object
+      "count": reportList.length // set the count property to the length of the report list
     });
   });
-  app.get('/api/report/all', (req, res) => {
-    if (reportList.length > 40) {
-      res.send(reportList.slice(0, 40));
-    } else {
-      res.send(reportList);
+  app.get('/api/report/all', (req, res) => { // define an API endpoint to get the content of all reports 
+    if (reportList.length > 40) { // if there are more than 40 reports
+      res.send(reportList.slice(0, 40)); // only send 40 at a time
+    } else { // if there are less than 40 reports
+      res.send(reportList); // send the entire report list
     }
   });
-  app.post('/api/report/ban', (req, res) => {
-    if (modpanels.includes(req.headers.referer)) {
-      bannedDb.insert({
+  app.post('/api/report/ban', (req, res) => { // define an API endpoint to ban users
+    if (modpanels.includes(req.headers.referer)) { // authenticate via the origin of the request
+      bannedDb.insert({ // insert the user into the banned database
         user: req.body.user.toLowerCase()
       }, (err, doc) => {
         if (err) {
-          res.sendStatus(500);
+          res.sendStatus(500); // if that fails, send a server error
         } else {
-          console.log(`A console mod successfully requested a ban of ${req.body.user}.`);
-          var index = reportList.find(x => x.id == req.body.id);
-          index = reportList.indexOf(index);
-          if (index > -1) {
-            reportList.splice(index, 1);
-            res.sendStatus(200);
-          } else {
-            res.sendStatus(406);
+          console.log(`A panel mod successfully requested a ban of ${req.body.user}.`); // ROP
+          if (req.body.id) { // if the ban was linked to a report
+            var index = reportList.find(x => x.id == req.body.id); // Find the content of the used report
+            index = reportList.indexOf(index); // get the location of the report
+            if (index > -1) { // if the report was found
+              reportList.splice(index, 1); // remove the report
+              res.sendStatus(200); // send an ok status
+            } else { // if the report was not found
+              res.sendStatus(406); // send a client error
+            }
           }
         }
       });
-    } else {
-      res.sendStatus(403);
+    } else { // if the authentication failed
+      res.sendStatus(403); // send a forbidden error
     }
   });
-  app.post('/api/report/delete', (req, res) => {
-    console.log(JSON.parse(req.body));
-    if (modpanels.includes(req.headers.referer)) {
-      res.sendStatus(405)
-    } else {
-      res.sendStatus(403);
+  app.post('/api/report/delete', (req, res) => { // make an API endpoint for deleting messages (TODO)
+    console.log(JSON.parse(req.body)); // ROP
+    if (modpanels.includes(req.headers.referer)) { // authenticate via the origin of the request
+      res.sendStatus(405); // send a "not ready" status
+    } else { // if the authentication failed
+      res.sendStatus(403); // send a forbidden error
     }
   });
-  app.post('/api/report/reject', (req, res) => {
-    if (modpanels.includes(req.headers.referer)) {
-      var index = reportList.find(x => x.id == req.body.id);
-      index = reportList.indexOf(index);
-      if (index > -1) {
-        reportList.splice(index, 1);
-        res.sendStatus(200);
-      } else {
-        res.sendStatus(406);
+  app.post('/api/report/reject', (req, res) => { // make an API endpoint for rejecting (removing) reports
+    if (modpanels.includes(req.headers.referer)) { // authenticate via the origin of the request
+      var index = reportList.find(x => x.id == req.body.id); // Find the content of the used report
+      index = reportList.indexOf(index); // get the location of the report
+      if (index > -1) { // if the report was found
+        reportList.splice(index, 1); // remove the report
+        res.sendStatus(200); // send an ok status
+      } else { // if the report was not found
+        res.sendStatus(406); // send a client error
       }
-    } else {
-      res.sendStatus(403);
+    } else { // if authentication failed
+      res.sendStatus(403); // send a forbidden error
     }
   });
   io.on('connection', (socket) => { // handle a user connecting
@@ -707,7 +704,6 @@ setTimeout(() => {
       }
       default: {
         if (!filter.isProfane(msg.replace(String.fromCharCode(8203), ''))) { // checks if message doesn't contain rude words
-          var message = filterHTML(msg);
           if (message.length > 250) {
             io.to(socketIdd).emit('botMessage', 'Do not bypass the char limits!  This is a warning!');
           } else {
@@ -736,6 +732,7 @@ setTimeout(() => {
               "id": document[0].id, // set the sender's ID from the database
               "stamp": Date.now()
             });
+						message = filterHTML(message);
             updateHistory(room, message, sender, document[0].id, rawMessage);
           }
         } else {
@@ -759,5 +756,4 @@ setTimeout(() => {
   function filterHTML(html) {
     return html.split("<").join("&lt;").split(">").join("&gt;");
   }
-
 }, 3000);

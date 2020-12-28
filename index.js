@@ -724,7 +724,7 @@ setTimeout(() => { // load all db's into memory
               });
             }
             let rawMessage = msg;
-            msg = betterReplace(betterReplace(betterReplace(msg, "q-", "</div>"), "-q", "<div class=quote>"), "---", "<hr>");
+            msg = betterReplace(betterReplace(betterReplace(betterReplace(msg, "q-", "</div>"), "-q", "<div class=quote>"), "---", "<hr>"),"‮", "");
             io.to(room).emit('chatMessage', { // emit the message to all clients in the room
               "message": msg,
               "raw_message": rawMessage,

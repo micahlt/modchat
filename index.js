@@ -687,7 +687,7 @@ setTimeout(() => { // load all db's into memory
             io.to(socketIdd).emit('botMessage', "😫 Looks like you're all alone...");
           } else {
             for (let i = 0; i < locatedDocs.length; i++) {
-              online += "<br><b>" + locatedDocs[i] + "</b>"
+              online += "<br><b>" + filterHTML(locatedDocs[i]) + "</b>"
             }
             io.to(socketIdd).emit('botMessage', "Online users:<br>" + online);
           }

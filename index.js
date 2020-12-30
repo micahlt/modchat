@@ -1,3 +1,5 @@
+// Just bringing back up the server...
+
 __dirname = process.cwd();
 const crypto = require('crypto'); // import crypto library
 const basicAuth = require('express-basic-auth'); // import library for Express authorization

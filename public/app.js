@@ -3,7 +3,7 @@ var socket = io(); // define socket
 function filterHTML(html) {
   return html.split("<").join("&lt;").split(">").join("&gt;");
 }
-
+var copy = window.copyToClipboard;
 var getParams = function(url) {
   // set up the getParams function
   var params = {}; // set up a params object
@@ -260,8 +260,10 @@ document.getElementById("username").addEventListener("submit", function(event) {
   // listen for user registration
   event.stopImmediatePropagation(); // stop reloads
   event.preventDefault(); // stop reloads
+  let username = document.getElementById("username-input").value;
+  document.getElementById("profileLink").setAttribute("href", `https://scratch.mit.edu/users/${username}#comments`);
   document.getElementsByClassName("loader")[0].style.opacity = "1";
-  socket.emit("userRegister", document.getElementById("username-input").value); // send the username to verify to the server
+  socket.emit("userRegister", username); // send the username to verify to the server
   return false;
 });
 socket.on("reload", () => {
@@ -406,9 +408,9 @@ socket.on("botMessage", function(msg) {
 });
 
 socket.on("svCodeToVerify", function(msg) {
+  copyToClipboard(msg);
   // handle recieving the SV code (after triggering the setUsername function)
   document.getElementsByClassName("loader")[0].style.opacity = "0";
-  document.getElementById("svCode").value = msg; // display the code
   document.getElementsByClassName("scratchverifier")[0].style.opacity = "1"; // display the completion button
   document.getElementById("completeSV").addEventListener("click", function() {
     // listen for clicks on the completion button

@@ -78,13 +78,14 @@
         <div class="loader"></div>
       </form>
       <div class="scratchverifier">
-        <input id="svCode" disabled title="double-click this, copy it, and paste it on your Scratch profile as a comment!"></input><br><br>
+        <p id="svInstructions">The code has been copied to your clipboard!  Visit <a href="#" id="profileLink" target="_blank" style="color:white;">your profile</a> and paste the code as a comment!</p><br><br>
         <a href="#" id="completeSV" title="click this after you have copied the above code and pasted it on your Scratch profile!">Complete Verification</a><br><br>
         <span class="tos">By clicking the button above, you agree to the <a href="/tos" target="_blank">Modchat Terms of Service</a>.</span>
       </div>
     </div>
   </div>
   <input type="file" id="pseudoUpload" accept="image/gif,image/png,image/jpeg" />
+  <script src="https://wzrd.in/standalone/copy-to-clipboard@latest" async></script>
   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
   <script src="https://unpkg.com/keyboardjs@2.6.4/dist/keyboard.min.js" charset="utf-8"></script>
   <script src="/socket.io/socket.io.js"></script>

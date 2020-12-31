@@ -1,5 +1,3 @@
-// Just bringing back up the server...
-
 __dirname = process.cwd();
 const crypto = require('crypto'); // import crypto library
 const basicAuth = require('express-basic-auth'); // import library for Express authorization
@@ -726,6 +724,7 @@ setTimeout(() => { // load all db's into memory
               });
             }
             let rawMessage = msg;
+						msg = filterHTML(msg);
             msg = betterReplace(betterReplace(betterReplace(betterReplace(msg, "q-", "</div>"), "-q", "<div class=quote>"), "---", "<hr>"),"‮", "");
             io.to(room).emit('chatMessage', { // emit the message to all clients in the room
               "message": msg,
@@ -734,7 +733,6 @@ setTimeout(() => { // load all db's into memory
               "id": document[0].id, // set the sender's ID from the database
               "stamp": Date.now()
             });
-						msg = filterHTML(msg);
             updateHistory(room, msg, sender, document[0].id, rawMessage);
           }
         } else {

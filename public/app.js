@@ -3,7 +3,7 @@ var socket = io(); // define socket
 function filterHTML(html) {
   return html.split("<").join("&lt;").split(">").join("&gt;");
 }
-var copy = window.copyToClipboard;
+
 var getParams = function(url) {
   // set up the getParams function
   var params = {}; // set up a params object
@@ -23,6 +23,17 @@ const charLimit = 250; // sets the char limit to 250
 let usersTyping = [];
 let root = document.documentElement;
 let userName = window.localStorage.getItem("userName"); // grab the user object from localStorage if it exists
+function copyToClipboard(text) {
+  var dummy = document.createElement("textarea");
+  // to avoid breaking orgain page when copying more words
+  // cant copy when adding below this code
+  dummy.style.opacity = '0';
+  document.body.appendChild(dummy);
+  dummy.textContent = text;
+  dummy.select();
+  document.execCommand("copy");
+  document.body.removeChild(dummy);
+}
 let sidebarOpen = false;
 keyboardJS.bind('alt + b', (e) => {
   e.preventRepeat();
@@ -55,7 +66,7 @@ keyboardJS.bind('alt + b', (e) => {
   })
 });
 socket.on('delete', (postId) => {
-  
+
 })
 socket.on('kick', () => {
   window.localStorage.removeItem("userName");

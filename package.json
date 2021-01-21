@@ -34,7 +34,7 @@
     "imgbbjs": "^1.0.4",
     "nedb": "^1.8.0",
     "node-fetch": "^2.6.1",
-    "socket.io": "^2.3.0",
+    "socket.io": "^2.4.0",
     "uws": "^10.148.1"
   },
   "devDependencies": {

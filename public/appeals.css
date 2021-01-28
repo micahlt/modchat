@@ -1,0 +1,49 @@
+* {
+  transition: 0.2s;
+}
+
+body {
+  text-align: center;
+  font-family: 'Heebo', sans-serif;
+}
+
+.headerimg {
+  padding-top: 1em;
+  width: 250px;
+}
+
+.appeals {
+  text-align: left;
+  padding: 2em;
+  margin-top: 2em;
+  margin-left: 30vw;
+  margin-right: 30vw;
+  width: auto;
+  max-width: 700px;
+  font-family: 'Heebo', sans-serif;
+  height: 100%;
+  border-radius: 0.3em;
+  box-shadow: 0 0 1em rgba(0, 0, 0, 0.3);
+  transition: 0.2s;
+}
+
+a {
+  color: black;
+}
+
+a:hover {
+  color: #ffa600;
+  transition: 0.2s;
+}
+
+@media only screen and (max-width: 800px) {
+  .tos {
+    margin-left: 1em;
+    margin-right: 1em;
+    width: calc(100% - 6em);
+  }
+}
+
+.centered {
+  text-align: center;
+}

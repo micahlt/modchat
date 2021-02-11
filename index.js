@@ -306,7 +306,8 @@ setTimeout(() => { // load all db's into memory
         user: object.sender
       }, (error, doc) => {
         if (doc.length == 0) return;
-        var safemsg = betterReplace(object.message, "", "​");
+	var msgString = object.message + "";
+        var safemsg = betterReplace(msgString, "", "​");
         var hashFromDb = doc[0].hashString;
         //bcrypt.compare(hashFromDb, object.hash).then(async function(result) {
         // console.log(result) // ROP
@@ -344,14 +345,14 @@ setTimeout(() => { // load all db's into memory
                         hashString: toHash
                       }
                       userDb.insert(userDoc, function(err, docc) { // insert the document to the database
-                        sendMessage(currentRoom, object.message, object.sender, [data], socket.id)
+                        sendMessage(currentRoom, msgString, object.sender, [data], socket.id)
                       })
                     });
                 } else {
                   var locateDoc = userDb.find({ // if the user does exist
                     user: object.sender // set the username to the sender's username
                   }, function(err, doc) {
-                    sendMessage(currentRoom, object.message, object.sender, doc, socket.id);
+                    sendMessage(currentRoom, msgString, object.sender, doc, socket.id);
                   });
                 }
               }

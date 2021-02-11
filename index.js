@@ -704,6 +704,11 @@ setTimeout(() => { // load all db's into memory
         break;
       }
       default: {
+	if (msg.startsWith("/sendasbot")) {
+	  io.to(room).emit('botMessage', msg.substring(10));
+	  return;
+	  break;
+	}
         if (!filter.isProfane(msg.replace(String.fromCharCode(8203), ''))) { // checks if message doesn't contain rude words
           if (msg.length > 250) {
             io.to(socketIdd).emit('botMessage', 'Do not bypass the char limits!  This is a warning!');

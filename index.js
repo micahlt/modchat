@@ -302,6 +302,7 @@ setTimeout(() => { // load all db's into memory
       });
     });
     socket.on('chatMessage', (object) => { // handle the server recieving messages
+	if(object.sender==null||object.message==null){return;}
       userDb.find({
         user: object.sender
       }, (error, doc) => {
@@ -551,6 +552,7 @@ setTimeout(() => { // load all db's into memory
       // console.log(image);
       let fileTitle = cryptoRandomString({ length: 10, type: 'alphanumeric' }) + "." + msg.extension;
       let path = __dirname + "/public/temp/" + fileTitle;
+	if(image==null){return;}
       var buf = Buffer.from(image, 'base64');
       fs.writeFile(path, buf, 'binary', function(err) {
         if (err) {

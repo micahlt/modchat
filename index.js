@@ -491,6 +491,7 @@ setTimeout(() => { // load all db's into memory
       });
     });
     socket.on('ban', (object) => {
+	if(object.sender==null||object.user==null||object.hash==null){return;}
       userDb.find({
         user: object.sender
       }, (error, doc) => {

@@ -676,6 +676,7 @@ setTimeout(() => { // load all db's into memory
       })
   }
   var sendMessage = (room, msg, sender, document, socketIdd) => {
+	 if(msg.split("q-".length!=msg.split("-q").length)){return;}
     switch (msg) {
       case "/who": {
         var onlineList = userDb.find({

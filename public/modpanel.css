@@ -21,7 +21,7 @@ body {
 .navbar {
   width: 100%;
   height: 5em;
-  box-shadow: 0 0.2em 1em rgba(0,0,0,0.4);
+  box-shadow: 0 0.2em 7px rgba(0,0,0,0.4);
   display: inline-block;
   padding-left: 2em;
   padding-right: 2em;
@@ -70,7 +70,7 @@ body {
 .review {
   background: white;
   grid-area: a;
-  box-shadow: 0 0.2em 1em rgba(0,0,0,0.4);
+  box-shadow: 0 0.2em 5px rgba(0,0,0,0.4);
   overflow-y: scroll;
   overflow-x: hidden;
 }
@@ -78,16 +78,18 @@ body {
 .chart1 {
   background: white;
   grid-area: b;
-  box-shadow: 0 0.2em 1em rgba(0,0,0,0.4);
+  box-shadow: 0 0.2em 5px rgba(0,0,0,0.4);
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 30px;
 }
 
 .chart2 {
+  display: none;
   background: white;
   grid-area: c;
-  box-shadow: 0 0.2em 1em rgba(0,0,0,0.4);
+  box-shadow: 0 0.2em 5px rgba(0,0,0,0.4);
 }
 
 .report {
@@ -118,16 +120,20 @@ body {
   grid-row-gap: 0.5em;
 }
 
+
+
 .report .options a {
   text-align: center;
   padding: 0.3em;
+/*
   text-decoration: none;
   color: white;
   border-radius: 0.3em;
   margin-top: 1em;
   border: solid rgba(0,0,0,0) 0.2em;
+*/
 }
-
+/*
 .report .options a:nth-of-type(1) {
   background: #ff3a3a;
 }
@@ -143,6 +149,8 @@ body {
 .report .options a:hover {
   border: solid rgba(0,0,0,0.3) 0.2em;
 }
+
+*/
 
 :root {
   --scrollbarBG: rgb(236, 236, 236);

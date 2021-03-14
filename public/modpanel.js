@@ -81,7 +81,7 @@ let refresh = () => {
         div.innerHTML = `
         <span class="reported-message" data-post-id="${item.id}">${item.message}</span><br>
         <div class="options">
-          <a href="#ban" aria-label="Ban @${item.user} from Modchat" data-balloon-pos="down" data-user="${item.user}">Ban</a> <a href="#reject" aria-label="Reject this report as spam" data-balloon-pos="down" data-post-id="${item.id}">Reject</a> <a href="#" aria-label="Delete this message from Modchat" data-balloon-pos="down">Delete</a>
+          <a href="#ban" class="btn btn-danger" aria-label="Ban @${item.user} from Modchat" data-balloon-pos="down" data-user="${item.user}">Ban</a> <a href="#reject" class="btn btn-primary" aria-label="Reject this report as spam" data-balloon-pos="down" data-post-id="${item.id}">Reject</a> <a href="#" class="btn btn-outline" aria-disabled="true" aria-label="Delete this message from Modchat" data-balloon-pos="down">Delete</a>
         </div>
         `;
         review.appendChild(div);

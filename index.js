@@ -114,13 +114,13 @@ setTimeout(() => { // load all db's into memory
   var filter = new Filter({
     placeHolder: '_'
   }); // set up the filter
+  let removeWords = ['GOD']; // Make a list of word to be uncensored.
+  let addWords = ['WTF', 'LMAO', 'IMAO', 'DISCORD', 'INSTAGRAM', 'SLACK', 'SNAPCHAT', "SIACK", "LNSTAGRAM"]; // Any words in this list will be censored. SIACK because SIACK looks like SLACK. Same for LNSTAGRAM.
   filter.removeWords(...removeWords); //Remove those from the filter
   filter.addWords(...addWords); // Add those to the filter
   filter.addWords(...frenchBadwords.array); // Add French curse words to the filter
   filter.addWords(...filipinoBadwords.array); // Add Filipino curse words to the filter
   filter.addWords(...moreBadwords); // Add other curse words to the filter
-  let removeWords = ['GOD']; // Make a list of word to be uncensored.
-  let addWords = ['WTF', 'LMAO', 'DISCORD', 'INSTAGRAM', 'SLACK', 'SNAPCHAT', "SIACK", "LNSTAGRAM"]; // Any words in this list will be censored. SIACK because SIACK looks like SLACK. Same for LNSTAGRAM.
   // End Filter Setup
   let modList; // set up a moderator list
   let reportList = []; // define an array to store reports in

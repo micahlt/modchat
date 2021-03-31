@@ -112,7 +112,7 @@ if (userName) {
 document.getElementById("changeTheme").addEventListener("click", changeTheme);
 
 document.getElementById("pseudoUpload").addEventListener("input", function() {
-  console.log('FILE UPLOADIG');
+  console.log('File uploading');
   let file = document.getElementById("pseudoUpload").files[0];
   var reader = new FileReader();
   reader.onload = function() {
@@ -223,7 +223,7 @@ document.getElementById("changeRoom").addEventListener("click", function() {
 document.getElementById("roomName").addEventListener("submit", function(event) {
   event.stopImmediatePropagation(); // stop reloads
   event.preventDefault(); // stop reloads
-  window.location.replace(window.location.href.split("?")[0] + "?r=" + document.getElementById("r").value);
+  window.location.replace(window.location.href.split("?")[0] + "?r=" + encodeURI(document.getElementById("r").value));
 });
 
 document.getElementById("form").addEventListener("submit", function(event) {
@@ -450,7 +450,7 @@ socket.on("connect", function() {
   console.log("user connected"); // ROP
   document.getElementById("roomTitle").innerText = getParams(window.location.href).r;
   socket.emit("roomChange", {
-    room: getParams(window.location.href).r,
+    room: encodeURI(getParams(window.location.href).r),
     user: window.localStorage.getItem("userName"),
     hash: window.localStorage.getItem("userHash"),
     socket: socket.id

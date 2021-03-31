@@ -220,7 +220,6 @@ setTimeout(() => { // load all db's into memory
     }
   });
   io.on('connection', (socket) => { // handle a user connecting
-    console.log(socket.id)
     var currentRoom; // make a placeholder for the room name
     socket.on('roomChange', (object) => { // handle a change in rooms
       socket.leave(currentRoom); // leave the current room
@@ -242,7 +241,7 @@ setTimeout(() => { // load all db's into memory
           whoIsOnline[currentRoom] = [];
           roomDb.insert(room); // inserts the room
         } else {
-          console.log("Room already exists");
+          // console.log("Room already exists");
           docs[0].roomMessages.forEach(el => {
             io.to(socket.id).emit('chatMessage', el);
           })
@@ -296,74 +295,84 @@ setTimeout(() => { // load all db's into memory
       }
     });
     socket.on('userTyping', (object) => {
-      userDb.find({ user: object.username }, (err, doc) => {
-        if (doc != null && doc.length > 0)
-          socket.to(currentRoom).emit('isTyping', object.username);
-      });
+      try {
+        userDb.find({ user: object.username }, (err, doc) => {
+          if (doc != null && doc.length > 0)
+            socket.to(currentRoom).emit('isTyping', object.username);
+        });
+      } catch (err) {
+        console.log(err);
+      }
     });
     socket.on('chatMessage', (object) => { // handle the server recieving messages
-	if(object.sender==null||object.message==null){return;}
-      userDb.find({
-        user: object.sender
-      }, (error, doc) => {
-        if (doc.length == 0) return;
-	var msgString = object.message + "";
-        var safemsg = betterReplace(msgString, "", "​");
-        var hashFromDb = doc[0].hashString;
-        //bcrypt.compare(hashFromDb, object.hash).then(async function(result) {
-        // console.log(result) // ROP
-        (async function() {
-          if (object.hash == aesEncrypt(hashFromDb)) {
-            const banned = await (new Promise((resolve, reject) => {
-              bannedDb.find({
-                user: object.sender.toLowerCase()
-              }, (err, docs) => {
-                if (docs != null && docs.length >= 1) {
-                  resolve(true);
-                } else {
-                  resolve(false);
-                }
-              })
-            }));
-            if (banned) {
-              socket.emit('bannedUser', true);
-              socket.leave(currentRoom);
-            } else {
-              var locatedDoc = userDb.find({ // see if the user has a listing in the database; this reduces API requests to Scratch
-                user: object.sender // set the username to find as the message sender's username
-              }, function(err, docs) {
-                if (docs[0] == null) { // if the user does not exist
-                  console.log("adding user " + object.sender); // ROP
-                  fetch('https://api.scratch.mit.edu/users/' + object.sender) // fetch the user's info from the Scratch API
-                    .then(response => response.json())
-                    .then(data => {
-                      var toHash = cryptoRandomString({ length: 30, type: 'alphanumeric' });
-                      var userDoc = { // make a new document object
-                        user: object.sender, // set the username as the message sender's name
-                        id: data.id, // set the user's ID to the ID recieved by the Scratch API
-                        socketId: object.socket,
-                        room: currentRoo,
-                        hashString: toHash
-                      }
-                      userDb.insert(userDoc, function(err, docc) { // insert the document to the database
-                        sendMessage(currentRoom, msgString, object.sender, [data], socket.id)
-                      })
+      if (!object || !object.sender || !object.message) {
+        return 1;
+      }
+      try {
+        userDb.find({
+          user: object.sender
+        }, (error, doc) => {
+          if (doc.length == 0) return;
+          var msgString = object.message + "";
+          var safemsg = betterReplace(msgString, "", "​");
+          var hashFromDb = doc[0].hashString;
+          //bcrypt.compare(hashFromDb, object.hash).then(async function(result) {
+          // console.log(result) // ROP
+          (async function() {
+            if (object.hash == aesEncrypt(hashFromDb)) {
+              const banned = await (new Promise((resolve, reject) => {
+                bannedDb.find({
+                  user: object.sender.toLowerCase()
+                }, (err, docs) => {
+                  if (docs != null && docs.length >= 1) {
+                    resolve(true);
+                  } else {
+                    resolve(false);
+                  }
+                })
+              }));
+              if (banned) {
+                socket.emit('bannedUser', true);
+                socket.leave(currentRoom);
+              } else {
+                var locatedDoc = userDb.find({ // see if the user has a listing in the database; this reduces API requests to Scratch
+                  user: object.sender // set the username to find as the message sender's username
+                }, function(err, docs) {
+                  if (docs[0] == null) { // if the user does not exist
+                    console.log("adding user " + object.sender); // ROP
+                    fetch('https://api.scratch.mit.edu/users/' + object.sender) // fetch the user's info from the Scratch API
+                      .then(response => response.json())
+                      .then(data => {
+                        var toHash = cryptoRandomString({ length: 30, type: 'alphanumeric' });
+                        var userDoc = { // make a new document object
+                          user: object.sender, // set the username as the message sender's name
+                          id: data.id, // set the user's ID to the ID recieved by the Scratch API
+                          socketId: object.socket,
+                          room: currentRoo,
+                          hashString: toHash
+                        }
+                        userDb.insert(userDoc, function(err, docc) { // insert the document to the database
+                          sendMessage(currentRoom, msgString, object.sender, [data], socket.id)
+                        })
+                      });
+                  } else {
+                    var locateDoc = userDb.find({ // if the user does exist
+                      user: object.sender // set the username to the sender's username
+                    }, function(err, doc) {
+                      sendMessage(currentRoom, msgString, object.sender, doc, socket.id);
                     });
-                } else {
-                  var locateDoc = userDb.find({ // if the user does exist
-                    user: object.sender // set the username to the sender's username
-                  }, function(err, doc) {
-                    sendMessage(currentRoom, msgString, object.sender, doc, socket.id);
-                  });
+                  }
                 }
+                );
               }
-              );
+            } else {
+              console.log('User tampering!');
             }
-          } else {
-            console.log('User tampering!');
-          }
-        })();
-      });
+          })();
+        });
+      } catch (err) {
+        console.log(err);
+      }
     });
     socket.on('userRegister', (msg) => { // handle user registration
       fetch('https://api.scratch.mit.edu/users/' + msg) // make a request to the Scratch API
@@ -458,7 +467,7 @@ setTimeout(() => { // load all db's into memory
       }, function(err, docs) {
         if (docs[0] !== undefined) {
           io.to(currentRoom).emit('botMessage', "😐 User <b>" + docs[0].user + "</b> left the <b>" + currentRoom + "</b> room."); // emit a welcome message with the Modchat bot
-          console.log(docs[0].user, "left the room");
+          console.log(`${docs[0].user} left the ${currentRoom} room`);
           whoIsOnline[currentRoom] = whoIsOnline[currentRoom].filter(n => n.socketID != socket.id);
           // Need to use this for getting if a user is online
           //  userDb.remove({
@@ -491,7 +500,11 @@ setTimeout(() => { // load all db's into memory
       });
     });
     socket.on('ban', (object) => {
-	if(object.sender==null||object.user==null||object.hash==null){return;}
+      if (!object) {
+        return 1;
+      } else if (!object.sender || !object.user || !object.hash) {
+        return 1;
+      }
       userDb.find({
         user: object.sender
       }, (error, doc) => {
@@ -542,18 +555,24 @@ setTimeout(() => { // load all db's into memory
       });
     });
     socket.on('report', (object) => {
+      if (!object) {
+        return 1;
+      }
       console.log('Report recieved');
       object.id = cryptoRandomString({ length: 50, type: 'base64' });
       reportList.push(object);
     });
     socket.on('image', (msg) => {
+      if (!msg || !msg.image) {
+        return 1;
+      }
       let image = msg.image;
       image = image.split(',')[1];
       // image = escape(image).toString('binary');
       // console.log(image);
       let fileTitle = cryptoRandomString({ length: 10, type: 'alphanumeric' }) + "." + msg.extension;
       let path = __dirname + "/public/temp/" + fileTitle;
-	if(image==null){return;}
+      if (image == null) { return; }
       var buf = Buffer.from(image, 'base64');
       fs.writeFile(path, buf, 'binary', function(err) {
         if (err) {
@@ -566,16 +585,17 @@ setTimeout(() => { // load all db's into memory
           console.log('File saved at ' + path);
           console.log(`Moderating at ${"https://modchat-app.herokuapp.com/temp/" + fileTitle}`)
           io.to(socket.id).emit('botMessage', 'moderating your image...');
-          fetch(`https://api.moderatecontent.com/moderate/?key=${process.env.MODERATIONKEY}&url=${process.env.DOMAIN_RUNNING + '/temp/' + fileTitle}`)
+          fetch(`https://imgmod.micahlt.repl.co/api/image/classify?url=${process.env.DOMAIN_RUNNING + '/temp/' + fileTitle}`)
             .then((res) => {
               return res.json();
             })
             .then((json) => {
-              if (json.error_code == 0) {
-                if (json.rating_index < 2) {
+              // console.log(json);
+              if (json) {
+                if (json[0].className == 'Neutral' && json[0].probability > 0.65) {
                   io.to(socket.id).emit('botMessage', 'uploading your image...');
                   imgbb.upload(image).then((data) => {
-                    console.log(data.data.url);
+                    // console.log(data.data.url);
                     userDb.find({
                       socketId: socket.id,
                       room: currentRoom
@@ -728,8 +748,8 @@ setTimeout(() => { // load all db's into memory
               });
             }
             let rawMessage = msg;
-						msg = filterHTML(msg);
-            msg = betterReplace(betterReplace(betterReplace(betterReplace(msg, "q-", "</div>"), "-q", "<div class=quote>"), "---", "<hr>"),"‮", "");
+            msg = filterHTML(msg);
+            msg = betterReplace(betterReplace(betterReplace(betterReplace(msg, "q-", "</div>"), "-q", "<div class=quote>"), "---", "<hr>"), "‮", "");
             io.to(room).emit('chatMessage', { // emit the message to all clients in the room
               "message": msg,
               "raw_message": rawMessage,

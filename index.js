@@ -235,7 +235,7 @@ setTimeout(() => { // load all db's into memory
         })();
       });
       })).then(hash => {
-                  res.sendFileFrontly(__dirname + '/app/auth.html', {
+                  res.sendFileFrontly(__dirname + '/public/auth.html', {
             params: {
               userName: username,
               userHash: hash

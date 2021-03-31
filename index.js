@@ -160,6 +160,9 @@ setTimeout(() => { // load all db's into memory
   }), (req, res) => {
     res.sendFile(__dirname + '/public/modpanel.html');
   });
+  app.get('/auth', (req, res) => {
+    // handle auth from ScratchOAuth2
+  });
   app.get('/api/report/count', (req, res) => { // define an API endpoint to get the total number of reports
     res.send({ // return a JSON object
       "count": reportList.length // set the count property to the length of the report list

@@ -1,5 +1,6 @@
 __dirname = process.cwd();
 const crypto = require('crypto'); // import crypto library
+const Frontly = require('frontly'); // import frontly library
 const basicAuth = require('express-basic-auth'); // import library for Express authorization
 var bodyParser = require('body-parser'); // enable parsing the body of POST requests in Express
 const fs = require('fs'); // require the filesystem module
@@ -107,6 +108,7 @@ setTimeout(() => { // load all db's into memory
     console.log('Created new /public/temp directory');
   }
   var app = express(); // define the app var
+  app.use(Frontly.middleware);
   var http = require('http').createServer(app); // init http server
   var io = require('socket.io')(http); // attach socket to the server
   let modpanels = ['https://modchat.micahlt.repl.co/panel', 'https://modchat.micahlindley.com/panel', 'https://modchat-app.herokuapp.com/panel']
@@ -162,7 +164,87 @@ setTimeout(() => { // load all db's into memory
   });
   app.get('/auth', (req, res) => {
     var authCode = req.params.code;
-    
+    fetch('http://auth.sverify.cf/exchange', {
+      method: "POST",
+      headers: {
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        code: authCode,
+        clientid: "846498434648647145"
+      })
+    }).then(response => {
+      if (response.status !== 200) {
+        res.status(403).send("Invalid auth ticket");
+      } else {
+      	response.text().then(username => {
+          (new Promise((resolveToo, rejectToo) => {
+      userDb.find({
+        user: username
+      }, (error, doc) => {
+        if (doc.length == 0) return;
+        var hashFromDb = doc[0].hashString;
+        //bcrypt.compare(hashFromDb, object.hash).then(async function(result) {
+        // console.log(result) // ROP
+        (async function() {
+          if (true) {
+            const banned = await (new Promise((resolve, reject) => {
+              bannedDb.find({
+                user: username.toLowerCase()
+              }, (err, docs) => {
+                if (docs != null && docs.length >= 1) {
+                  resolve(true);
+                } else {
+                  resolve(false);
+                }
+              })
+            }));
+            if (banned) {
+              res.send('You are banned.');
+            } else {
+              var locatedDoc = userDb.find({ // see if the user has a listing in the database; this reduces API requests to Scratch
+                user: username // set the username to find as the message sender's username
+              }, function(err, docs) {
+                if (docs[0] == null) { // if the user does not exist
+                  fetch('https://api.scratch.mit.edu/users/' + username) // fetch the user's info from the Scratch API
+                    .then(response => response.json())
+                    .then(data => {
+                      var toHash = cryptoRandomString({ length: 30, type: 'alphanumeric' });
+                      var userDoc = { // make a new document object
+                        user: username, // set the username as the message sender's name
+                        id: data.id, // set the user's ID to the ID recieved by the Scratch API
+                        hashString: toHash
+                      }
+                      userDb.insert(userDoc, function(err, docc) { // insert the document to the database
+                         resolveToo(toHash);
+                      })
+                    });
+                } else {
+                  var locateDoc = userDb.find({ // if the user does exist
+                    user: username // set the username to the sender's username
+                  }, function(err, doccc) {
+                    resolveToo(doccc[0].hashString);
+                  });
+                }
+              }
+              );
+            }
+          } else {
+            console.log('User tampering!');
+          }
+        })();
+      });
+      })).then(hash => {
+                  res.sendFileFrontly(__dirname + '/app/auth.html', {
+            params: {
+              userName: username,
+              userHash: hash
+            }
+          });
+
+      });
+        });
+      }
   });
   app.get('/api/report/count', (req, res) => { // define an API endpoint to get the total number of reports
     res.send({ // return a JSON object
@@ -703,7 +785,7 @@ setTimeout(() => { // load all db's into memory
         break;
       }
       case "/help": {
-        io.to(socketIdd).emit('botMessage', "Thanks for using the Modchat Bot!  Here are your command options:<br><strong>/help</strong> generates this message<br><strong>/who</strong> prints users in your room<br><strong>/shrug</strong> sends a shruggie to the room<br><br>You can find a list of supported emoji codes <a class=\"mention\" href=\"https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md\" target=\"_blank\">here</a>.");
+        io.to(socketIdd).emit('botMessage', "Thanks for using the Modchat Bot! Here are your command options:<br><strong>/help</strong> generates this message<br><strong>/who</strong> prints users in your room<br><strong>/shrug</strong> sends a shruggie to the room<br><br>You can find a list of supported emoji codes <a class=\"mention\" href=\"https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md\" target=\"_blank\">here</a>.");
         break;
       }
       case "/shrug": {
@@ -713,7 +795,7 @@ setTimeout(() => { // load all db's into memory
       default: {
         if (!filter.isProfane(msg.replace(String.fromCharCode(8203), ''))) { // checks if message doesn't contain rude words
           if (msg.length > 250) {
-            io.to(socketIdd).emit('botMessage', 'Do not bypass the char limits!  This is a warning!');
+            io.to(socketIdd).emit('botMessage', 'Do not bypass the char limits! This is a warning!');
           } else {
             var emojiRegex = /:[^:\s]*(?:::[^:\s]*)*:/gi;
             var match = msg.match(emojiRegex);

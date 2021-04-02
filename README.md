@@ -22,3 +22,5 @@ If you're interested in contributing, I'd love to have your help!  I ask that yo
 - We use [Heroku](https://heroku.com) for hosting.  
 - Currently the real address of the live version of Modchat is [https://modchat-app.herokuapp.com](https://modchat-app.herokuapp.com), but it is also found at [https://modchat.micahlindley.com](https://modchat.micahlindley.com).
 - I am currently providing Heroku Hobby dynos
+
+[Test ModChat on Replit.com >>](https://replit.com/github/micahlt/modchat)

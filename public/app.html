@@ -59,7 +59,10 @@
   <p id="typingSection"></p>
   <span id="messageCharCount">0/250 chars</span>
   <form action="" id="form" autocomplete="off">
-    <input id="m" autocomplete="off" data-lpignore="true" placeholder="type a message" />
+    <div class="animateTextbox">
+      <input type="text" id="m" autocomplete="off" data-lpignore="true" placeholder="type a message" />
+      <span></span>
+    </div>
     <button id="send"><span class="material-icons">
         send
       </span></button>

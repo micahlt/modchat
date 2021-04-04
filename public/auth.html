@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+  <link rel="shortcut icon" href="/fav-normal.png" type="image/png" id="favicon">
+  <title>Modchat - Authenticating...</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/balloon-css@1.2.0/balloon.min.css">
+  <link rel="stylesheet" href="/style.css">
+   <link  rel="stylesheet"  type="text/css"  href="https://unpkg.com/snow-theme@1.0.4/index.css">
+</head>
+
+<body>
+  <!--
+  <div class="customize">
+    <div class="customize-options">
+      <label for="themeSelect">Select a theme:</label>
+      <select id="themeSelect">
+        <option value="dark">Dark</option>
+        <option value="light">Light</option>
+      </select>
+      <br>
+      <label for="fontSelect">Select a font:</label>
+      <select id="themeSelect">
+        <option value="dark">Dark</option>
+        <option value="light">Light</option>
+      </select>
+    </div>
+  </div>
+  -->
+  <h1>Authenticating...</h1>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <script src="https://unpkg.com/keyboardjs@2.6.4/dist/keyboard.min.js" charset="utf-8"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var authData = {
+      username: "<::Frontly.Custom.userName::>",
+      hash: "<::Frontly.Custom.userHash::>"
+    };
+    if (authData.username == "<" + "::Frontly.Custom.userName::" + ">" || authData.hash == "<" + "::Frontly.Custom.userHash::" + ">") {
+      document.querySelector('h1').innerText = "Error authenticating";
+    } else {
+      localStorage.setItem('userName', authData.username);
+      localStorage.setItem('userHash', authData.hash);
+    }
+  </script>
+</body>
+</html>

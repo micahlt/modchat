@@ -66,7 +66,7 @@ keyboardJS.bind('alt + b', (e) => {
   })
 });
 socket.on('delete', (postId) => {
-
+  
 })
 socket.on('kick', () => {
   window.localStorage.removeItem("userName");
@@ -108,6 +108,10 @@ if (userName) {
   console.log("User has already verified"); // ROP
   document.getElementsByClassName("blocker")[0].style.display = "none"; // hide the blocker
   document.getElementsByClassName("register")[0].style.display = "none"; // hide the registration popup
+} else {
+  /*
+	  location.href = "https://oauth2.scratch-wiki.info/w/index.php?title=Special:ScratchOAuth2/authorize&client_id=616197761&scopes=identify&state=1&redirect_uri=https://modchat.micahlindley.com/soa2redirect"
+  */
 }
 document.getElementById("changeTheme").addEventListener("click", changeTheme);
 
@@ -124,6 +128,7 @@ document.getElementById("pseudoUpload").addEventListener("input", function() {
     });
   };
   reader.readAsDataURL(file);
+  document.getElementById("pseudoUpload").value = "";
 });
 document.getElementById("imgUpload").addEventListener("click", function(e) {
   e.preventDefault();
@@ -303,7 +308,6 @@ socket.on("chatMessage", function(object) {
   var msg = document.createElement("span");
   var replybutton = document.createElement("span");
   var img = document.createElement("img");
-
   var reportbutton = document.createElement("span");
   var reporta = document.createElement("a");
 

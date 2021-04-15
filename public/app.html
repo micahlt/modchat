@@ -2,19 +2,23 @@
 <html>
 
 <head>
-  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
-  <link rel="shortcut icon" href="/fav-normal.png" type="image/png" id="favicon">
-  <title>Modchat - Realtime Moderated Chat</title>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/balloon-css@1.2.0/balloon.min.css">
-  <link rel="stylesheet" href="/style.css">
-   <link  rel="stylesheet"  type="text/css"  href="https://unpkg.com/snow-theme@1.0.4/index.css">
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+	<link rel="shortcut icon" href="/fav-normal.png" type="image/png" id="favicon">
+	<title>Modchat - Realtime Moderated Chat</title>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;900&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://unpkg.com/balloon-css@1.2.0/balloon.min.css">
+	<link rel="stylesheet" href="/style.css">
+	<link rel="stylesheet" type="text/css" href="https://unpkg.com/snow-theme@1.0.4/index.css">
+	<script async data-ackee-opts='{"detailed":true}' src="https://ackee.semisol.dev/tracker.js" data-ackee-server="https://ackee.semisol.dev"
+	 data-ackee-domain-id="49d45e2a-3c1e-48f3-9ac5-36b22c928570" integrity="sha384-IjZSDLmHIztT4O+Tp8iZCtMxaw7p0ZfoyEQWGmAGmSGVbk6bYNsBo1clknSBw6U6"
+	 crossorigin="anonymous">
+	</script>
 </head>
 
 <body>
-  <!--
+	<!--
   <div class="customize">
     <div class="customize-options">
       <label for="themeSelect">Select a theme:</label>
@@ -31,8 +35,8 @@
     </div>
   </div>
   -->
-  <a href="#" id="sidebarControl">
-    <span class="material-icons menu-m">
+	<a href="#" id="sidebarControl">
+		<span class="material-icons menu-m">
       menu_open
     </span>
   </a>
@@ -49,6 +53,7 @@
       <span id="roomTitle"></span>
     </div>
     <div class="bottom-sidebar">
+      <a href="https://buymeacoffee.com/micahlt" target="_blank" class="sidebar-btn" id="supportMc">SUPPORT MODCHAT</a>
       <a href="#form" id="imgUpload" class="sidebar-btn">UPLOAD IMAGE</a>
       <a href="#form" id="signOut" class="sidebar-btn">SIGN OUT</a>
       <a id="changeRoom" class="sidebar-btn" href="#form">SWITCH ROOM</a>
@@ -73,17 +78,21 @@
       <img src="/wordmark-black.png" class="register-img">
       <h1>Sign in with Scratch</h1>
       <form action="" id="username" autocomplete="off">
-        <input id="username-input" autocomplete="off" placeholder="username"></input>
+				Please wait...
+        <!--<input id="username-input" autocomplete="off" placeholder="username"></input>
         <button><span class="material-icons">
             login
           </span></button><br>
-        <br><br>
+        <br><br>-->
         <div class="loader"></div>
       </form>
       <div class="scratchverifier">
         <p id="svInstructions">We just copied a code to your clipboard.  Visit <a href="#" id="profileLink" target="_blank" style="color:var(--text-primary)">your profile</a> and paste the code as a comment to log in.</p><br><br>
         <a href="#" id="completeSV" title="click this after you have copied the above code and pasted it on your Scratch profile!">Complete Verification</a><br><br>
-        <span class="tos">By clicking the button above, you agree to the <a href="/tos" target="_blank">Modchat Terms of Service</a>.</span>
+        <span class="tos">By clicking the button above, you agree to the <a href="/tos" target="_blank">Modchat Terms of Service</a>.<br></span>
+      </div>
+      <div class="promo">
+        <a href="https://www.buymeacoffee.com/micahlt" target="_blank" title="Cover future service costs and domain names!"><img src="https://img.buymeacoffee.com/button-api/?text=Support Modchat&emoji=🚀&slug=micahlt&button_colour=7700e1&font_colour=ffffff&font_family=Inter&outline_colour=ffffff&coffee_colour=FFDD00"></a>
       </div>
     </div>
   </div>

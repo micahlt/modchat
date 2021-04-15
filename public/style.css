@@ -350,6 +350,10 @@ button:focus {
   bottom: 14em;
 }
 
+#supportMc {
+  bottom: 17em;
+}
+
 #typingSection {
   position: fixed;
   color: var(--text-primary);

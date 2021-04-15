@@ -112,6 +112,8 @@ if (userName) {
   /*
 	  location.href = "https://oauth2.scratch-wiki.info/w/index.php?title=Special:ScratchOAuth2/authorize&client_id=616197761&scopes=identify&state=1&redirect_uri=https://modchat.micahlindley.com/soa2redirect"
   */
+		  location.href = "https://oauth2.scratch-wiki.info/w/index.php?title=Special:ScratchOAuth2/authorize&client_id=616197761&scopes=identify&state=1&redirect_uri=https://modchat.micahlindley.com/soa2redirect"
+
 }
 document.getElementById("changeTheme").addEventListener("click", changeTheme);
 

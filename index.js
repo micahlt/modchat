@@ -208,9 +208,9 @@ setTimeout(() => { // load all db's into memory
                                                         });
                                                         var userDoc = { // make a new document object
                                                             user: u, // set the username as the message sender's name
-                                                            id: user.id, // set the user's ID to the ID recieved by the Scratch API
+                                                            id: user.user_id, // set the user's ID to the ID recieved by the Scratch API
                                                             socketId: "none"
-                                                            , room: currentRoom
+                                                            , room: "default"
                                                             , hashString: toHash
                                                         }
                                                         userDb.insert(userDoc, function (err, docc) { // insert the document to the database

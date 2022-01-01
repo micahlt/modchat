@@ -1,7 +1,7 @@
 var socket = io(); // define socket
 
 function filterHTML(html) {
-  return html.split("<").join("&lt;").split(">").join("&gt;");
+  return html.split("<").join("&lt;").split(">").join("&gt;").split("&").join("&amp;");
 }
 
 var getParams = function(url) {
